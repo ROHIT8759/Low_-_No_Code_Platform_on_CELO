@@ -22,6 +22,7 @@ declare global {
 
 export function DeployModal({ isOpen, onClose }: DeployModalProps) {
   const blocks = useBuilderStore((state) => state.blocks)
+  const addDeployedContract = useBuilderStore((state) => state.addDeployedContract)
   const [step, setStep] = useState<DeployStep>("connect")
   const [network, setNetwork] = useState<"sepolia" | "mainnet">("sepolia")
   const [contractName, setContractName] = useState("GeneratedToken")
@@ -318,6 +319,33 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
         setContractAddress(contractAddress)
         setTxHash(deployTx?.hash || contractAddress)
 
+        // Save to localStorage for preview
+        localStorage.setItem('deployedContractAddress', contractAddress)
+        localStorage.setItem('deployedContractNetwork', network)
+        localStorage.setItem('deployedContractType', baseBlock.type)
+
+        // Save to store for project manager
+        const networkConfig = CELO_NETWORKS[network]
+        const explorerUrl = `${networkConfig.explorerUrl}/address/${contractAddress}`
+        addDeployedContract({
+          id: Date.now().toString(),
+          contractAddress,
+          contractName,
+          tokenName,
+          tokenSymbol,
+          network,
+          networkName: networkConfig.name,
+          chainId: networkConfig.chainId,
+          deployer: walletAddress || '',
+          deployedAt: new Date().toISOString(),
+          transactionHash: deployTx?.hash || contractAddress,
+          contractType: baseBlock.type as "erc20" | "nft",
+          abi,
+          solidityCode,
+          blocks: [...blocks],
+          explorerUrl,
+        })
+
         setStep("success")
       } else if (baseBlock.type === "nft") {
         console.log("Step 2: Deploying NFT contract...")
@@ -342,6 +370,33 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
         // Save deployment details
         setContractAddress(contractAddress)
         setTxHash(deployTx?.hash || contractAddress)
+
+        // Save to localStorage for preview
+        localStorage.setItem('deployedContractAddress', contractAddress)
+        localStorage.setItem('deployedContractNetwork', network)
+        localStorage.setItem('deployedContractType', baseBlock.type)
+
+        // Save to store for project manager
+        const networkConfig = CELO_NETWORKS[network]
+        const explorerUrl = `${networkConfig.explorerUrl}/address/${contractAddress}`
+        addDeployedContract({
+          id: Date.now().toString(),
+          contractAddress,
+          contractName,
+          tokenName,
+          tokenSymbol,
+          network,
+          networkName: networkConfig.name,
+          chainId: networkConfig.chainId,
+          deployer: walletAddress || '',
+          deployedAt: new Date().toISOString(),
+          transactionHash: deployTx?.hash || contractAddress,
+          contractType: baseBlock.type as "erc20" | "nft",
+          abi,
+          solidityCode,
+          blocks: [...blocks],
+          explorerUrl,
+        })
 
         setStep("success")
       } else {

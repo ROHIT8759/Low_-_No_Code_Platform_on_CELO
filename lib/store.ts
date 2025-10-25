@@ -3,10 +3,48 @@ import { persist } from "zustand/middleware"
 
 export interface Block {
   id: string
-  type: "erc20" | "nft" | "mint" | "transfer" | "burn" | "stake" | "withdraw"
+  type: 
+    | "erc20" 
+    | "nft" 
+    | "mint" 
+    | "transfer" 
+    | "burn" 
+    | "stake" 
+    | "withdraw"
+    | "pausable"
+    | "whitelist"
+    | "blacklist"
+    | "royalty"
+    | "airdrop"
+    | "timelock"
+    | "multisig"
+    | "voting"
+    | "snapshot"
+    | "permit"
   label: string
   config?: Record<string, any>
   position?: { x: number; y: number }
+}
+
+export interface DeployedContract {
+  id: string
+  contractAddress: string
+  contractName: string
+  tokenName?: string
+  tokenSymbol?: string
+  network: "sepolia" | "mainnet"
+  networkName: string
+  chainId: number
+  deployer: string
+  deployedAt: string
+  transactionHash: string
+  contractType: "erc20" | "nft"
+  abi: any[]
+  solidityCode: string
+  blocks: Block[]
+  explorerUrl: string
+  frontendUrl?: string
+  githubRepo?: string
 }
 
 export interface Project {
@@ -26,6 +64,9 @@ interface BuilderStore {
   projects: Project[]
   blocks: Block[]
   selectedBlock: Block | null
+  walletAddress: string | null
+  walletChainId: number | null
+  deployedContracts: DeployedContract[]
 
   createProject: (name: string) => void
   loadProject: (id: string) => void
@@ -39,6 +80,12 @@ interface BuilderStore {
   setGeneratedCode: (solidity: string, frontend: string) => void
   clearAll: () => void
   importProject: (projectData: Project) => void
+  setWalletAddress: (address: string | null) => void
+  setWalletChainId: (chainId: number | null) => void
+  addDeployedContract: (contract: DeployedContract) => void
+  updateDeployedContract: (id: string, updates: Partial<DeployedContract>) => void
+  deleteDeployedContract: (id: string) => void
+  getRecentContracts: () => DeployedContract[]
 }
 
 export const useBuilderStore = create<BuilderStore>()(
@@ -48,6 +95,9 @@ export const useBuilderStore = create<BuilderStore>()(
       projects: [],
       blocks: [],
       selectedBlock: null,
+      walletAddress: null,
+      walletChainId: null,
+      deployedContracts: [],
 
       createProject: (name: string) => {
         const newProject: Project = {
@@ -161,6 +211,33 @@ export const useBuilderStore = create<BuilderStore>()(
             blocks: newProject.blocks,
           }
         })
+      },
+
+      setWalletAddress: (address: string | null) => set({ walletAddress: address }),
+      setWalletChainId: (chainId: number | null) => set({ walletChainId: chainId }),
+
+      addDeployedContract: (contract: DeployedContract) =>
+        set((state) => {
+          // Keep only last 5 contracts
+          const newContracts = [contract, ...state.deployedContracts].slice(0, 5)
+          return { deployedContracts: newContracts }
+        }),
+
+      updateDeployedContract: (id: string, updates: Partial<DeployedContract>) =>
+        set((state) => ({
+          deployedContracts: state.deployedContracts.map((c) =>
+            c.id === id ? { ...c, ...updates } : c
+          ),
+        })),
+
+      deleteDeployedContract: (id: string) =>
+        set((state) => ({
+          deployedContracts: state.deployedContracts.filter((c) => c.id !== id),
+        })),
+
+      getRecentContracts: () => {
+        const state = get()
+        return state.deployedContracts.slice(0, 5)
       },
     }),
     {

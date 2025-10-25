@@ -63,11 +63,10 @@ export function Canvas() {
               <div
                 key={block.id}
                 onClick={() => selectBlock(block)}
-                className={`p-4 rounded-lg border-2 transition-all cursor-pointer group ${
-                  selectedBlock?.id === block.id
+                className={`p-4 rounded-lg border-2 transition-all cursor-pointer group ${selectedBlock?.id === block.id
                     ? "border-primary bg-primary/10 shadow-lg shadow-primary/20"
                     : "border-border bg-card hover:border-primary/50 hover:bg-card/80"
-                }`}
+                  }`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex-1">

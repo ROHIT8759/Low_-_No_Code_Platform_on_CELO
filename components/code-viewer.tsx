@@ -63,31 +63,28 @@ export function CodeViewer() {
         <div className="flex gap-1 bg-background p-1 rounded-lg">
           <button
             onClick={() => setActiveTab("solidity")}
-            className={`flex-1 flex items-center justify-center gap-1 px-2 py-1.5 rounded text-xs font-medium transition-colors ${
-              activeTab === "solidity"
+            className={`flex-1 flex items-center justify-center gap-1 px-2 py-1.5 rounded text-xs font-medium transition-colors ${activeTab === "solidity"
                 ? "bg-primary text-background"
                 : "text-muted hover:text-foreground hover:bg-border/50"
-            }`}
+              }`}
           >
             <Code2 size={14} />
             Solidity
           </button>
           <button
             onClick={() => setActiveTab("frontend")}
-            className={`flex-1 flex items-center justify-center gap-1 px-2 py-1.5 rounded text-xs font-medium transition-colors ${
-              activeTab === "frontend"
+            className={`flex-1 flex items-center justify-center gap-1 px-2 py-1.5 rounded text-xs font-medium transition-colors ${activeTab === "frontend"
                 ? "bg-primary text-background"
                 : "text-muted hover:text-foreground hover:bg-border/50"
-            }`}
+              }`}
           >
             <Eye size={14} />
             Frontend
           </button>
           <button
             onClick={() => setActiveTab("abi")}
-            className={`flex-1 flex items-center justify-center gap-1 px-2 py-1.5 rounded text-xs font-medium transition-colors ${
-              activeTab === "abi" ? "bg-primary text-background" : "text-muted hover:text-foreground hover:bg-border/50"
-            }`}
+            className={`flex-1 flex items-center justify-center gap-1 px-2 py-1.5 rounded text-xs font-medium transition-colors ${activeTab === "abi" ? "bg-primary text-background" : "text-muted hover:text-foreground hover:bg-border/50"
+              }`}
           >
             <FileJson size={14} />
             ABI

@@ -17,9 +17,11 @@
     "next": "^16.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "solc": "^0.8.30",
     "tailwind-merge": "3.3.1",
     "tailwindcss-animate": "1.0.7",
     "tw-animate-css": "1.4.0",
+    "viem": "^2.38.4",
     "zustand": "^4.4.0"
   },
   "devDependencies": {

@@ -61,7 +61,7 @@ export default function Home() {
             <div className="p-6 bg-background border border-border rounded-lg">
               <Rocket className="w-8 h-8 text-primary mb-4" />
               <h3 className="text-lg font-semibold text-foreground mb-2">Deploy Instantly</h3>
-              <p className="text-muted">One-click deployment to Celo testnet or mainnet with wallet integration.</p>
+              <p className="text-muted">One-click deployment to Celo Mainnet or Testnet with wallet integration.</p>
             </div>
           </div>
         </div>

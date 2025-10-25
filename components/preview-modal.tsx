@@ -1,7 +1,7 @@
 "use client"
 
 import { useBuilderStore } from "@/lib/store"
-import { generateFrontendCode } from "@/lib/code-generator"
+import { generateTypeScriptCode } from "@/lib/code-generator"
 import { X } from "lucide-react"
 import { useState } from "react"
 
@@ -16,7 +16,7 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
 
   if (!isOpen) return null
 
-  const frontendCode = generateFrontendCode(blocks)
+  const frontendCode = generateTypeScriptCode(blocks)
 
   // Create a data URL for the iframe
   const htmlContent = `

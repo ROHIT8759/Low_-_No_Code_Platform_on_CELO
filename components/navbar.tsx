@@ -82,7 +82,7 @@ export function Navbar() {
             onClick={() => setDeployOpen(true)}
             disabled={blocks.length === 0}
             className="relative px-6 py-3 bg-primary hover:bg-primary-dark text-background rounded-lg transition-all text-sm font-bold flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover:scale-105 disabled:hover:scale-100 disabled:shadow-none animate-pulse-slow"
-            title="Deploy to Celo testnet"
+            title="Deploy to Celo Mainnet or Testnet"
           >
             <Play size={18} className="animate-bounce-subtle" />
             <span>Deploy to Celo</span>

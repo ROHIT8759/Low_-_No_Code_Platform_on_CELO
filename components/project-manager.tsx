@@ -103,7 +103,7 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
 
   const deployToGithubHandler = async () => {
     if (!selectedContractForGithub) return
-    
+
     // Validate inputs
     if (!githubToken.trim()) {
       alert('❌ Please enter your GitHub Personal Access Token')
@@ -155,7 +155,7 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
         })
 
         alert(`✅ ${result.message}\n\n🔗 Repository: ${result.repoUrl}\n\n📝 Next steps:\n1. Clone the repository\n2. Run: npm install\n3. Run: npm run dev\n4. Deploy to Vercel/Netlify for production`)
-        
+
         setShowGithubModal(false)
         setGithubToken("")
         setSelectedContractForGithub(null)
@@ -185,7 +185,7 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
                   <p className="text-sm text-slate-400 mt-1">Create a new repository with your frontend</p>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => {
                   setShowGithubModal(false)
                   setGithubToken("")
@@ -214,9 +214,9 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
                 />
                 <p className="text-xs text-slate-400 mt-2">
                   Create a token at{" "}
-                  <a 
-                    href="https://github.com/settings/tokens/new?scopes=repo" 
-                    target="_blank" 
+                  <a
+                    href="https://github.com/settings/tokens/new?scopes=repo"
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-purple-400 hover:text-purple-300 underline"
                   >
@@ -322,295 +322,295 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
         </div>
       )}
 
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-card rounded-lg border border-border w-full max-w-6xl max-h-[90vh] overflow-auto">
-        <div className="flex items-center justify-between p-6 border-b border-border sticky top-0 bg-card z-10">
-          <div>
-            <h2 className="text-2xl font-bold text-foreground">📦 Deployed Contracts</h2>
-            <p className="text-sm text-muted mt-1">Last 5 deployed contracts with full details</p>
-          </div>
-          <button onClick={onClose} className="text-muted hover:text-foreground transition-colors text-2xl">
-            ✕
-          </button>
-        </div>
-
-        <div className="p-6">
-          {deployedContracts.length === 0 ? (
-            <div className="p-12 text-center bg-background border border-border rounded-lg">
-              <div className="text-6xl mb-4">📭</div>
-              <p className="text-xl font-semibold text-foreground mb-2">No Deployed Contracts Yet</p>
-              <p className="text-muted">Deploy your first contract to see it here with full details!</p>
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="bg-card rounded-lg border border-border w-full max-w-6xl max-h-[90vh] overflow-auto">
+          <div className="flex items-center justify-between p-6 border-b border-border sticky top-0 bg-card z-10">
+            <div>
+              <h2 className="text-2xl font-bold text-foreground">📦 Deployed Contracts</h2>
+              <p className="text-sm text-muted mt-1">Last 5 deployed contracts with full details</p>
             </div>
-          ) : (
-            <div className="space-y-4">
-              {deployedContracts.map((contract) => (
-                <div
-                  key={contract.id}
-                  className="border border-border rounded-lg bg-background overflow-hidden hover:border-primary/50 transition-all"
-                >
-                  {/* Contract Header */}
-                  <div className="p-5 bg-slate-800/50">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-xl font-bold text-foreground">{contract.contractName}</h3>
-                          <span className={`px-3 py-1 rounded-full text-xs font-bold ${getNetworkBadgeColor(contract.network)} text-white`}>
-                            {contract.networkName}
-                          </span>
-                          <span className={`px-3 py-1 rounded-full text-xs font-bold border ${getContractTypeBadge(contract.contractType)}`}>
-                            {contract.contractType.toUpperCase()}
-                          </span>
+            <button onClick={onClose} className="text-muted hover:text-foreground transition-colors text-2xl">
+              ✕
+            </button>
+          </div>
+
+          <div className="p-6">
+            {deployedContracts.length === 0 ? (
+              <div className="p-12 text-center bg-background border border-border rounded-lg">
+                <div className="text-6xl mb-4">📭</div>
+                <p className="text-xl font-semibold text-foreground mb-2">No Deployed Contracts Yet</p>
+                <p className="text-muted">Deploy your first contract to see it here with full details!</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {deployedContracts.map((contract) => (
+                  <div
+                    key={contract.id}
+                    className="border border-border rounded-lg bg-background overflow-hidden hover:border-primary/50 transition-all"
+                  >
+                    {/* Contract Header */}
+                    <div className="p-5 bg-slate-800/50">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h3 className="text-xl font-bold text-foreground">{contract.contractName}</h3>
+                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${getNetworkBadgeColor(contract.network)} text-white`}>
+                              {contract.networkName}
+                            </span>
+                            <span className={`px-3 py-1 rounded-full text-xs font-bold border ${getContractTypeBadge(contract.contractType)}`}>
+                              {contract.contractType.toUpperCase()}
+                            </span>
+                          </div>
+
+                          {contract.tokenName && (
+                            <p className="text-slate-400 mb-2">
+                              {contract.tokenName} ({contract.tokenSymbol})
+                            </p>
+                          )}
+
+                          <div className="flex items-center gap-4 text-sm text-slate-500">
+                            <span>📅 {formatDate(contract.deployedAt)}</span>
+                            <span>👤 {contract.deployer.slice(0, 6)}...{contract.deployer.slice(-4)}</span>
+                            <span>🧱 {contract.blocks.length} blocks</span>
+                          </div>
                         </div>
 
-                        {contract.tokenName && (
-                          <p className="text-slate-400 mb-2">
-                            {contract.tokenName} ({contract.tokenSymbol})
-                          </p>
-                        )}
+                        <button
+                          onClick={() => {
+                            if (confirm(`Delete contract ${contract.contractName}?`)) {
+                              deleteDeployedContract(contract.id)
+                            }
+                          }}
+                          className="p-2 hover:bg-red-500/20 rounded transition-colors text-red-400 hover:text-red-300"
+                          title="Delete contract"
+                        >
+                          <Trash2 size={20} />
+                        </button>
+                      </div>
 
-                        <div className="flex items-center gap-4 text-sm text-slate-500">
-                          <span>📅 {formatDate(contract.deployedAt)}</span>
-                          <span>👤 {contract.deployer.slice(0, 6)}...{contract.deployer.slice(-4)}</span>
-                          <span>🧱 {contract.blocks.length} blocks</span>
+                      {/* Contract Address */}
+                      <div className="mt-4 p-3 bg-slate-900/50 rounded-lg border border-slate-700">
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex-1 min-w-0">
+                            <div className="text-xs text-slate-500 mb-1">Contract Address</div>
+                            <div className="font-mono text-green-400 text-sm break-all">
+                              {contract.contractAddress}
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => copyToClipboard(contract.contractAddress, "Address")}
+                              className="p-2 bg-blue-600 hover:bg-blue-500 rounded transition-colors"
+                              title="Copy address"
+                            >
+                              <Copy size={16} />
+                            </button>
+                            <a
+                              href={contract.explorerUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="p-2 bg-purple-600 hover:bg-purple-500 rounded transition-colors"
+                              title="View on explorer"
+                            >
+                              <ExternalLink size={16} />
+                            </a>
+                          </div>
                         </div>
                       </div>
 
-                      <button
-                        onClick={() => {
-                          if (confirm(`Delete contract ${contract.contractName}?`)) {
-                            deleteDeployedContract(contract.id)
-                          }
-                        }}
-                        className="p-2 hover:bg-red-500/20 rounded transition-colors text-red-400 hover:text-red-300"
-                        title="Delete contract"
-                      >
-                        <Trash2 size={20} />
-                      </button>
-                    </div>
-
-                    {/* Contract Address */}
-                    <div className="mt-4 p-3 bg-slate-900/50 rounded-lg border border-slate-700">
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="flex-1 min-w-0">
-                          <div className="text-xs text-slate-500 mb-1">Contract Address</div>
-                          <div className="font-mono text-green-400 text-sm break-all">
-                            {contract.contractAddress}
+                      {/* Transaction Hash */}
+                      <div className="mt-2 p-3 bg-slate-900/50 rounded-lg border border-slate-700">
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex-1 min-w-0">
+                            <div className="text-xs text-slate-500 mb-1">Transaction Hash</div>
+                            <div className="font-mono text-blue-400 text-sm break-all">
+                              {contract.transactionHash}
+                            </div>
                           </div>
-                        </div>
-                        <div className="flex gap-2">
                           <button
-                            onClick={() => copyToClipboard(contract.contractAddress, "Address")}
+                            onClick={() => copyToClipboard(contract.transactionHash, "Transaction Hash")}
                             className="p-2 bg-blue-600 hover:bg-blue-500 rounded transition-colors"
-                            title="Copy address"
+                            title="Copy transaction hash"
                           >
                             <Copy size={16} />
                           </button>
+                        </div>
+                      </div>
+
+                      {/* Deploy Frontend Button */}
+                      <div className="mt-4">
+                        <button
+                          onClick={() => deployFrontend(contract)}
+                          disabled={deployingFrontend === contract.id}
+                          className="w-full px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 rounded-lg font-bold transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-green-500/50"
+                        >
+                          {deployingFrontend === contract.id ? (
+                            <>
+                              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                              <span>Generating Frontend...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Rocket size={20} />
+                              <span>Deploy Frontend (Next.js)</span>
+                              <Download size={18} />
+                            </>
+                          )}
+                        </button>
+                        <p className="text-xs text-slate-500 mt-2 text-center">
+                          Downloads a complete Next.js app with contract integration
+                        </p>
+                      </div>
+
+                      {/* Deploy to GitHub Button */}
+                      <div className="mt-3">
+                        <button
+                          onClick={() => openGithubDeployModal(contract)}
+                          disabled={deployingGithub === contract.id}
+                          className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-lg font-bold transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-purple-500/50"
+                        >
+                          {deployingGithub === contract.id ? (
+                            <>
+                              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                              <span>Deploying to GitHub...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Github size={20} />
+                              <span>Deploy to GitHub</span>
+                            </>
+                          )}
+                        </button>
+                        {contract.githubRepo && (
                           <a
-                            href={contract.explorerUrl}
+                            href={contract.githubRepo}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="p-2 bg-purple-600 hover:bg-purple-500 rounded transition-colors"
-                            title="View on explorer"
+                            className="flex items-center justify-center gap-2 mt-2 text-xs text-purple-400 hover:text-purple-300 transition-colors"
                           >
-                            <ExternalLink size={16} />
+                            <ExternalLink size={12} />
+                            <span>View on GitHub</span>
                           </a>
-                        </div>
+                        )}
+                        <p className="text-xs text-slate-500 mt-2 text-center">
+                          Creates a GitHub repository with your complete dApp
+                        </p>
                       </div>
                     </div>
 
-                    {/* Transaction Hash */}
-                    <div className="mt-2 p-3 bg-slate-900/50 rounded-lg border border-slate-700">
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="flex-1 min-w-0">
-                          <div className="text-xs text-slate-500 mb-1">Transaction Hash</div>
-                          <div className="font-mono text-blue-400 text-sm break-all">
-                            {contract.transactionHash}
+                    {/* Expandable Details */}
+                    <div className="border-t border-border">
+                      <button
+                        onClick={() => setExpandedContract(expandedContract === contract.id ? null : contract.id)}
+                        className="w-full p-4 text-left hover:bg-slate-800/30 transition-colors flex items-center justify-between"
+                      >
+                        <span className="font-semibold text-foreground">
+                          {expandedContract === contract.id ? "▼" : "▶"} View Details (ABI, Code, Blocks)
+                        </span>
+                      </button>
+
+                      {expandedContract === contract.id && (
+                        <div className="p-5 bg-slate-900/30">
+                          {/* Tabs */}
+                          <div className="flex gap-2 mb-4 border-b border-border">
+                            <button
+                              onClick={() => setActiveTab("info")}
+                              className={`px-4 py-2 font-medium transition-colors ${activeTab === "info"
+                                ? "text-primary border-b-2 border-primary"
+                                : "text-muted hover:text-foreground"
+                                }`}
+                            >
+                              <Package className="inline mr-2" size={16} />
+                              Blocks Info
+                            </button>
+                            <button
+                              onClick={() => setActiveTab("abi")}
+                              className={`px-4 py-2 font-medium transition-colors ${activeTab === "abi"
+                                ? "text-primary border-b-2 border-primary"
+                                : "text-muted hover:text-foreground"
+                                }`}
+                            >
+                              <FileCode className="inline mr-2" size={16} />
+                              Contract ABI
+                            </button>
+                            <button
+                              onClick={() => setActiveTab("code")}
+                              className={`px-4 py-2 font-medium transition-colors ${activeTab === "code"
+                                ? "text-primary border-b-2 border-primary"
+                                : "text-muted hover:text-foreground"
+                                }`}
+                            >
+                              <Code className="inline mr-2" size={16} />
+                              Solidity Code
+                            </button>
+                          </div>
+
+                          {/* Tab Content */}
+                          <div className="max-h-96 overflow-auto">
+                            {activeTab === "info" && (
+                              <div className="space-y-3">
+                                <h4 className="font-semibold text-foreground mb-3">Contract Blocks ({contract.blocks.length})</h4>
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                                  {contract.blocks.map((block, index) => (
+                                    <div
+                                      key={block.id}
+                                      className="p-3 bg-slate-800 border border-slate-700 rounded-lg"
+                                    >
+                                      <div className="text-xs text-slate-500">Block {index + 1}</div>
+                                      <div className="font-semibold text-foreground capitalize">{block.type}</div>
+                                      <div className="text-xs text-slate-400 mt-1">{block.label}</div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {activeTab === "abi" && (
+                              <div>
+                                <div className="flex items-center justify-between mb-3">
+                                  <h4 className="font-semibold text-foreground">Contract ABI</h4>
+                                  <button
+                                    onClick={() => copyToClipboard(JSON.stringify(contract.abi, null, 2), "ABI")}
+                                    className="px-3 py-1 bg-blue-600 hover:bg-blue-500 rounded text-sm transition-colors flex items-center gap-2"
+                                  >
+                                    <Copy size={14} />
+                                    Copy ABI
+                                  </button>
+                                </div>
+                                <pre className="bg-slate-950 p-4 rounded-lg text-xs text-green-400 overflow-auto border border-slate-700 font-mono">
+                                  {JSON.stringify(contract.abi, null, 2)}
+                                </pre>
+                              </div>
+                            )}
+
+                            {activeTab === "code" && (
+                              <div>
+                                <div className="flex items-center justify-between mb-3">
+                                  <h4 className="font-semibold text-foreground">Solidity Source Code</h4>
+                                  <button
+                                    onClick={() => copyToClipboard(contract.solidityCode, "Code")}
+                                    className="px-3 py-1 bg-blue-600 hover:bg-blue-500 rounded text-sm transition-colors flex items-center gap-2"
+                                  >
+                                    <Copy size={14} />
+                                    Copy Code
+                                  </button>
+                                </div>
+                                <pre className="bg-slate-950 p-4 rounded-lg text-xs text-blue-400 overflow-auto border border-slate-700 font-mono">
+                                  {contract.solidityCode}
+                                </pre>
+                              </div>
+                            )}
                           </div>
                         </div>
-                        <button
-                          onClick={() => copyToClipboard(contract.transactionHash, "Transaction Hash")}
-                          className="p-2 bg-blue-600 hover:bg-blue-500 rounded transition-colors"
-                          title="Copy transaction hash"
-                        >
-                          <Copy size={16} />
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Deploy Frontend Button */}
-                    <div className="mt-4">
-                      <button
-                        onClick={() => deployFrontend(contract)}
-                        disabled={deployingFrontend === contract.id}
-                        className="w-full px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 rounded-lg font-bold transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-green-500/50"
-                      >
-                        {deployingFrontend === contract.id ? (
-                          <>
-                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                            <span>Generating Frontend...</span>
-                          </>
-                        ) : (
-                          <>
-                            <Rocket size={20} />
-                            <span>Deploy Frontend (Next.js)</span>
-                            <Download size={18} />
-                          </>
-                        )}
-                      </button>
-                      <p className="text-xs text-slate-500 mt-2 text-center">
-                        Downloads a complete Next.js app with contract integration
-                      </p>
-                    </div>
-
-                    {/* Deploy to GitHub Button */}
-                    <div className="mt-3">
-                      <button
-                        onClick={() => openGithubDeployModal(contract)}
-                        disabled={deployingGithub === contract.id}
-                        className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-lg font-bold transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-purple-500/50"
-                      >
-                        {deployingGithub === contract.id ? (
-                          <>
-                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                            <span>Deploying to GitHub...</span>
-                          </>
-                        ) : (
-                          <>
-                            <Github size={20} />
-                            <span>Deploy to GitHub</span>
-                          </>
-                        )}
-                      </button>
-                      {contract.githubRepo && (
-                        <a
-                          href={contract.githubRepo}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center justify-center gap-2 mt-2 text-xs text-purple-400 hover:text-purple-300 transition-colors"
-                        >
-                          <ExternalLink size={12} />
-                          <span>View on GitHub</span>
-                        </a>
                       )}
-                      <p className="text-xs text-slate-500 mt-2 text-center">
-                        Creates a GitHub repository with your complete dApp
-                      </p>
                     </div>
                   </div>
-
-                  {/* Expandable Details */}
-                  <div className="border-t border-border">
-                    <button
-                      onClick={() => setExpandedContract(expandedContract === contract.id ? null : contract.id)}
-                      className="w-full p-4 text-left hover:bg-slate-800/30 transition-colors flex items-center justify-between"
-                    >
-                      <span className="font-semibold text-foreground">
-                        {expandedContract === contract.id ? "▼" : "▶"} View Details (ABI, Code, Blocks)
-                      </span>
-                    </button>
-
-                    {expandedContract === contract.id && (
-                      <div className="p-5 bg-slate-900/30">
-                        {/* Tabs */}
-                        <div className="flex gap-2 mb-4 border-b border-border">
-                          <button
-                            onClick={() => setActiveTab("info")}
-                            className={`px-4 py-2 font-medium transition-colors ${activeTab === "info"
-                                ? "text-primary border-b-2 border-primary"
-                                : "text-muted hover:text-foreground"
-                              }`}
-                          >
-                            <Package className="inline mr-2" size={16} />
-                            Blocks Info
-                          </button>
-                          <button
-                            onClick={() => setActiveTab("abi")}
-                            className={`px-4 py-2 font-medium transition-colors ${activeTab === "abi"
-                                ? "text-primary border-b-2 border-primary"
-                                : "text-muted hover:text-foreground"
-                              }`}
-                          >
-                            <FileCode className="inline mr-2" size={16} />
-                            Contract ABI
-                          </button>
-                          <button
-                            onClick={() => setActiveTab("code")}
-                            className={`px-4 py-2 font-medium transition-colors ${activeTab === "code"
-                                ? "text-primary border-b-2 border-primary"
-                                : "text-muted hover:text-foreground"
-                              }`}
-                          >
-                            <Code className="inline mr-2" size={16} />
-                            Solidity Code
-                          </button>
-                        </div>
-
-                        {/* Tab Content */}
-                        <div className="max-h-96 overflow-auto">
-                          {activeTab === "info" && (
-                            <div className="space-y-3">
-                              <h4 className="font-semibold text-foreground mb-3">Contract Blocks ({contract.blocks.length})</h4>
-                              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                                {contract.blocks.map((block, index) => (
-                                  <div
-                                    key={block.id}
-                                    className="p-3 bg-slate-800 border border-slate-700 rounded-lg"
-                                  >
-                                    <div className="text-xs text-slate-500">Block {index + 1}</div>
-                                    <div className="font-semibold text-foreground capitalize">{block.type}</div>
-                                    <div className="text-xs text-slate-400 mt-1">{block.label}</div>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-
-                          {activeTab === "abi" && (
-                            <div>
-                              <div className="flex items-center justify-between mb-3">
-                                <h4 className="font-semibold text-foreground">Contract ABI</h4>
-                                <button
-                                  onClick={() => copyToClipboard(JSON.stringify(contract.abi, null, 2), "ABI")}
-                                  className="px-3 py-1 bg-blue-600 hover:bg-blue-500 rounded text-sm transition-colors flex items-center gap-2"
-                                >
-                                  <Copy size={14} />
-                                  Copy ABI
-                                </button>
-                              </div>
-                              <pre className="bg-slate-950 p-4 rounded-lg text-xs text-green-400 overflow-auto border border-slate-700 font-mono">
-                                {JSON.stringify(contract.abi, null, 2)}
-                              </pre>
-                            </div>
-                          )}
-
-                          {activeTab === "code" && (
-                            <div>
-                              <div className="flex items-center justify-between mb-3">
-                                <h4 className="font-semibold text-foreground">Solidity Source Code</h4>
-                                <button
-                                  onClick={() => copyToClipboard(contract.solidityCode, "Code")}
-                                  className="px-3 py-1 bg-blue-600 hover:bg-blue-500 rounded text-sm transition-colors flex items-center gap-2"
-                                >
-                                  <Copy size={14} />
-                                  Copy Code
-                                </button>
-                              </div>
-                              <pre className="bg-slate-950 p-4 rounded-lg text-xs text-blue-400 overflow-auto border border-slate-700 font-mono">
-                                {contract.solidityCode}
-                              </pre>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
     </>
   )
 }

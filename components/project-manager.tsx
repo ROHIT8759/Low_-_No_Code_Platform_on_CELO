@@ -42,13 +42,13 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
   }
 
   const getNetworkBadgeColor = (network: string) => {
-    return network === "mainnet" ? "bg-green-500" : "bg-blue-500"
+    return network === "mainnet" ? "bg-slate-600" : "bg-slate-700"
   }
 
   const getContractTypeBadge = (type: string) => {
     return type === "erc20"
-      ? "bg-purple-500/20 text-purple-400 border-purple-500/30"
-      : "bg-pink-500/20 text-pink-400 border-pink-500/30"
+      ? "bg-slate-700/50 text-slate-300 border-slate-600"
+      : "bg-slate-700/50 text-slate-300 border-slate-600"
   }
 
   const deployFrontend = async (contract: any) => {
@@ -175,13 +175,15 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
     <>
       {/* GitHub Deploy Modal */}
       {showGithubModal && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[60]">
-          <div className="bg-slate-900 rounded-lg border-2 border-purple-500/50 w-full max-w-2xl max-h-[90vh] overflow-auto shadow-2xl shadow-purple-500/20">
-            <div className="flex items-center justify-between p-6 border-b border-slate-700 sticky top-0 bg-slate-900 z-10">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[60] animate-fade-in">
+          <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl border-2 border-cyan-500/50 w-full max-w-2xl max-h-[90vh] overflow-auto shadow-2xl shadow-cyan-500/20 animate-scale-in">
+            <div className="flex items-center justify-between p-6 border-b border-slate-700 sticky top-0 bg-gradient-to-br from-slate-900 to-slate-800 z-10">
               <div className="flex items-center gap-3">
-                <Github size={28} className="text-purple-400" />
+                <div className="w-12 h-12 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-xl flex items-center justify-center">
+                  <Github size={28} className="text-cyan-400" />
+                </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-white">Deploy to GitHub</h2>
+                  <h2 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">Deploy to GitHub</h2>
                   <p className="text-sm text-slate-400 mt-1">Create a new repository with your frontend</p>
                 </div>
               </div>
@@ -191,7 +193,7 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
                   setGithubToken("")
                   setSelectedContractForGithub(null)
                 }}
-                className="text-slate-400 hover:text-white transition-colors text-2xl"
+                className="text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg p-2 transition-all hover:scale-110 text-xl"
                 disabled={deployingGithub !== null}
               >
                 ✕
@@ -209,7 +211,7 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
                   value={githubToken}
                   onChange={(e) => setGithubToken(e.target.value)}
                   placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-                  className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20"
+                  className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all"
                   disabled={deployingGithub !== null}
                 />
                 <p className="text-xs text-slate-400 mt-2">
@@ -218,7 +220,7 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
                     href="https://github.com/settings/tokens/new?scopes=repo"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-purple-400 hover:text-purple-300 underline"
+                    className="text-cyan-400 hover:text-cyan-300 underline transition-colors"
                   >
                     GitHub Settings
                   </a>
@@ -236,7 +238,7 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
                   value={repoName}
                   onChange={(e) => setRepoName(e.target.value)}
                   placeholder="my-awesome-dapp"
-                  className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20"
+                  className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all"
                   disabled={deployingGithub !== null}
                 />
                 <p className="text-xs text-slate-400 mt-2">
@@ -254,7 +256,7 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
                   onChange={(e) => setRepoDescription(e.target.value)}
                   placeholder="A decentralized application for..."
                   rows={3}
-                  className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 resize-none"
+                  className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 resize-none transition-all"
                   disabled={deployingGithub !== null}
                 />
               </div>
@@ -266,7 +268,7 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
                   id="isPrivate"
                   checked={isPrivate}
                   onChange={(e) => setIsPrivate(e.target.checked)}
-                  className="w-5 h-5 text-purple-600 bg-slate-700 border-slate-600 rounded focus:ring-purple-500 focus:ring-2"
+                  className="w-5 h-5 text-cyan-600 bg-slate-700 border-slate-600 rounded focus:ring-cyan-500 focus:ring-2 transition-all"
                   disabled={deployingGithub !== null}
                 />
                 <label htmlFor="isPrivate" className="text-white font-medium cursor-pointer">
@@ -276,10 +278,10 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
 
               {/* Contract Info */}
               {selectedContractForGithub && (
-                <div className="p-4 bg-blue-900/20 border border-blue-500/30 rounded-lg">
-                  <div className="text-sm text-blue-300">
+                <div className="p-4 bg-cyan-900/20 border border-cyan-500/30 rounded-lg">
+                  <div className="text-sm text-cyan-300">
                     <div className="font-semibold mb-1">Contract: {selectedContractForGithub.contractName}</div>
-                    <div className="text-xs text-blue-400">
+                    <div className="text-xs text-cyan-400">
                       Network: {selectedContractForGithub.networkName} • Type: {selectedContractForGithub.contractType.toUpperCase()}
                     </div>
                   </div>
@@ -302,7 +304,7 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
                 <button
                   onClick={deployToGithubHandler}
                   disabled={deployingGithub !== null}
-                  className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-lg font-bold transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-purple-500/50"
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 rounded-lg font-bold transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/50"
                 >
                   {deployingGithub ? (
                     <>
@@ -322,42 +324,44 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
         </div>
       )}
 
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-        <div className="bg-card rounded-lg border border-border w-full max-w-6xl max-h-[90vh] overflow-auto">
-          <div className="flex items-center justify-between p-6 border-b border-border sticky top-0 bg-card z-10">
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in">
+        <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl border border-cyan-500/20 w-full max-w-6xl max-h-[90vh] overflow-auto shadow-2xl shadow-cyan-500/10 animate-scale-in">
+          <div className="flex items-center justify-between p-6 border-b border-slate-700 sticky top-0 bg-gradient-to-r from-slate-900 to-slate-800 z-10 backdrop-blur-sm">
             <div>
-              <h2 className="text-2xl font-bold text-foreground">📦 Deployed Contracts</h2>
-              <p className="text-sm text-muted mt-1">Last 5 deployed contracts with full details</p>
+              <h2 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent flex items-center gap-3">
+                📦 Deployed Contracts
+              </h2>
+              <p className="text-sm text-slate-400 mt-1">Last 5 deployed contracts with full details</p>
             </div>
-            <button onClick={onClose} className="text-muted hover:text-foreground transition-colors text-2xl">
+            <button onClick={onClose} className="text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg p-2 transition-all hover:scale-110 text-2xl">
               ✕
             </button>
           </div>
 
           <div className="p-6">
             {deployedContracts.length === 0 ? (
-              <div className="p-12 text-center bg-background border border-border rounded-lg">
-                <div className="text-6xl mb-4">📭</div>
-                <p className="text-xl font-semibold text-foreground mb-2">No Deployed Contracts Yet</p>
-                <p className="text-muted">Deploy your first contract to see it here with full details!</p>
+              <div className="p-12 text-center bg-slate-800/30 border border-slate-700 rounded-2xl">
+                <div className="text-6xl mb-4 animate-bounce">📭</div>
+                <p className="text-xl font-semibold text-white mb-2">No Deployed Contracts Yet</p>
+                <p className="text-slate-400">Deploy your first contract to see it here with full details!</p>
               </div>
             ) : (
               <div className="space-y-4">
                 {deployedContracts.map((contract) => (
                   <div
                     key={contract.id}
-                    className="border border-border rounded-lg bg-background overflow-hidden hover:border-primary/50 transition-all"
+                    className="border border-slate-700/50 rounded-lg bg-slate-800/30 overflow-hidden hover:border-slate-600 transition-all duration-200"
                   >
                     {/* Contract Header */}
-                    <div className="p-5 bg-slate-800/50">
+                    <div className="p-5 bg-slate-800/20">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <h3 className="text-xl font-bold text-foreground">{contract.contractName}</h3>
-                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${getNetworkBadgeColor(contract.network)} text-white`}>
+                          <div className="flex items-center gap-3 mb-2 flex-wrap">
+                            <h3 className="text-xl font-bold text-white">{contract.contractName}</h3>
+                            <span className={`px-3 py-1 rounded-md text-xs font-medium ${getNetworkBadgeColor(contract.network)} text-white`}>
                               {contract.networkName}
                             </span>
-                            <span className={`px-3 py-1 rounded-full text-xs font-bold border ${getContractTypeBadge(contract.contractType)}`}>
+                            <span className={`px-3 py-1 rounded-md text-xs font-medium border ${getContractTypeBadge(contract.contractType)}`}>
                               {contract.contractType.toUpperCase()}
                             </span>
                           </div>
@@ -381,7 +385,7 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
                               deleteDeployedContract(contract.id)
                             }
                           }}
-                          className="p-2 hover:bg-red-500/20 rounded transition-colors text-red-400 hover:text-red-300"
+                          className="p-2 hover:bg-red-500/10 rounded-lg transition-all text-slate-400 hover:text-red-400"
                           title="Delete contract"
                         >
                           <Trash2 size={20} />
@@ -389,18 +393,18 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
                       </div>
 
                       {/* Contract Address */}
-                      <div className="mt-4 p-3 bg-slate-900/50 rounded-lg border border-slate-700">
+                      <div className="mt-4 p-3 bg-slate-900/50 rounded-lg border border-slate-700/50">
                         <div className="flex items-center justify-between gap-3">
                           <div className="flex-1 min-w-0">
                             <div className="text-xs text-slate-500 mb-1">Contract Address</div>
-                            <div className="font-mono text-green-400 text-sm break-all">
+                            <div className="font-mono text-slate-300 text-sm break-all">
                               {contract.contractAddress}
                             </div>
                           </div>
                           <div className="flex gap-2">
                             <button
                               onClick={() => copyToClipboard(contract.contractAddress, "Address")}
-                              className="p-2 bg-blue-600 hover:bg-blue-500 rounded transition-colors"
+                              className="p-2 bg-slate-700 hover:bg-slate-600 rounded-lg transition-all"
                               title="Copy address"
                             >
                               <Copy size={16} />
@@ -409,7 +413,7 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
                               href={contract.explorerUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="p-2 bg-purple-600 hover:bg-purple-500 rounded transition-colors"
+                              className="p-2 bg-slate-700 hover:bg-slate-600 rounded-lg transition-all"
                               title="View on explorer"
                             >
                               <ExternalLink size={16} />
@@ -419,17 +423,17 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
                       </div>
 
                       {/* Transaction Hash */}
-                      <div className="mt-2 p-3 bg-slate-900/50 rounded-lg border border-slate-700">
+                      <div className="mt-2 p-3 bg-slate-900/50 rounded-lg border border-slate-700/50">
                         <div className="flex items-center justify-between gap-3">
                           <div className="flex-1 min-w-0">
                             <div className="text-xs text-slate-500 mb-1">Transaction Hash</div>
-                            <div className="font-mono text-blue-400 text-sm break-all">
+                            <div className="font-mono text-slate-300 text-sm break-all">
                               {contract.transactionHash}
                             </div>
                           </div>
                           <button
                             onClick={() => copyToClipboard(contract.transactionHash, "Transaction Hash")}
-                            className="p-2 bg-blue-600 hover:bg-blue-500 rounded transition-colors"
+                            className="p-2 bg-slate-700 hover:bg-slate-600 rounded-lg transition-all"
                             title="Copy transaction hash"
                           >
                             <Copy size={16} />
@@ -437,74 +441,74 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
                         </div>
                       </div>
 
-                      {/* Deploy Frontend Button */}
-                      <div className="mt-4">
+                      {/* Deploy Buttons - Clean Style */}
+                      <div className="mt-4 flex flex-col md:flex-row gap-3">
+                        {/* Deploy Frontend Button */}
                         <button
                           onClick={() => deployFrontend(contract)}
                           disabled={deployingFrontend === contract.id}
-                          className="w-full px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 rounded-lg font-bold transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-green-500/50"
+                          className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 border border-slate-600"
                         >
                           {deployingFrontend === contract.id ? (
                             <>
                               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                              <span>Generating Frontend...</span>
+                              <span className="text-white">Generating...</span>
                             </>
                           ) : (
                             <>
-                              <Rocket size={20} />
-                              <span>Deploy Frontend (Next.js)</span>
-                              <Download size={18} />
+                              <Rocket size={18} className="text-slate-300" />
+                              <span className="text-white whitespace-nowrap">Deploy Frontend</span>
+                              <Download size={16} className="text-slate-300" />
                             </>
                           )}
                         </button>
-                        <p className="text-xs text-slate-500 mt-2 text-center">
-                          Downloads a complete Next.js app with contract integration
-                        </p>
-                      </div>
 
-                      {/* Deploy to GitHub Button */}
-                      <div className="mt-3">
+                        {/* Deploy to GitHub Button */}
                         <button
                           onClick={() => openGithubDeployModal(contract)}
                           disabled={deployingGithub === contract.id}
-                          className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-lg font-bold transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-purple-500/50"
+                          className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 border border-slate-600"
                         >
                           {deployingGithub === contract.id ? (
                             <>
                               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                              <span>Deploying to GitHub...</span>
+                              <span className="text-white">Deploying...</span>
                             </>
                           ) : (
                             <>
-                              <Github size={20} />
-                              <span>Deploy to GitHub</span>
+                              <Github size={18} className="text-slate-300" />
+                              <span className="text-white whitespace-nowrap">Deploy to GitHub</span>
                             </>
                           )}
                         </button>
-                        {contract.githubRepo && (
-                          <a
-                            href={contract.githubRepo}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center justify-center gap-2 mt-2 text-xs text-purple-400 hover:text-purple-300 transition-colors"
-                          >
-                            <ExternalLink size={12} />
-                            <span>View on GitHub</span>
-                          </a>
-                        )}
-                        <p className="text-xs text-slate-500 mt-2 text-center">
-                          Creates a GitHub repository with your complete dApp
-                        </p>
                       </div>
+
+                      {/* Helper Text */}
+                      <div className="mt-2 flex flex-col md:flex-row gap-2 text-xs text-slate-500">
+                        <p className="flex-1">Downloads a complete Next.js app</p>
+                        <p className="flex-1">Creates a GitHub repository with your dApp</p>
+                      </div>
+
+                      {/* GitHub Repo Link */}
+                      {contract.githubRepo && (
+                        <a
+                          href={contract.githubRepo}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center gap-2 mt-2 text-xs text-slate-400 hover:text-slate-300 transition-colors"
+                        > <ExternalLink size={12} />
+                          <span>View on GitHub</span>
+                        </a>
+                      )}
                     </div>
 
                     {/* Expandable Details */}
-                    <div className="border-t border-border">
+                    <div className="border-t border-slate-700/50">
                       <button
                         onClick={() => setExpandedContract(expandedContract === contract.id ? null : contract.id)}
-                        className="w-full p-4 text-left hover:bg-slate-800/30 transition-colors flex items-center justify-between"
+                        className="w-full p-4 text-left hover:bg-slate-800/30 transition-all flex items-center justify-between"
                       >
-                        <span className="font-semibold text-foreground">
+                        <span className="font-medium text-slate-300">
                           {expandedContract === contract.id ? "▼" : "▶"} View Details (ABI, Code, Blocks)
                         </span>
                       </button>
@@ -512,12 +516,12 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
                       {expandedContract === contract.id && (
                         <div className="p-5 bg-slate-900/30">
                           {/* Tabs */}
-                          <div className="flex gap-2 mb-4 border-b border-border">
+                          <div className="flex gap-2 mb-4 border-b border-slate-700/50">
                             <button
                               onClick={() => setActiveTab("info")}
-                              className={`px-4 py-2 font-medium transition-colors ${activeTab === "info"
-                                ? "text-primary border-b-2 border-primary"
-                                : "text-muted hover:text-foreground"
+                              className={`px-4 py-2 font-medium transition-all ${activeTab === "info"
+                                ? "text-white border-b-2 border-slate-400"
+                                : "text-slate-400 hover:text-slate-300"
                                 }`}
                             >
                               <Package className="inline mr-2" size={16} />
@@ -525,9 +529,9 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
                             </button>
                             <button
                               onClick={() => setActiveTab("abi")}
-                              className={`px-4 py-2 font-medium transition-colors ${activeTab === "abi"
-                                ? "text-primary border-b-2 border-primary"
-                                : "text-muted hover:text-foreground"
+                              className={`px-4 py-2 font-medium transition-all ${activeTab === "abi"
+                                ? "text-white border-b-2 border-slate-400"
+                                : "text-slate-400 hover:text-slate-300"
                                 }`}
                             >
                               <FileCode className="inline mr-2" size={16} />
@@ -535,9 +539,9 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
                             </button>
                             <button
                               onClick={() => setActiveTab("code")}
-                              className={`px-4 py-2 font-medium transition-colors ${activeTab === "code"
-                                ? "text-primary border-b-2 border-primary"
-                                : "text-muted hover:text-foreground"
+                              className={`px-4 py-2 font-medium transition-all ${activeTab === "code"
+                                ? "text-white border-b-2 border-slate-400"
+                                : "text-slate-400 hover:text-slate-300"
                                 }`}
                             >
                               <Code className="inline mr-2" size={16} />
@@ -549,15 +553,15 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
                           <div className="max-h-96 overflow-auto">
                             {activeTab === "info" && (
                               <div className="space-y-3">
-                                <h4 className="font-semibold text-foreground mb-3">Contract Blocks ({contract.blocks.length})</h4>
+                                <h4 className="font-semibold text-white mb-3">Contract Blocks ({contract.blocks.length})</h4>
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                                   {contract.blocks.map((block, index) => (
                                     <div
                                       key={block.id}
-                                      className="p-3 bg-slate-800 border border-slate-700 rounded-lg"
+                                      className="p-3 bg-slate-800/50 border border-slate-700/50 rounded-lg hover:bg-slate-800 transition-all"
                                     >
                                       <div className="text-xs text-slate-500">Block {index + 1}</div>
-                                      <div className="font-semibold text-foreground capitalize">{block.type}</div>
+                                      <div className="font-semibold text-white capitalize">{block.type}</div>
                                       <div className="text-xs text-slate-400 mt-1">{block.label}</div>
                                     </div>
                                   ))}
@@ -568,16 +572,16 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
                             {activeTab === "abi" && (
                               <div>
                                 <div className="flex items-center justify-between mb-3">
-                                  <h4 className="font-semibold text-foreground">Contract ABI</h4>
+                                  <h4 className="font-semibold text-white">Contract ABI</h4>
                                   <button
                                     onClick={() => copyToClipboard(JSON.stringify(contract.abi, null, 2), "ABI")}
-                                    className="px-3 py-1 bg-blue-600 hover:bg-blue-500 rounded text-sm transition-colors flex items-center gap-2"
+                                    className="px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm transition-all flex items-center gap-2"
                                   >
                                     <Copy size={14} />
                                     Copy ABI
                                   </button>
                                 </div>
-                                <pre className="bg-slate-950 p-4 rounded-lg text-xs text-green-400 overflow-auto border border-slate-700 font-mono">
+                                <pre className="bg-slate-950 p-4 rounded-lg text-xs text-slate-300 overflow-auto border border-slate-700/50 font-mono">
                                   {JSON.stringify(contract.abi, null, 2)}
                                 </pre>
                               </div>
@@ -586,16 +590,16 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
                             {activeTab === "code" && (
                               <div>
                                 <div className="flex items-center justify-between mb-3">
-                                  <h4 className="font-semibold text-foreground">Solidity Source Code</h4>
+                                  <h4 className="font-semibold text-white">Solidity Source Code</h4>
                                   <button
                                     onClick={() => copyToClipboard(contract.solidityCode, "Code")}
-                                    className="px-3 py-1 bg-blue-600 hover:bg-blue-500 rounded text-sm transition-colors flex items-center gap-2"
+                                    className="px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm transition-all flex items-center gap-2"
                                   >
                                     <Copy size={14} />
                                     Copy Code
                                   </button>
                                 </div>
-                                <pre className="bg-slate-950 p-4 rounded-lg text-xs text-blue-400 overflow-auto border border-slate-700 font-mono">
+                                <pre className="bg-slate-950 p-4 rounded-lg text-xs text-slate-300 overflow-auto border border-slate-700/50 font-mono">
                                   {contract.solidityCode}
                                 </pre>
                               </div>

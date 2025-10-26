@@ -65,7 +65,7 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
                 </div>
                 <div class="text-right">
                   <div class="text-sm text-slate-500">Network</div>
-                  <div class="text-green-400 font-medium">Celo Sepolia</div>
+                  <div class="text-cyan-400 font-medium">Celo Sepolia</div>
                 </div>
               </div>
               
@@ -73,7 +73,7 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
                 <button 
                   onclick="connectWallet()"
                   id="connectBtn"
-                  class="flex-1 px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg transition-all transform hover:scale-105 shadow-lg shadow-green-500/50"
+                  class="flex-1 px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold rounded-lg transition-all transform hover:scale-105 shadow-lg shadow-cyan-500/50"
                 >
                   🦊 Connect Wallet
                 </button>
@@ -119,7 +119,7 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
                 </a>
                 <button 
                   onclick="verifyContract()"
-                  class="flex-1 px-4 py-2 bg-green-600 hover:bg-green-500 text-white font-medium rounded-lg transition-all transform hover:scale-105 shadow-md"
+                  class="flex-1 px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-medium rounded-lg transition-all transform hover:scale-105 shadow-md"
                 >
                   ✅ Verify Contract
                 </button>
@@ -129,7 +129,7 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
             <!-- Features Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               ${features.map((feature, index) => `
-                <div class="bg-slate-800 rounded-lg border border-slate-700 p-6 hover:border-green-500 transition-all">
+                <div class="bg-slate-800 rounded-lg border border-slate-700 p-6 hover:border-cyan-500 transition-all">
                   <h3 class="text-xl font-bold text-white mb-4">${feature}</h3>
                   ${generateFeatureUI(feature, isNFT)}
                 </div>
@@ -154,7 +154,7 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
                 </div>
                 <div>
                   <div class="text-sm text-slate-500 mb-1">Your Balance</div>
-                  <div class="text-2xl font-bold text-green-400">0</div>
+                  <div class="text-2xl font-bold text-cyan-400">0</div>
                 </div>
               </div>
             </div>

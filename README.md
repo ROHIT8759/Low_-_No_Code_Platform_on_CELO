@@ -31,6 +31,21 @@
 
 ---
 
+## 🎥 Demo Video
+
+[![Watch Demo Video](https://img.shields.io/badge/▶️_Watch_Demo-Video-FF0000?style=for-the-badge&logo=youtube)](https://drive.google.com/file/d/1Cx-0OQRz05yvSZ_J5u9yBPpVGTOo5MTH/view?usp=sharing)
+
+**[Click here to watch the full demo video →](https://drive.google.com/file/d/1Cx-0OQRz05yvSZ_J5u9yBPpVGTOo5MTH/view?usp=sharing)**
+
+See CELO Builder in action! This video demonstrates:
+- ✨ Building smart contracts with the visual builder
+- 🚀 Deploying contracts to Celo network
+- 🎨 Generating frontend applications automatically
+- 💰 Requesting testnet tokens from the faucet
+- 🔗 Connecting wallets and interacting with contracts
+
+---
+
 ## 📖 About
 
 **CELO Builder** is an intelligent no-code/low-code platform that automatically generates fully-functional Next.js dApps from your smart contract ABIs. Deploy a contract, paste the ABI, and get a production-ready frontend with wallet integration, transaction handling, and beautiful UI.

@@ -101,15 +101,15 @@ export function BlockSidebar() {
   }
 
   return (
-    <div className="w-64 bg-card border-r border-border flex flex-col h-full">
+    <div className="w-64 bg-card border-r border-border flex flex-col h-full animate-fade-in-up">
       <div className="p-4 border-b border-border">
-        <h2 className="text-lg font-semibold text-foreground">Smart Contract Blocks</h2>
-        <p className="text-xs text-muted mt-1">Drag to canvas or click to add</p>
-        <p className="text-xs text-primary mt-1">💡 Combine multiple blocks in one contract</p>
+        <h2 className="text-lg font-semibold text-foreground hover:text-primary transition-colors cursor-default">Smart Contract Blocks</h2>
+        <p className="text-xs text-muted mt-1 hover:text-muted-foreground transition-colors">Drag to canvas or click to add</p>
+        <p className="text-xs text-primary mt-1 animate-pulse cursor-default">💡 Combine multiple blocks in one contract</p>
       </div>
 
       <div className="flex-1 overflow-y-auto p-3 space-y-2">
-        {AVAILABLE_BLOCKS.map((block) => {
+        {AVAILABLE_BLOCKS.map((block, index) => {
           const category = BLOCK_CATEGORIES[block.type]
           const isBase = category === "base"
           const isSecurity = category === "security"
@@ -140,32 +140,33 @@ export function BlockSidebar() {
               draggable
               onDragStart={(e) => handleDragStart(e, block)}
               onClick={() => addBlock(block)}
-              className={`group p-3 border rounded-lg hover:border-primary hover:bg-background/80 transition-all cursor-grab active:cursor-grabbing ${isBase
-                  ? "bg-primary/10 border-primary/30"
-                  : isSecurity
-                    ? "bg-yellow-500/5 border-yellow-500/20"
-                    : isNFT
-                      ? "bg-purple-500/5 border-purple-500/20"
-                      : isAdvanced
-                        ? "bg-blue-500/5 border-blue-500/20"
-                        : "bg-background border-border"
+              className={`group p-3 border rounded-lg hover:border-primary hover:bg-background/80 transition-all cursor-grab active:cursor-grabbing hover:scale-105 hover:shadow-lg animate-fade-in-up ${isBase
+                ? "bg-primary/10 border-primary/30 hover:shadow-primary/20"
+                : isSecurity
+                  ? "bg-yellow-500/5 border-yellow-500/20 hover:shadow-yellow-500/20"
+                  : isNFT
+                    ? "bg-purple-500/5 border-purple-500/20 hover:shadow-purple-500/20"
+                    : isAdvanced
+                      ? "bg-blue-500/5 border-blue-500/20 hover:shadow-blue-500/20"
+                      : "bg-background border-border"
                 }`}
+              style={{ animationDelay: `${index * 30}ms` }}
             >
               <div className="flex items-start gap-3">
                 <GripHorizontal
                   size={16}
-                  className="text-muted mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="text-muted mt-0.5 opacity-0 group-hover:opacity-100 transition-all group-hover:scale-110"
                 />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="text-sm font-medium text-foreground">{block.label}</p>
+                    <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{block.label}</p>
                     {badgeText && (
-                      <span className={`text-[10px] px-1.5 py-0.5 ${badgeClass} rounded-full font-medium`}>
+                      <span className={`text-[10px] px-1.5 py-0.5 ${badgeClass} rounded-full font-medium group-hover:scale-110 transition-transform`}>
                         {badgeText}
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-muted mt-0.5">
+                  <p className="text-xs text-muted mt-0.5 group-hover:text-muted-foreground transition-colors">
                     {BLOCK_DESCRIPTIONS[block.type] || block.type}
                   </p>
                 </div>
@@ -177,10 +178,12 @@ export function BlockSidebar() {
 
       <div className="p-4 border-t border-border bg-background/50">
         <div className="space-y-1">
-          <p className="text-xs font-medium text-foreground">How to build:</p>
-          <p className="text-xs text-muted">1️⃣ Add a BASE contract (ERC20/NFT)</p>
-          <p className="text-xs text-muted">2️⃣ Add FEATURE blocks to customize</p>
-          <p className="text-xs text-muted">3️⃣ Generate & deploy your contract!</p>
+          <p className="text-xs font-medium text-foreground flex items-center gap-1">
+            <span className="animate-pulse">📚</span> How to build:
+          </p>
+          <p className="text-xs text-muted hover:text-muted-foreground transition-colors">1️⃣ Add a BASE contract (ERC20/NFT)</p>
+          <p className="text-xs text-muted hover:text-muted-foreground transition-colors">2️⃣ Add FEATURE blocks to customize</p>
+          <p className="text-xs text-muted hover:text-muted-foreground transition-colors">3️⃣ Generate & deploy your contract!</p>
         </div>
       </div>
     </div>

@@ -4,7 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Unified site color palette (light-ish tokens used as default for consistency) */
+  /* Vibrant Neon Color System - Dark Theme Foundation */
   --background: #0a0e27; /* deep navy */
   --foreground: #f5f7fb; /* near-white text */
   --card: #0f1724; /* card background */
@@ -12,42 +12,43 @@
   --popover: #0f1724;
   --popover-foreground: #e6eef8;
 
-  /* Primary = Celo green, Accent = gold */
-  --primary: #35d07f;
-  --primary-foreground: #071025; /* dark text on green */
+  /* Primary = Cyan Brand, Accent = Fuchsia */
+  --primary: #86E8FF; /* cyan - primary brand */
+  --primary-foreground: #071025; /* dark text on cyan */
   --secondary: #6b7280;
   --secondary-foreground: #e6eef8;
   --muted: #8892b0;
   --muted-foreground: #cbd5e0;
-  --accent: #ffd700; /* gold accent */
+  --accent: #e879f9; /* fuchsia accent */
   --accent-foreground: #071025;
 
-  --destructive: #ff5a5f;
+  --destructive: #ef4444; /* red */
   --destructive-foreground: #ffffff;
 
   --border: #1f2937;
   --input: #0b1220;
-  --ring: rgba(53,208,127,0.16);
+  --ring: rgba(134,232,255,0.16);
 
-  --chart-1: #35d07f;
-  --chart-2: #7c3aed;
-  --chart-3: #ffd700;
-  --chart-4: #60a5fa;
-  --chart-5: #f472b6;
+  /* Vibrant Chart Colors */
+  --chart-1: #86E8FF; /* cyan */
+  --chart-2: #a855f7; /* purple */
+  --chart-3: #e879f9; /* fuchsia */
+  --chart-4: #60a5fa; /* blue */
+  --chart-5: #ec4899; /* pink */
 
   --radius: 0.625rem;
   --sidebar: #071025;
   --sidebar-foreground: #e6eef8;
-  --sidebar-primary: #35d07f;
+  --sidebar-primary: #86E8FF; /* cyan */
   --sidebar-primary-foreground: #071025;
-  --sidebar-accent: #ffd700;
+  --sidebar-accent: #e879f9; /* fuchsia */
   --sidebar-accent-foreground: #071025;
   --sidebar-border: #111827;
-  --sidebar-ring: rgba(53,208,127,0.12);
+  --sidebar-ring: rgba(134,232,255,0.12);
 }
 
 .dark {
-  /* Dark mode: keep same palette but tuned for dark surfaces */
+  /* Dark mode: vibrant neon colors intensified */
   --background: #071025; /* slightly darker navy */
   --foreground: #f5f7fb;
   --card: #071427;
@@ -55,51 +56,51 @@
   --popover: #071427;
   --popover-foreground: #e6eef8;
 
-  --primary: #3fe88f; /* slightly brighter in dark */
+  --primary: #86E8FF; /* cyan - brighter in dark */
   --primary-foreground: #071025;
   --secondary: #9ca3af;
   --secondary-foreground: #f5f7fb;
   --muted: #6b7280;
   --muted-foreground: #9ca3af;
-  --accent: #ffd54d;
+  --accent: #e879f9; /* fuchsia */
   --accent-foreground: #071025;
 
-  --destructive: #ff6b6b;
+  --destructive: #ef4444; /* red */
   --destructive-foreground: #fff;
 
   --border: #0f1724;
   --input: #041122;
-  --ring: rgba(62,216,140,0.16);
+  --ring: rgba(134,232,255,0.16);
 
-  --chart-1: #3fe88f;
-  --chart-2: #9b5cf6;
-  --chart-3: #ffd54d;
-  --chart-4: #60a5fa;
-  --chart-5: #fb7185;
+  --chart-1: #86E8FF; /* cyan */
+  --chart-2: #a855f7; /* purple */
+  --chart-3: #e879f9; /* fuchsia */
+  --chart-4: #60a5fa; /* blue */
+  --chart-5: #ec4899; /* pink */
 
   --sidebar: #041122;
   --sidebar-foreground: #e6eef8;
-  --sidebar-primary: #3fe88f;
+  --sidebar-primary: #86E8FF; /* cyan */
   --sidebar-primary-foreground: #071025;
-  --sidebar-accent: #ffd54d;
+  --sidebar-accent: #e879f9; /* fuchsia */
   --sidebar-accent-foreground: #071025;
   --sidebar-border: #071025;
-  --sidebar-ring: rgba(62,216,140,0.12);
+  --sidebar-ring: rgba(134,232,255,0.12);
 }
 
 @theme inline {
   --font-sans: "Geist", "Geist Fallback";
   --font-mono: "Geist Mono", "Geist Mono Fallback";
 
-  /* Celo-inspired color palette */
+  /* Vibrant Neon Color Palette */
   --color-background: #0a0e27;
   --color-foreground: #f5f5f5;
   --color-card: #1a1f3a;
   --color-border: #2d3748;
-  --color-primary: #35d07f;
-  --color-primary-dark: #2ba86f;
-  --color-accent: #ffd700;
-  --color-accent-dark: #e6c200;
+  --color-primary: #86E8FF; /* cyan */
+  --color-primary-dark: #5cd5ff;
+  --color-accent: #e879f9; /* fuchsia */
+  --color-accent-dark: #d946ef;
   --color-muted: #8892b0;
   --color-muted-foreground: #cbd5e0;
 
@@ -206,6 +207,72 @@
   }
 }
 
+/* Enhanced Landing Page Animations */
+@keyframes fade-in-down {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(134,232,255,0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(134,232,255,0.6);
+  }
+}
+
+@keyframes neon-glow {
+  0%, 100% {
+    text-shadow: 0 0 10px rgba(134,232,255,0.5),
+                 0 0 20px rgba(134,232,255,0.3);
+  }
+  50% {
+    text-shadow: 0 0 20px rgba(134,232,255,0.8),
+                 0 0 30px rgba(134,232,255,0.5),
+                 0 0 40px rgba(134,232,255,0.3);
+  }
+}
+
 .animate-bounce-slow {
   animation: bounce-slow 3s ease-in-out infinite;
 }
@@ -218,20 +285,46 @@
   animation: pulse-slow 2s ease-in-out infinite;
 }
 
+.animate-fade-in-down {
+  animation: fade-in-down 0.8s ease-out forwards;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.8s ease-out forwards;
+}
+
+.animate-slide-in-left {
+  animation: slide-in-left 1s ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 1s ease-out forwards;
+  animation-delay: 0.2s;
+  opacity: 0;
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+.animate-neon-glow {
+  animation: neon-glow 2s ease-in-out infinite;
+}
+
 /* Premium button and utility styles */
 @layer components {
   .btn-premium {
     @apply inline-flex items-center gap-2 px-8 py-3 rounded-lg font-medium text-background;
-    background: linear-gradient(90deg, rgba(53,208,127,1) 0%, rgba(16,185,129,1) 40%, rgba(255,215,0,1) 100%);
+    background: linear-gradient(90deg, rgba(134,232,255,1) 0%, rgba(94,234,212,1) 40%, rgba(232,121,249,1) 100%);
     color: #071025; /* dark text on bright gradient */
-    box-shadow: 0 8px 30px rgba(16,185,129,0.12), inset 0 -2px 6px rgba(255,255,255,0.06);
+    box-shadow: 0 8px 30px rgba(134,232,255,0.12), inset 0 -2px 6px rgba(255,255,255,0.06);
     transition: transform 180ms ease, box-shadow 220ms ease, filter 220ms ease;
   }
 
   .btn-premium:hover {
     transform: translateY(-3px);
-    box-shadow: 0 16px 50px rgba(16,185,129,0.2), 0 4px 14px rgba(255,215,0,0.08);
-    filter: saturate(1.06) drop-shadow(0 6px 32px rgba(16,185,129,0.18));
+    box-shadow: 0 16px 50px rgba(134,232,255,0.2), 0 4px 14px rgba(232,121,249,0.08);
+    filter: saturate(1.06) drop-shadow(0 6px 32px rgba(134,232,255,0.18));
   }
 
   /* Slight alternative for dark primary background buttons */
@@ -264,7 +357,7 @@
     width: 120%;
     height: 120%;
     border-radius: inherit;
-    background: radial-gradient(closest-side, rgba(53,208,127,0.16), transparent 40%);
+    background: radial-gradient(closest-side, rgba(134,232,255,0.16), transparent 40%);
     opacity: 0;
     transition: opacity 220ms ease, transform 220ms ease;
     pointer-events: none;
@@ -275,5 +368,29 @@
   .btn-glow:hover::after {
     opacity: 1;
     transform: translate(-50%, -50%) scale(1.02);
+  }
+
+  /* Utility animation classes */
+  .animate-spin-slow {
+    animation: spin 3s linear infinite;
+  }
+
+  .animation-delay-300 {
+    animation-delay: 300ms;
+  }
+
+  .animate-scale-in {
+    animation: scale-in 0.3s ease-out;
+  }
+
+  @keyframes scale-in {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
   }
 }

@@ -138,27 +138,33 @@ export function Navbar() {
 
   return (
     <>
-      <nav className="bg-card border-b border-border px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-            <span className="text-background font-bold text-sm">C</span>
+      <nav className="bg-card border-b border-border px-6 py-4 flex items-center justify-between animate-fade-in-down">
+        <div className="flex items-center gap-3 group">
+          <div className="relative">
+            <div className="absolute inset-0 bg-primary/50 blur-xl group-hover:blur-2xl transition-all duration-300"></div>
+            <div className="relative w-8 h-8 bg-primary rounded-lg flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg shadow-primary/50">
+              <span className="text-background font-bold text-sm">C</span>
+            </div>
           </div>
           <div>
-            <h1 className="text-lg font-bold text-foreground">Celo Builder</h1>
-            <p className="text-xs text-muted">{currentProject?.name || "New Project"}</p>
+            <h1 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">Celo Builder</h1>
+            <p className="text-xs text-muted group-hover:text-muted-foreground transition-colors">{currentProject?.name || "New Project"}</p>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
           {walletAddress ? (
-            <div className="flex items-center gap-2">
-              <div className="px-4 py-2 bg-green-500/10 border border-green-500/30 rounded-lg text-green-400 text-sm font-medium flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+            <div className="flex items-center gap-2 animate-fade-in-up">
+              <div className="px-4 py-2 bg-cyan-500/10 border border-cyan-500/30 rounded-lg text-cyan-400 text-sm font-medium flex items-center gap-2 hover:scale-105 hover:bg-cyan-500/20 transition-all">
+                <div className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400"></span>
+                </div>
                 {formatAddress(walletAddress)}
               </div>
               <button
                 onClick={disconnectWallet}
-                className="px-3 py-2 bg-background border border-border rounded-lg hover:border-red-500 hover:bg-red-500/10 transition-colors text-foreground text-sm font-medium"
+                className="px-3 py-2 bg-background border border-border rounded-lg hover:border-red-500 hover:bg-red-500/10 transition-all hover:scale-110 hover:rotate-6 text-foreground text-sm font-medium"
                 title="Disconnect wallet"
               >
                 ✕
@@ -168,49 +174,50 @@ export function Navbar() {
             <button
               onClick={connectWallet}
               disabled={connectingWallet}
-              className="px-4 py-2 bg-primary/10 border border-primary rounded-lg hover:bg-primary hover:text-background transition-colors text-primary text-sm font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 bg-primary/10 border border-primary rounded-lg hover:bg-primary hover:text-background transition-all hover:scale-105 hover:-translate-y-0.5 text-primary text-sm font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/20 hover:shadow-primary/40"
               title="Connect your wallet"
             >
-              <Wallet size={16} />
+              <Wallet size={16} className="group-hover:animate-pulse" />
               {connectingWallet ? "Connecting..." : "Connect Wallet"}
             </button>
           )}
           <button
             onClick={() => setProjectManagerOpen(true)}
-            className="px-4 py-2 bg-background border border-border rounded-lg hover:border-primary hover:bg-background/80 transition-colors text-foreground text-sm font-medium flex items-center gap-2"
+            className="px-4 py-2 bg-background border border-border rounded-lg hover:border-primary hover:bg-background/80 transition-all hover:scale-105 hover:-translate-y-0.5 text-foreground text-sm font-medium flex items-center gap-2 group"
             title="Manage projects"
           >
-            <FolderOpen size={16} />
+            <FolderOpen size={16} className="group-hover:scale-110 transition-transform" />
             Projects
           </button>
           <button
             onClick={() => setPreviewOpen(true)}
             disabled={blocks.length === 0}
-            className="px-4 py-2 bg-background border border-border rounded-lg hover:border-primary hover:bg-background/80 transition-colors text-foreground text-sm font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 bg-background border border-border rounded-lg hover:border-primary hover:bg-background/80 transition-all hover:scale-105 hover:-translate-y-0.5 text-foreground text-sm font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group"
             title="Preview the generated dApp"
           >
-            <Eye size={16} />
+            <Eye size={16} className="group-hover:scale-110 transition-transform" />
             Preview
           </button>
           <button
             onClick={handleExportProject}
             disabled={blocks.length === 0}
-            className="px-4 py-2 bg-background border border-border rounded-lg hover:border-primary hover:bg-background/80 transition-colors text-foreground text-sm font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 bg-background border border-border rounded-lg hover:border-primary hover:bg-background/80 transition-all hover:scale-105 hover:-translate-y-0.5 text-foreground text-sm font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group"
             title="Export project as JSON"
           >
-            <Download size={16} />
+            <Download size={16} className="group-hover:scale-110 group-hover:translate-y-0.5 transition-transform" />
             Export
           </button>
           <button
             onClick={() => setDeployOpen(true)}
             disabled={blocks.length === 0}
-            className="relative px-6 py-3 bg-primary hover:bg-primary-dark text-background rounded-lg transition-all text-sm font-bold flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover:scale-105 disabled:hover:scale-100 disabled:shadow-none animate-pulse-slow"
+            className="relative px-6 py-3 bg-primary hover:bg-primary-dark text-background rounded-lg transition-all text-sm font-bold flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/50 hover:scale-105 hover:-translate-y-1 disabled:hover:scale-100 disabled:shadow-none overflow-hidden group"
             title="Deploy to Celo Mainnet or Testnet"
           >
-            <Play size={18} className="animate-bounce-subtle" />
-            <span>Deploy to Celo</span>
+            <span className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500"></span>
+            <Play size={18} className="relative animate-bounce-subtle group-hover:scale-110 transition-transform" />
+            <span className="relative">Deploy to Celo</span>
             {blocks.length > 0 && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center text-xs font-bold animate-pulse">
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-cyan-500 rounded-full flex items-center justify-center text-xs font-bold animate-pulse shadow-lg shadow-cyan-500/50">
                 ✓
               </span>
             )}

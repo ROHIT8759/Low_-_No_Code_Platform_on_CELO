@@ -52,21 +52,24 @@ See CELO Builder in action! This video demonstrates:
 <div align="center">
 
 ### 🏠 Landing Page
-*Beautiful, modern landing page with interactive animations*
+
+_Beautiful, modern landing page with interactive animations_
 
 <img src="./public/Landing page.png" alt="CELO Builder Landing Page" width="100%"/>
 
 ---
 
 ### 🛠️ Builder Interface
-*Visual drag-and-drop interface for building smart contracts*
+
+_Visual drag-and-drop interface for building smart contracts_
 
 <img src="./public/Bulder page.png" alt="CELO Builder Interface" width="100%"/>
 
 ---
 
 ### 📦 Project Section
-*Manage deployed contracts and generate frontends*
+
+_Manage deployed contracts and generate frontends_
 
 <img src="./public/Project Section.png" alt="Project Management Section" width="100%"/>
 

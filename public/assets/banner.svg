@@ -1,0 +1,77 @@
+<svg width="1200" height="300" viewBox="0 0 1200 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f172a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1e293b;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#FCFF52;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#35D07F;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#22C55E;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Glow effect -->
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <rect width="1200" height="300" fill="url(#bgGradient)"/>
+  
+  <!-- Decorative grid -->
+  <g opacity="0.1">
+    <line x1="0" y1="100" x2="1200" y2="100" stroke="#FCFF52" stroke-width="1"/>
+    <line x1="0" y1="200" x2="1200" y2="200" stroke="#35D07F" stroke-width="1"/>
+    <line x1="200" y1="0" x2="200" y2="300" stroke="#FCFF52" stroke-width="1"/>
+    <line x1="400" y1="0" x2="400" y2="300" stroke="#35D07F" stroke-width="1"/>
+    <line x1="600" y1="0" x2="600" y2="300" stroke="#22C55E" stroke-width="1"/>
+    <line x1="800" y1="0" x2="800" y2="300" stroke="#35D07F" stroke-width="1"/>
+    <line x1="1000" y1="0" x2="1000" y2="300" stroke="#FCFF52" stroke-width="1"/>
+  </g>
+  
+  <!-- Large code brackets -->
+  <path d="M 100 80 L 60 150 L 100 220" stroke="url(#accentGradient)" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.6"/>
+  <path d="M 1100 80 L 1140 150 L 1100 220" stroke="url(#accentGradient)" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.6"/>
+  
+  <!-- Main title -->
+  <text x="600" y="120" font-family="Arial, sans-serif" font-size="64" font-weight="bold" fill="white" text-anchor="middle" filter="url(#glow)">
+    CELO Builder
+  </text>
+  
+  <!-- Subtitle -->
+  <text x="600" y="165" font-family="Arial, sans-serif" font-size="28" fill="#94a3b8" text-anchor="middle">
+    No-Code Smart Contract Frontend Generator
+  </text>
+  
+  <!-- Feature tags -->
+  <g transform="translate(300, 200)">
+    <rect width="140" height="36" rx="18" fill="#1e293b" stroke="#35D07F" stroke-width="2"/>
+    <text x="70" y="24" font-family="Arial, sans-serif" font-size="16" fill="#35D07F" text-anchor="middle">Next.js 15</text>
+  </g>
+  
+  <g transform="translate(460, 200)">
+    <rect width="140" height="36" rx="18" fill="#1e293b" stroke="#FCFF52" stroke-width="2"/>
+    <text x="70" y="24" font-family="Arial, sans-serif" font-size="16" fill="#FCFF52" text-anchor="middle">TypeScript</text>
+  </g>
+  
+  <g transform="translate(620, 200)">
+    <rect width="140" height="36" rx="18" fill="#1e293b" stroke="#22C55E" stroke-width="2"/>
+    <text x="70" y="24" font-family="Arial, sans-serif" font-size="16" fill="#22C55E" text-anchor="middle">Tailwind CSS</text>
+  </g>
+  
+  <g transform="translate(780, 200)">
+    <rect width="120" height="36" rx="18" fill="#1e293b" stroke="#35D07F" stroke-width="2"/>
+    <text x="60" y="24" font-family="Arial, sans-serif" font-size="16" fill="#35D07F" text-anchor="middle">ethers.js</text>
+  </g>
+  
+  <!-- Decorative elements -->
+  <circle cx="150" cy="150" r="8" fill="#FCFF52" opacity="0.4"/>
+  <circle cx="1050" cy="150" r="8" fill="#35D07F" opacity="0.4"/>
+  <circle cx="600" cy="50" r="6" fill="#22C55E" opacity="0.3"/>
+  <circle cx="600" cy="250" r="6" fill="#FCFF52" opacity="0.3"/>
+</svg>

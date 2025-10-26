@@ -11,6 +11,8 @@
   
   ### *Generate production-ready Next.js frontends from smart contract ABIs in seconds*
   
+  **🌐 [Live Demo](https://low-no-code-platform-on-celo.vercel.app/) • [Builder](https://low-no-code-platform-on-celo.vercel.app/builder)**
+  
   [![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
   [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
   [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
@@ -21,6 +23,8 @@
   ![GitHub Forks](https://img.shields.io/github/forks/ROHIT8759/Low_-_No_Code_Platform_on_CELO?style=social)
   ![GitHub Issues](https://img.shields.io/github/issues/ROHIT8759/Low_-_No_Code_Platform_on_CELO)
   ![License](https://img.shields.io/github/license/ROHIT8759/Low_-_No_Code_Platform_on_CELO)
+  
+  [![Website](https://img.shields.io/badge/🌐_Try_Live_Demo-Online-00D084?style=for-the-badge)](https://low-no-code-platform-on-celo.vercel.app/)
   
   [Features](#-features) •
   [Quick Start](#-quick-start) •
@@ -172,6 +176,10 @@ _Manage deployed contracts and generate frontends_
 
 ### Installation
 
+**🌐 Try it online: [https://low-no-code-platform-on-celo.vercel.app/](https://low-no-code-platform-on-celo.vercel.app/)**
+
+Or run locally:
+
 ```powershell
 # Clone the repository
 git clone https://github.com/ROHIT8759/Low_-_No_Code_Platform_on_CELO.git
@@ -192,7 +200,9 @@ npm run dev
 
 ### Step 1: Access the Builder
 
-Navigate to http://localhost:3000/builder
+**🌐 Online:** [https://low-no-code-platform-on-celo.vercel.app/builder](https://low-no-code-platform-on-celo.vercel.app/builder)
+
+**💻 Local:** http://localhost:3000/builder
 
 ### Step 2: Generate Your Frontend
 

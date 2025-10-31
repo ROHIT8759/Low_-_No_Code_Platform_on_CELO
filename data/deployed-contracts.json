@@ -1,0 +1,12 @@
+[
+  {
+    "id": "example-1",
+    "name": "ExampleToken",
+    "network": "sepolia",
+    "contractAddress": "0x1234567890abcdef1234567890abcdef12345678",
+    "transactionHash": "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+    "deployedAt": "2025-10-26T00:00:00Z",
+    "frontendUrl": "",
+    "githubRepo": ""
+  }
+]

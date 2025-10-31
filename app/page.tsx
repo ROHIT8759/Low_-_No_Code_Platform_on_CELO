@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
@@ -139,15 +139,13 @@ export default function Home() {
                 Faucet
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-cyan-400 group-hover:w-full transition-all duration-300"></span>
               </Link>
-              <a
-                href="https://docs.celo.org"
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                href="/docs"
                 className="relative text-slate-300 hover:text-white transition-colors font-medium group"
               >
                 Docs
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-cyan-400 group-hover:w-full transition-all duration-300"></span>
-              </a>
+              </Link>
             </div>
 
             {/* Right Side - Enhanced Social & CTA */}
@@ -374,8 +372,6 @@ export default function Home() {
 
       {/* Separator */}
       <SectionDivider />
-      {/* Separator */}
-      <SectionDivider />
 
       {/* CTA Section - Enhanced with Animations */}
       <section className="px-6 py-24 relative overflow-hidden">
@@ -385,7 +381,7 @@ export default function Home() {
         <ScrollReveal>
           <div className="max-w-4xl mx-auto text-center relative z-10">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-500/10 border border-cyan-500/20 rounded-full mb-8 animate-bounce">
-              <span className="text-sm text-cyan-400 font-medium">🚀 Ready to Launch?</span>
+              <span className="text-sm text-cyan-400 font-medium">ðŸš€ Ready to Launch?</span>
             </div>
 
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 hover:scale-105 transition-transform inline-block">
@@ -405,135 +401,133 @@ export default function Home() {
                 <span className="relative">Launch Builder</span>
                 <ArrowRight size={20} className="relative group-hover:translate-x-1 group-hover:scale-110 transition-all" />
               </Link>
-              <a
-                href="https://docs.celo.org"
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                href="/docs"
                 className="group px-10 py-4 bg-slate-800/50 hover:bg-slate-700/50 text-white font-bold rounded-xl transition-all duration-300 border border-slate-700/50 hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/20 hover:-translate-y-1 flex items-center gap-2"
               >
                 <span>View Documentation</span>
                 <Sparkles size={20} className="group-hover:rotate-180 transition-transform duration-500" />
-              </a>
+              </Link>
             </div>
           </div>
         </ScrollReveal>
       </section>
 
-      {/* Footer - Enhanced */}
-      <footer className="border-t border-slate-800/50 px-6 py-12">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-12 mb-12">
-            {/* Brand - Enhanced */}
-            <div className="md:col-span-2">
-              <div className="flex items-center gap-3 mb-4 group">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-cyan-500/50 blur-xl group-hover:blur-2xl transition-all duration-300"></div>
-                  <div className="relative w-10 h-10 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-xl flex items-center justify-center shadow-lg shadow-cyan-500/50 group-hover:scale-110 group-hover:rotate-6 transition-all">
-                    <span className="text-white font-bold text-xl">C</span>
+      {/* Separator */}
+      <SectionDivider />
+
+      {/* Footer */}
+      <footer className="relative border-t border-slate-800/50 py-12 px-6 overflow-hidden">
+        {/* Animated Background */}
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 to-transparent"></div>
+
+        <ScrollReveal>
+          <div className="max-w-7xl mx-auto relative z-10">
+            <div className="grid md:grid-cols-4 gap-8 mb-8">
+              {/* Brand */}
+              <div className="md:col-span-2">
+                <div className="flex items-center gap-3 mb-4 group">
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-cyan-400/50 blur-xl group-hover:blur-2xl transition-all duration-300"></div>
+                    <div className="relative w-10 h-10 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-12 transition-all duration-300">
+                      <span className="text-white font-bold text-xl">C</span>
+                    </div>
                   </div>
+                  <span className="font-bold text-xl text-white">CELO BUILDER</span>
                 </div>
-                <span className="font-bold text-xl text-white group-hover:text-cyan-400 transition-colors">CELO BUILDER</span>
+                <p className="text-slate-400 mb-4 max-w-md">
+                  Build, deploy, and manage smart contracts on Celo without writing a single line of code.
+                  The easiest way to launch your Web3 project.
+                </p>
+                <div className="flex gap-4">
+                  <a
+                    href="https://github.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 rounded-lg bg-slate-800/50 hover:bg-cyan-500/20 flex items-center justify-center text-slate-400 hover:text-cyan-400 transition-all hover:scale-110 hover:rotate-6"
+                  >
+                    <Github size={20} />
+                  </a>
+                  <a
+                    href="https://twitter.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 rounded-lg bg-slate-800/50 hover:bg-blue-500/20 flex items-center justify-center text-slate-400 hover:text-blue-400 transition-all hover:scale-110 hover:rotate-6"
+                  >
+                    <Twitter size={20} />
+                  </a>
+                </div>
               </div>
-              <p className="text-slate-400 mb-6 max-w-md hover:text-slate-300 transition-colors">
-                The easiest way to build, deploy, and manage smart contracts on Celo blockchain. No coding required.
+
+              {/* Quick Links */}
+              <div>
+                <h3 className="font-bold text-white mb-4">Quick Links</h3>
+                <ul className="space-y-2">
+                  <li>
+                    <Link href="/#about" className="text-slate-400 hover:text-cyan-400 transition-colors">About</Link>
+                  </li>
+                  <li>
+                    <Link href="/#features" className="text-slate-400 hover:text-cyan-400 transition-colors">Features</Link>
+                  </li>
+                  <li>
+                    <Link href="/builder" className="text-slate-400 hover:text-cyan-400 transition-colors">Builder</Link>
+                  </li>
+                  <li>
+                    <Link href="/docs" className="text-slate-400 hover:text-cyan-400 transition-colors">Documentation</Link>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Resources */}
+              <div>
+                <h3 className="font-bold text-white mb-4">Resources</h3>
+                <ul className="space-y-2">
+                  <li>
+                    <a
+                      href="https://docs.celo.org"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-slate-400 hover:text-cyan-400 transition-colors"
+                    >
+                      Celo Docs
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="https://faucet.celo.org"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-slate-400 hover:text-cyan-400 transition-colors"
+                    >
+                      Testnet Faucet
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="https://explorer.celo.org"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-slate-400 hover:text-cyan-400 transition-colors"
+                    >
+                      Block Explorer
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Bottom Bar */}
+            <div className="pt-8 border-t border-slate-800/50 flex flex-col md:flex-row items-center justify-between gap-4">
+              <p className="text-slate-400 text-sm">
+                Â© 2025 CELO Builder. Built with â¤ï¸ for the Celo Community.
               </p>
-              <div className="flex items-center gap-3">
-                <a
-                  href="https://github.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Visit our GitHub repository"
-                  className="w-10 h-10 flex items-center justify-center rounded-lg bg-slate-800/50 hover:bg-slate-700/50 text-slate-400 hover:text-white transition-all hover:scale-110 hover:rotate-6"
-                >
-                  <Github size={20} />
-                </a>
-                <a
-                  href="https://twitter.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Follow us on Twitter"
-                  className="w-10 h-10 flex items-center justify-center rounded-lg bg-slate-800/50 hover:bg-slate-700/50 text-slate-400 hover:text-white transition-all hover:scale-110 hover:rotate-6"
-                >
-                  <Twitter size={20} />
-                </a>
+              <div className="flex items-center gap-2 text-slate-400 text-sm">
+                <span>Powered by</span>
+                <span className="font-semibold text-cyan-400">Celo</span>
               </div>
             </div>
-
-            {/* Links - Enhanced */}
-            <div>
-              <h4 className="font-semibold text-white mb-4 hover:text-cyan-400 transition-colors cursor-default">Product</h4>
-              <ul className="space-y-3">
-                <li>
-                  <Link href="/builder" className="text-slate-400 hover:text-white hover:translate-x-1 inline-block transition-all">
-                    Builder →
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#features" className="text-slate-400 hover:text-white hover:translate-x-1 inline-block transition-all">
-                    Features →
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#faucet" className="text-slate-400 hover:text-white hover:translate-x-1 inline-block transition-all">
-                    Faucet →
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            {/* Resources - Enhanced */}
-            <div>
-              <h4 className="font-semibold text-white mb-4 hover:text-cyan-400 transition-colors cursor-default">Resources</h4>
-              <ul className="space-y-3">
-                <li>
-                  <a
-                    href="https://docs.celo.org"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-slate-400 hover:text-white hover:translate-x-1 inline-block transition-all"
-                  >
-                    Documentation →
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="https://celo.org"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-slate-400 hover:text-white hover:translate-x-1 inline-block transition-all"
-                  >
-                    Celo Network →
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="https://celoscan.io"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-slate-400 hover:text-white hover:translate-x-1 inline-block transition-all"
-                  >
-                    Block Explorer →
-                  </a>
-                </li>
-              </ul>
-            </div>
           </div>
-
-          {/* Bottom - Enhanced */}
-          <div className="pt-8 border-t border-slate-800/50 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-slate-500 text-sm hover:text-slate-400 transition-colors">
-              © 2025 Celo Builder. Built with <span className="text-red-500 animate-pulse">❤️</span> for the Celo community.
-            </p>
-            <div className="flex items-center gap-6 text-sm">
-              <a href="#" className="text-slate-400 hover:text-white hover:scale-110 transition-all inline-block">
-                Privacy Policy
-              </a>
-              <a href="#" className="text-slate-400 hover:text-white hover:scale-110 transition-all inline-block">
-                Terms of Service
-              </a>
-            </div>
-          </div>
-        </div>
+        </ScrollReveal>
       </footer>
     </main>
   )

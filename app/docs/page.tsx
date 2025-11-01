@@ -392,7 +392,7 @@ export default function DocsPage() {
                   </a>
 
                   <a
-                    href="https://twitter.com"
+                    href="https://x.com/ROHIT_Kr_KUNDU"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 px-6 py-3 rounded-xl border border-slate-800 bg-slate-900/50 backdrop-blur hover:border-blue-500/50 hover:bg-slate-800/50 transition-all group"

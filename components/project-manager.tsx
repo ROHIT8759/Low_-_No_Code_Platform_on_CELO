@@ -3,10 +3,11 @@
 import type React from "react"
 
 import { useBuilderStore } from "@/lib/store"
-import { Trash2, ExternalLink, Copy, Code, FileCode, Package, Rocket, Download, Github } from "lucide-react"
+import { Trash2, ExternalLink, Copy, Code, FileCode, Package, Rocket, Download, Github, Eye } from "lucide-react"
 import { useState } from "react"
 import { generateNextJsFrontend } from "@/lib/frontend-generator"
 import { deployToGitHub, validateGitHubToken, getGitHubUser } from "@/lib/github-deploy"
+import { ContractPreviewModal } from "./contract-preview-modal"
 
 interface ProjectManagerProps {
   isOpen: boolean
@@ -17,12 +18,14 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
   const deployedContracts = useBuilderStore((state) => state.deployedContracts)
   const deleteDeployedContract = useBuilderStore((state) => state.deleteDeployedContract)
   const updateDeployedContract = useBuilderStore((state) => state.updateDeployedContract)
+  const walletAddress = useBuilderStore((state) => state.walletAddress)
   const [expandedContract, setExpandedContract] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<"info" | "abi" | "code">("info")
   const [deployingFrontend, setDeployingFrontend] = useState<string | null>(null)
   const [deployingGithub, setDeployingGithub] = useState<string | null>(null)
   const [showGithubModal, setShowGithubModal] = useState(false)
   const [githubToken, setGithubToken] = useState("")
+  const [previewContract, setPreviewContract] = useState<any>(null)
   const [repoName, setRepoName] = useState("")
   const [repoDescription, setRepoDescription] = useState("")
   const [isPrivate, setIsPrivate] = useState(false)
@@ -441,46 +444,58 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
                         </div>
                       </div>
 
-                      {/* Deploy Buttons - Clean Style */}
-                      <div className="mt-4 flex flex-col md:flex-row gap-3">
-                        {/* Deploy Frontend Button */}
+                      {/* Action Buttons */}
+                      <div className="mt-4 flex flex-col gap-3">
+                        {/* Preview Button - Full Width */}
                         <button
-                          onClick={() => deployFrontend(contract)}
-                          disabled={deployingFrontend === contract.id}
-                          className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 border border-slate-600"
+                          onClick={() => setPreviewContract(contract)}
+                          className="w-full px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 rounded-lg font-medium transition-all flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 hover:scale-[1.02]"
                         >
-                          {deployingFrontend === contract.id ? (
-                            <>
-                              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                              <span className="text-white">Generating...</span>
-                            </>
-                          ) : (
-                            <>
-                              <Rocket size={18} className="text-slate-300" />
-                              <span className="text-white whitespace-nowrap">Deploy Frontend</span>
-                              <Download size={16} className="text-slate-300" />
-                            </>
-                          )}
+                          <Eye size={18} className="text-white" />
+                          <span className="text-white font-semibold">Preview & Interact</span>
                         </button>
 
-                        {/* Deploy to GitHub Button */}
-                        <button
-                          onClick={() => openGithubDeployModal(contract)}
-                          disabled={deployingGithub === contract.id}
-                          className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 border border-slate-600"
-                        >
-                          {deployingGithub === contract.id ? (
-                            <>
-                              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                              <span className="text-white">Deploying...</span>
-                            </>
-                          ) : (
-                            <>
-                              <Github size={18} className="text-slate-300" />
-                              <span className="text-white whitespace-nowrap">Deploy to GitHub</span>
-                            </>
-                          )}
-                        </button>
+                        {/* Deploy Buttons Row */}
+                        <div className="flex flex-col md:flex-row gap-3">
+                          {/* Deploy Frontend Button */}
+                          <button
+                            onClick={() => deployFrontend(contract)}
+                            disabled={deployingFrontend === contract.id}
+                            className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 border border-slate-600"
+                          >
+                            {deployingFrontend === contract.id ? (
+                              <>
+                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                                <span className="text-white">Generating...</span>
+                              </>
+                            ) : (
+                              <>
+                                <Rocket size={18} className="text-slate-300" />
+                                <span className="text-white whitespace-nowrap">Deploy Frontend</span>
+                                <Download size={16} className="text-slate-300" />
+                              </>
+                            )}
+                          </button>
+
+                          {/* Deploy to GitHub Button */}
+                          <button
+                            onClick={() => openGithubDeployModal(contract)}
+                            disabled={deployingGithub === contract.id}
+                            className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 border border-slate-600"
+                          >
+                            {deployingGithub === contract.id ? (
+                              <>
+                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                                <span className="text-white">Deploying...</span>
+                              </>
+                            ) : (
+                              <>
+                                <Github size={18} className="text-slate-300" />
+                                <span className="text-white whitespace-nowrap">Deploy to GitHub</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
                       </div>
 
                       {/* Helper Text */}
@@ -615,6 +630,16 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
           </div>
         </div>
       </div>
+
+      {/* Contract Preview Modal */}
+      {previewContract && (
+        <ContractPreviewModal
+          isOpen={true}
+          onClose={() => setPreviewContract(null)}
+          contract={previewContract}
+          walletAddress={walletAddress}
+        />
+      )}
     </>
   )
 }

@@ -1,6 +1,7 @@
 "use client"
 
 import { useBuilderStore } from "@/lib/store"
+import { useSupabaseStore } from "@/lib/supabase-store"
 import { Download, Play, Eye, FolderOpen, Wallet } from "lucide-react"
 import { useState, useEffect } from "react"
 import { PreviewModal } from "./preview-modal"
@@ -21,6 +22,8 @@ export function Navbar() {
   const walletAddress = useBuilderStore((state) => state.walletAddress)
   const setWalletAddress = useBuilderStore((state) => state.setWalletAddress)
   const setWalletChainId = useBuilderStore((state) => state.setWalletChainId)
+  const initializeUser = useSupabaseStore((state) => state.initializeUser)
+  const currentUser = useSupabaseStore((state) => state.user)
   const [previewOpen, setPreviewOpen] = useState(false)
   const [deployOpen, setDeployOpen] = useState(false)
   const [projectManagerOpen, setProjectManagerOpen] = useState(false)
@@ -96,6 +99,10 @@ export function Navbar() {
       // Get current chain ID
       const network = await provider.getNetwork()
       setWalletChainId(Number(network.chainId))
+
+      // Initialize user in Supabase
+      await initializeUser(address)
+      console.log('✅ User initialized in Supabase')
     } catch (err) {
       console.error("Error connecting wallet:", err)
       alert("Failed to connect wallet. Please try again.")

@@ -303,15 +303,116 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
           }
 
           async function connectWallet() {
-            // If wallet is already connected in navbar, just show message
-            if (walletAddress) {
-              showNotification('ℹ️ Wallet already connected from navbar!\\n\\n' + walletAddress.slice(0, 6) + '...' + walletAddress.slice(-4), 'info');
-              await autoConnectWallet();
-              return;
-            }
+            try {
+              // Check if MetaMask or compatible wallet is installed
+              if (typeof window.ethereum === 'undefined') {
+                showNotification('❌ No Web3 wallet detected!\\n\\nPlease install MetaMask or another Web3 wallet.', 'error');
+                window.open('https://metamask.io/download/', '_blank');
+                return;
+              }
 
-            // If not connected, prompt user to connect from navbar
-            showNotification('⚠️ Please connect wallet from the navbar first!\\n\\nClick "Connect Wallet" in the top navigation bar.', 'warning');
+              showNotification('🔄 Connecting wallet...', 'info');
+
+              // Request account access
+              const accounts = await window.ethereum.request({ 
+                method: 'eth_requestAccounts' 
+              });
+              
+              if (!accounts || accounts.length === 0) {
+                showNotification('❌ No accounts found. Please unlock your wallet.', 'error');
+                return;
+              }
+
+              walletAddress = accounts[0];
+              
+              // Create provider and signer
+              provider = new ethers.providers.Web3Provider(window.ethereum);
+              signer = provider.getSigner();
+              
+              // Check network
+              const network = await provider.getNetwork();
+              const celoSepoliaChainId = 44787; // Celo Alfajores Testnet
+              
+              if (network.chainId !== celoSepoliaChainId) {
+                showNotification('⚠️ Wrong network! Switching to Celo Sepolia...', 'warning');
+                try {
+                  await window.ethereum.request({
+                    method: 'wallet_switchEthereumChain',
+                    params: [{ chainId: '0x' + celoSepoliaChainId.toString(16) }],
+                  });
+                } catch (switchError) {
+                  // Network not added, try to add it
+                  if (switchError.code === 4902) {
+                    try {
+                      await window.ethereum.request({
+                        method: 'wallet_addEthereumChain',
+                        params: [{
+                          chainId: '0x' + celoSepoliaChainId.toString(16),
+                          chainName: 'Celo Alfajores Testnet',
+                          nativeCurrency: {
+                            name: 'CELO',
+                            symbol: 'CELO',
+                            decimals: 18
+                          },
+                          rpcUrls: ['https://alfajores-forno.celo-testnet.org'],
+                          blockExplorerUrls: ['https://alfajores.celoscan.io']
+                        }],
+                      });
+                    } catch (addError) {
+                      showNotification('❌ Failed to add Celo network: ' + addError.message, 'error');
+                      return;
+                    }
+                  } else {
+                    showNotification('❌ Failed to switch network: ' + switchError.message, 'error');
+                    return;
+                  }
+                }
+              }
+              
+              // Initialize contract if deployed
+              if (CONTRACT_ADDRESS !== "0x0000000000000000000000000000000000000000") {
+                contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+                showNotification('✅ Wallet connected!\\n📄 Contract loaded\\n👛 ' + walletAddress.slice(0, 6) + '...' + walletAddress.slice(-4), 'success');
+                await updateBalance();
+              } else {
+                showNotification('✅ Wallet connected!\\n👛 ' + walletAddress.slice(0, 6) + '...' + walletAddress.slice(-4) + '\\n⚠️ Deploy contract to interact', 'success');
+              }
+              
+              // Update UI button
+              const connectBtn = document.getElementById('connectBtn');
+              if (connectBtn) {
+                connectBtn.textContent = '✅ ' + walletAddress.slice(0, 6) + '...' + walletAddress.slice(-4);
+                connectBtn.classList.remove('from-cyan-500', 'to-blue-600', 'hover:from-cyan-400', 'hover:to-blue-500');
+                connectBtn.classList.add('from-green-500', 'to-green-600', 'cursor-default');
+                connectBtn.onclick = null;
+              }
+              
+              // Listen for account changes
+              window.ethereum.on('accountsChanged', (accounts) => {
+                if (accounts.length === 0) {
+                  showNotification('⚠️ Wallet disconnected', 'warning');
+                  location.reload();
+                } else {
+                  walletAddress = accounts[0];
+                  showNotification('🔄 Account changed to ' + walletAddress.slice(0, 6) + '...', 'info');
+                  location.reload();
+                }
+              });
+              
+              // Listen for chain changes
+              window.ethereum.on('chainChanged', () => {
+                location.reload();
+              });
+              
+            } catch (error) {
+              console.error('Wallet connection error:', error);
+              
+              if (error.code === 4001) {
+                showNotification('❌ Connection rejected\\n\\nYou rejected the connection request.', 'error');
+              } else {
+                showNotification('❌ Failed to connect wallet\\n\\n' + error.message, 'error');
+              }
+            }
           }
 
           async function updateBalance() {
@@ -561,6 +662,238 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
             }
           }
 
+          async function executeWithdraw(event) {
+            if (!walletAddress) {
+              showNotification('⚠️ Please connect your wallet first!', 'warning');
+              return;
+            }
+            
+            if (CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") {
+              showNotification('⚠️ Please deploy your contract first!', 'warning');
+              return;
+            }
+            
+            try {
+              showNotification('🔄 Withdrawing funds...', 'info');
+              
+              const tx = await contract.withdraw();
+              showNotification('⏳ Transaction sent! Waiting for confirmation...', 'info');
+              
+              await tx.wait();
+              showNotification('✅ Funds withdrawn successfully!', 'success');
+            } catch (error) {
+              console.error('Withdraw error:', error);
+              showNotification('❌ Withdraw failed: ' + error.message, 'error');
+            }
+          }
+
+          async function executeRoyalty(event) {
+            const card = event.target.closest('.bg-slate-800');
+            const addressInput = card.querySelectorAll('input[type="text"]')[0];
+            const percentageInput = card.querySelector('input[type="number"]');
+            
+            if (!walletAddress) {
+              showNotification('⚠️ Please connect your wallet first!', 'warning');
+              return;
+            }
+            
+            if (CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") {
+              showNotification('⚠️ Please deploy your contract first!', 'warning');
+              return;
+            }
+            
+            try {
+              const receiver = addressInput ? addressInput.value : '';
+              const percentage = percentageInput ? percentageInput.value : '250';
+              
+              if (!receiver) {
+                showNotification('❌ Please enter a receiver address', 'error');
+                return;
+              }
+              
+              showNotification('🔄 Setting royalty info...', 'info');
+              
+              const tx = await contract.setRoyaltyInfo(receiver, percentage);
+              await tx.wait();
+              
+              showNotification('✅ Royalty updated to ' + (parseInt(percentage) / 100) + '%!', 'success');
+            } catch (error) {
+              console.error('Royalty error:', error);
+              showNotification('❌ Royalty update failed: ' + error.message, 'error');
+            }
+          }
+
+          async function executeAirdrop(event) {
+            const card = event.target.closest('.bg-slate-800');
+            const textarea = card.querySelector('textarea');
+            const amountInput = card.querySelector('input[type="number"]');
+            
+            if (!walletAddress) {
+              showNotification('⚠️ Please connect your wallet first!', 'warning');
+              return;
+            }
+            
+            if (CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") {
+              showNotification('⚠️ Please deploy your contract first!', 'warning');
+              return;
+            }
+            
+            try {
+              const addresses = textarea ? textarea.value.split('\\n').filter(a => a.trim()) : [];
+              const amount = amountInput ? amountInput.value : '0';
+              
+              if (addresses.length === 0) {
+                showNotification('❌ Please enter at least one address', 'error');
+                return;
+              }
+              
+              if (!amount || amount === '0') {
+                showNotification('❌ Please enter amount per address', 'error');
+                return;
+              }
+              
+              const amounts = addresses.map(() => ethers.utils.parseEther(amount));
+              
+              showNotification('🔄 Executing airdrop to ' + addresses.length + ' addresses...', 'info');
+              
+              const tx = await contract.airdrop(addresses, amounts);
+              showNotification('⏳ Transaction sent! Waiting for confirmation...', 'info');
+              
+              await tx.wait();
+              showNotification('✅ Airdrop completed to ' + addresses.length + ' addresses!', 'success');
+            } catch (error) {
+              console.error('Airdrop error:', error);
+              showNotification('❌ Airdrop failed: ' + error.message, 'error');
+            }
+          }
+
+          async function executeCreateProposal(event) {
+            const card = event.target.closest('.bg-slate-800');
+            const inputs = card.querySelectorAll('input');
+            const descriptionInput = inputs[0];
+            const periodInput = inputs[1];
+            
+            if (!walletAddress) {
+              showNotification('⚠️ Please connect your wallet first!', 'warning');
+              return;
+            }
+            
+            if (CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") {
+              showNotification('⚠️ Please deploy your contract first!', 'warning');
+              return;
+            }
+            
+            try {
+              const description = descriptionInput ? descriptionInput.value : '';
+              const period = periodInput ? periodInput.value : '86400'; // 1 day default
+              
+              if (!description) {
+                showNotification('❌ Please enter a proposal description', 'error');
+                return;
+              }
+              
+              showNotification('🔄 Creating proposal...', 'info');
+              
+              const tx = await contract.createProposal(description, period);
+              showNotification('⏳ Transaction sent! Waiting for confirmation...', 'info');
+              
+              const receipt = await tx.wait();
+              showNotification('✅ Proposal created successfully!', 'success');
+            } catch (error) {
+              console.error('Create proposal error:', error);
+              showNotification('❌ Create proposal failed: ' + error.message, 'error');
+            }
+          }
+
+          async function executeVote(support) {
+            if (!walletAddress) {
+              showNotification('⚠️ Please connect your wallet first!', 'warning');
+              return;
+            }
+            
+            if (CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") {
+              showNotification('⚠️ Please deploy your contract first!', 'warning');
+              return;
+            }
+            
+            try {
+              const proposalId = prompt('Enter Proposal ID to vote on:');
+              if (!proposalId) return;
+              
+              showNotification('🔄 Submitting vote...', 'info');
+              
+              const tx = await contract.vote(proposalId, support);
+              showNotification('⏳ Transaction sent! Waiting for confirmation...', 'info');
+              
+              await tx.wait();
+              showNotification('✅ Vote submitted: ' + (support ? 'For' : 'Against') + '!', 'success');
+            } catch (error) {
+              console.error('Vote error:', error);
+              showNotification('❌ Vote failed: ' + error.message, 'error');
+            }
+          }
+
+          async function executeSnapshot(event) {
+            if (!walletAddress) {
+              showNotification('⚠️ Please connect your wallet first!', 'warning');
+              return;
+            }
+            
+            if (CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") {
+              showNotification('⚠️ Please deploy your contract first!', 'warning');
+              return;
+            }
+            
+            try {
+              showNotification('🔄 Taking snapshot...', 'info');
+              
+              const tx = await contract.snapshot();
+              showNotification('⏳ Transaction sent! Waiting for confirmation...', 'info');
+              
+              const receipt = await tx.wait();
+              showNotification('✅ Snapshot taken successfully!', 'success');
+            } catch (error) {
+              console.error('Snapshot error:', error);
+              showNotification('❌ Snapshot failed: ' + error.message, 'error');
+            }
+          }
+
+          async function executeTimelock(event) {
+            const card = event.target.closest('.bg-slate-800');
+            const durationInput = card.querySelector('input[type="number"]');
+            
+            if (!walletAddress) {
+              showNotification('⚠️ Please connect your wallet first!', 'warning');
+              return;
+            }
+            
+            if (CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") {
+              showNotification('⚠️ Please deploy your contract first!', 'warning');
+              return;
+            }
+            
+            try {
+              const duration = durationInput ? durationInput.value : '172800'; // 2 days default
+              
+              if (!duration || duration === '0') {
+                showNotification('❌ Please enter a valid duration', 'error');
+                return;
+              }
+              
+              showNotification('🔄 Setting timelock duration...', 'info');
+              
+              const tx = await contract.setTimelockDuration(duration);
+              await tx.wait();
+              
+              const days = Math.floor(parseInt(duration) / 86400);
+              const hours = Math.floor((parseInt(duration) % 86400) / 3600);
+              showNotification('✅ Timelock set to ' + days + ' days ' + hours + ' hours!', 'success');
+            } catch (error) {
+              console.error('Timelock error:', error);
+              showNotification('❌ Timelock update failed: ' + error.message, 'error');
+            }
+          }
+
           function executeAction(action) {
             // Fallback for features not yet implemented
             if (!walletAddress) {
@@ -645,62 +978,68 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
     switch (feature) {
       case "Mint":
         return isNFT
-          ? `<input type="text" placeholder="Recipient Address" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white mb-3">
-             <button onclick="executeAction('Mint NFT')" class="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors">Mint NFT</button>`
-          : `<input type="number" placeholder="Amount" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white mb-3">
-             <button onclick="executeAction('Mint Tokens')" class="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors">Mint Tokens</button>`
+          ? `<input type="text" placeholder="Recipient Address" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white mb-3 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none">
+             <button onclick="executeMint(event)" class="w-full px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-400 hover:to-cyan-400 text-white font-medium rounded-lg transition-all transform hover:scale-105 shadow-lg shadow-blue-500/30">🎨 Mint NFT</button>`
+          : `<input type="text" placeholder="Recipient Address (optional)" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white mb-2 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none">
+             <input type="number" placeholder="Amount" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white mb-3 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none">
+             <button onclick="executeMint(event)" class="w-full px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-400 hover:to-cyan-400 text-white font-medium rounded-lg transition-all transform hover:scale-105 shadow-lg shadow-blue-500/30">💰 Mint Tokens</button>`
 
       case "Burn":
-        return `<input type="number" placeholder="Amount to Burn" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white mb-3">
-                <button onclick="executeAction('Burn Tokens')" class="w-full px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg transition-colors">Burn Tokens</button>`
+        return `<input type="number" placeholder="Amount to Burn" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white mb-3 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none">
+                <button onclick="executeBurn(event)" class="w-full px-4 py-2 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-400 hover:to-orange-400 text-white font-medium rounded-lg transition-all transform hover:scale-105 shadow-lg shadow-red-500/30">🔥 Burn Tokens</button>`
 
       case "Stake":
-        return `<input type="number" placeholder="Amount to Stake" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white mb-2">
-                <div class="text-sm text-slate-400 mb-3">APY: 365% (1% daily)</div>
-                <button onclick="executeAction('Stake Tokens')" class="w-full px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white font-medium rounded-lg transition-colors">Stake Tokens</button>`
+        return `<input type="number" placeholder="Amount to Stake" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white mb-2 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none">
+                <div class="text-sm text-slate-400 mb-3">📈 APY: 365% (1% daily)</div>
+                <button onclick="executeStake(event)" class="w-full px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-400 hover:to-pink-400 text-white font-medium rounded-lg transition-all transform hover:scale-105 shadow-lg shadow-purple-500/30">⭐ Stake Tokens</button>`
 
       case "Withdraw":
-        return `<div class="text-sm text-slate-400 mb-3">Contract Balance: 0 CELO</div>
-                <button onclick="executeAction('Withdraw ETH')" class="w-full px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg transition-colors">Withdraw ETH</button>`
+        return `<div class="text-sm text-slate-400 mb-3">💰 Contract Balance: <span class="text-green-400 font-bold">0 CELO</span></div>
+                <button onclick="executeWithdraw(event)" class="w-full px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-400 hover:to-emerald-400 text-white font-medium rounded-lg transition-all transform hover:scale-105 shadow-lg shadow-green-500/30">💸 Withdraw ETH</button>`
 
       case "Pause/Unpause":
-        return `<div class="text-sm text-slate-400 mb-3">Status: <span class="text-green-400 font-medium">Active</span></div>
+        return `<div class="text-sm text-slate-400 mb-3">Status: <span class="text-green-400 font-medium" id="contractStatus">Active</span></div>
                 <div class="flex gap-2">
-                  <button onclick="executeAction('Pause Contract')" class="flex-1 px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white font-medium rounded-lg transition-colors">Pause</button>
-                  <button onclick="executeAction('Unpause Contract')" class="flex-1 px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg transition-colors">Unpause</button>
+                  <button onclick="executePause()" class="flex-1 px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-white font-medium rounded-lg transition-all transform hover:scale-105 shadow-lg shadow-yellow-500/30">⏸️ Pause</button>
+                  <button onclick="executeUnpause()" class="flex-1 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-400 hover:to-emerald-400 text-white font-medium rounded-lg transition-all transform hover:scale-105 shadow-lg shadow-green-500/30">▶️ Unpause</button>
                 </div>`
 
       case "Whitelist":
-        return `<input type="text" placeholder="Address to Whitelist" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white mb-3">
-                <button onclick="executeAction('Add to Whitelist')" class="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors">Add to Whitelist</button>`
+        return `<input type="text" placeholder="Address to Whitelist" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white mb-3 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none">
+                <button onclick="executeWhitelist(event)" class="w-full px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-400 hover:to-indigo-400 text-white font-medium rounded-lg transition-all transform hover:scale-105 shadow-lg shadow-blue-500/30">✅ Add to Whitelist</button>`
 
       case "Blacklist":
-        return `<input type="text" placeholder="Address to Blacklist" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white mb-3">
-                <button onclick="executeAction('Add to Blacklist')" class="w-full px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg transition-colors">Blacklist Address</button>`
+        return `<input type="text" placeholder="Address to Blacklist" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white mb-3 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none">
+                <button onclick="executeBlacklist(event)" class="w-full px-4 py-2 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-400 hover:to-rose-500 text-white font-medium rounded-lg transition-all transform hover:scale-105 shadow-lg shadow-red-500/30">🚫 Blacklist Address</button>`
 
       case "Royalties":
-        return `<div class="text-sm text-slate-400 mb-2">Royalty Rate: 2.5%</div>
-                <input type="text" placeholder="Royalty Receiver Address" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white mb-2">
-                <input type="number" placeholder="Percentage (250 = 2.5%)" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white mb-3">
-                <button onclick="executeAction('Set Royalty')" class="w-full px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white font-medium rounded-lg transition-colors">Update Royalty</button>`
+        return `<div class="text-sm text-slate-400 mb-2">👑 Current Royalty Rate: <span class="text-purple-400 font-bold">2.5%</span></div>
+                <input type="text" placeholder="Royalty Receiver Address" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white mb-2 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none">
+                <input type="number" placeholder="Percentage (250 = 2.5%)" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white mb-3 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none">
+                <button onclick="executeRoyalty(event)" class="w-full px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-400 hover:to-pink-400 text-white font-medium rounded-lg transition-all transform hover:scale-105 shadow-lg shadow-purple-500/30">🎵 Update Royalty</button>`
 
       case "Airdrop":
-        return `<textarea placeholder="Addresses (one per line)" rows="2" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white mb-2"></textarea>
-                <input type="number" placeholder="Amount per address" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white mb-3">
-                <button onclick="executeAction('Execute Airdrop')" class="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors">Airdrop Tokens</button>`
+        return `<textarea placeholder="Addresses (one per line)" rows="2" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white mb-2 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none resize-none"></textarea>
+                <input type="number" placeholder="Amount per address" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white mb-3 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none">
+                <button onclick="executeAirdrop(event)" class="w-full px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-medium rounded-lg transition-all transform hover:scale-105 shadow-lg shadow-cyan-500/30">✈️ Airdrop Tokens</button>`
 
       case "Voting":
-        return `<input type="text" placeholder="Proposal Description" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white mb-3">
-                <button onclick="executeAction('Create Proposal')" class="w-full px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white font-medium rounded-lg transition-colors">Create Proposal</button>`
+        return `<input type="text" placeholder="Proposal Description" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white mb-2 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none">
+                <input type="number" placeholder="Voting Period (seconds)" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white mb-3 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none">
+                <button onclick="executeCreateProposal(event)" class="w-full px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-400 hover:to-purple-400 text-white font-medium rounded-lg transition-all transform hover:scale-105 shadow-lg shadow-indigo-500/30 mb-2">🗳️ Create Proposal</button>
+                <div class="flex gap-2">
+                  <button onclick="executeVote(true)" class="flex-1 px-3 py-2 bg-green-500 hover:bg-green-400 text-white text-sm font-medium rounded-lg transition-all transform hover:scale-105">👍 Vote For</button>
+                  <button onclick="executeVote(false)" class="flex-1 px-3 py-2 bg-red-500 hover:bg-red-400 text-white text-sm font-medium rounded-lg transition-all transform hover:scale-105">👎 Vote Against</button>
+                </div>`
 
       case "Snapshot":
-        return `<div class="text-sm text-slate-400 mb-3">Current Snapshot ID: 0</div>
-                <button onclick="executeAction('Take Snapshot')" class="w-full px-4 py-2 bg-cyan-500 hover:bg-cyan-600 text-white font-medium rounded-lg transition-colors">Take Snapshot</button>`
+        return `<div class="text-sm text-slate-400 mb-3">📸 Current Snapshot ID: <span class="text-cyan-400 font-bold">0</span></div>
+                <button onclick="executeSnapshot(event)" class="w-full px-4 py-2 bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-400 hover:to-teal-400 text-white font-medium rounded-lg transition-all transform hover:scale-105 shadow-lg shadow-cyan-500/30">📷 Take Snapshot</button>`
 
       case "Timelock":
-        return `<div class="text-sm text-slate-400 mb-2">Lock Duration: 2 days</div>
-                <input type="number" placeholder="New Duration (seconds)" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white mb-3">
-                <button onclick="executeAction('Update Timelock')" class="w-full px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-lg transition-colors">Set Duration</button>`
+        return `<div class="text-sm text-slate-400 mb-2">⏰ Lock Duration: <span class="text-orange-400 font-bold">2 days</span></div>
+                <input type="number" placeholder="New Duration (seconds)" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white mb-3 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none">
+                <button onclick="executeTimelock(event)" class="w-full px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-white font-medium rounded-lg transition-all transform hover:scale-105 shadow-lg shadow-orange-500/30">🔒 Set Duration</button>`
 
       default:
         return `<button onclick="executeAction('${feature}')" class="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors">Execute ${feature}</button>`
@@ -763,7 +1102,7 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
               srcDoc={htmlContent}
               className="w-full h-full border-0"
               title="dApp Preview"
-              sandbox="allow-scripts allow-same-origin"
+              sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-modals"
             />
           ) : (
             <div className="h-full overflow-auto">

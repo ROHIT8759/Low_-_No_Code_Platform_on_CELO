@@ -1,5 +1,15 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
+import { isSupabaseAvailable } from "./supabase"
+
+// Simple UUID v4 generator
+function generateUUID(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0
+    const v = c === 'x' ? r : (r & 0x3 | 0x8)
+    return v.toString(16)
+  })
+}
 
 export interface Block {
   id: string
@@ -101,7 +111,7 @@ export const useBuilderStore = create<BuilderStore>()(
 
       createProject: (name: string) => {
         const newProject: Project = {
-          id: Date.now().toString(),
+          id: generateUUID(),
           name,
           blocks: [],
           createdAt: new Date().toISOString(),
@@ -112,6 +122,16 @@ export const useBuilderStore = create<BuilderStore>()(
           projects: [...state.projects, newProject],
           blocks: [],
         }))
+        
+        // Save to cloud if available
+        if (isSupabaseAvailable()) {
+          import("./supabase-store").then(({ useSupabaseStore }) => {
+            const supabaseStore = useSupabaseStore.getState()
+            if (supabaseStore.user) {
+              supabaseStore.saveProjectToCloud(newProject.id).catch(console.error)
+            }
+          })
+        }
       },
 
       loadProject: (id: string) => {
@@ -136,6 +156,16 @@ export const useBuilderStore = create<BuilderStore>()(
             blocks: isCurrentProject ? [] : state.blocks,
           }
         })
+        
+        // Delete from cloud if available
+        if (isSupabaseAvailable()) {
+          import("./supabase-store").then(({ useSupabaseStore }) => {
+            const supabaseStore = useSupabaseStore.getState()
+            if (supabaseStore.user) {
+              supabaseStore.deleteProjectFromCloud(id).catch(console.error)
+            }
+          })
+        }
       },
 
       renameProject: (id: string, name: string) => {
@@ -146,9 +176,20 @@ export const useBuilderStore = create<BuilderStore>()(
               ? { ...state.currentProject, name, updatedAt: new Date().toISOString() }
               : state.currentProject,
         }))
+        
+        // Update in cloud if available
+        if (isSupabaseAvailable()) {
+          import("./supabase-store").then(({ useSupabaseStore }) => {
+            const supabaseStore = useSupabaseStore.getState()
+            if (supabaseStore.user) {
+              supabaseStore.saveProjectToCloud(id).catch(console.error)
+            }
+          })
+        }
       },
 
       saveProject: () => {
+        const currentProjectId = get().currentProject?.id
         set((state) => {
           if (!state.currentProject) return state
           return {
@@ -160,11 +201,21 @@ export const useBuilderStore = create<BuilderStore>()(
             currentProject: { ...state.currentProject, blocks: state.blocks, updatedAt: new Date().toISOString() },
           }
         })
+        
+        // Save to cloud if available
+        if (currentProjectId && isSupabaseAvailable()) {
+          import("./supabase-store").then(({ useSupabaseStore }) => {
+            const supabaseStore = useSupabaseStore.getState()
+            if (supabaseStore.user) {
+              supabaseStore.saveProjectToCloud(currentProjectId).catch(console.error)
+            }
+          })
+        }
       },
 
       addBlock: (block: Block) =>
         set((state) => ({
-          blocks: [...state.blocks, { ...block, id: Date.now().toString() }],
+          blocks: [...state.blocks, { ...block, id: generateUUID() }],
         })),
 
       removeBlock: (id: string) =>
@@ -201,7 +252,7 @@ export const useBuilderStore = create<BuilderStore>()(
         set((state) => {
           const newProject = {
             ...projectData,
-            id: Date.now().toString(),
+            id: generateUUID(),
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           }
@@ -216,12 +267,23 @@ export const useBuilderStore = create<BuilderStore>()(
       setWalletAddress: (address: string | null) => set({ walletAddress: address }),
       setWalletChainId: (chainId: number | null) => set({ walletChainId: chainId }),
 
-      addDeployedContract: (contract: DeployedContract) =>
+      addDeployedContract: (contract: DeployedContract) => {
         set((state) => {
-          // Keep only last 5 contracts
+          // Keep only last 5 contracts in local storage
           const newContracts = [contract, ...state.deployedContracts].slice(0, 5)
           return { deployedContracts: newContracts }
-        }),
+        })
+        
+        // Save to cloud if available (cloud stores all contracts, not just 5)
+        if (isSupabaseAvailable()) {
+          import("./supabase-store").then(({ useSupabaseStore }) => {
+            const supabaseStore = useSupabaseStore.getState()
+            if (supabaseStore.user) {
+              supabaseStore.saveDeployedContractToCloud(contract.id).catch(console.error)
+            }
+          })
+        }
+      },
 
       updateDeployedContract: (id: string, updates: Partial<DeployedContract>) =>
         set((state) => ({

@@ -1,11 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { X, Loader, CheckCircle, AlertCircle, Wallet } from "lucide-react"
+import { X, Loader, CheckCircle, AlertCircle, Wallet, Eye } from "lucide-react"
 import { generateSolidityCode } from "@/lib/code-generator"
 import { useBuilderStore } from "@/lib/store"
+import { useSupabaseStore } from "@/lib/supabase-store"
 import { CELO_NETWORKS, getExplorerUrl } from "@/lib/celo-config"
 import { ethers } from "ethers"
+import { ContractPreviewModal } from "./contract-preview-modal"
+import { saveDeployedContract } from "@/lib/supabase"
 
 interface DeployModalProps {
   isOpen: boolean
@@ -36,6 +39,8 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
   const [walletAddress, setWalletAddress] = useState<string | null>(null)
   const [provider, setProvider] = useState<ethers.BrowserProvider | null>(null)
   const [currentChainId, setCurrentChainId] = useState<number | null>(null)
+  const [showPreview, setShowPreview] = useState(false)
+  const [deployedContractData, setDeployedContractData] = useState<any>(null)
 
   useEffect(() => {
     if (!isOpen) return
@@ -228,17 +233,32 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
       setError(null)
       setStep("deploying")
 
-      if (!provider || !walletAddress) {
-        throw new Error("Wallet not connected")
+      if (!window.ethereum) {
+        throw new Error("No wallet detected. Please install MetaMask or another Web3 wallet.")
       }
 
-      // Check if on correct network
-      if (currentChainId !== CELO_NETWORKS[network].chainId) {
-        throw new Error(`Please switch to ${CELO_NETWORKS[network].name}`)
+      // Always get a fresh provider and signer at deployment time
+      const freshProvider = new ethers.BrowserProvider(window.ethereum)
+      const signer = await freshProvider.getSigner()
+      const signerAddress = await signer.getAddress()
+
+      console.log("Deploying from address:", signerAddress)
+
+      // Verify network
+      const network_info = await freshProvider.getNetwork()
+      const currentChain = Number(network_info.chainId)
+
+      if (currentChain !== CELO_NETWORKS[network].chainId) {
+        throw new Error(`Please switch to ${CELO_NETWORKS[network].name}. Current chain: ${currentChain}`)
       }
 
-      // Get the signer
-      const signer = await provider.getSigner()
+      // Check balance
+      const balance = await freshProvider.getBalance(signerAddress)
+      console.log("Wallet balance:", ethers.formatEther(balance), "CELO")
+
+      if (balance === BigInt(0)) {
+        throw new Error("Insufficient CELO balance. Please fund your wallet from the Celo Faucet.")
+      }
 
       // Generate the Solidity code with user parameters
       const baseBlock = blocks.find((b) => b.type === "erc20" || b.type === "nft")
@@ -290,18 +310,48 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
         console.log("Symbol:", tokenSymbol)
         console.log("Initial Supply:", initialSupply)
 
-        // Check if constructor needs parameters (some combined contracts don't)
+        // Estimate gas first
+        console.log("Estimating gas...")
+        let deployTxData
+
+        try {
+          // Most of our generated contracts don't need constructor parameters
+          deployTxData = await factory.getDeployTransaction()
+        } catch {
+          // Some contracts need constructor parameters
+          const supply = ethers.parseEther(initialSupply)
+          deployTxData = await factory.getDeployTransaction(tokenName, tokenSymbol, supply)
+        }
+
+        // Get gas estimate
+        const gasEstimate = await freshProvider.estimateGas({
+          ...deployTxData,
+          from: signerAddress,
+        })
+        console.log("Estimated gas:", gasEstimate.toString())
+
+        // Add 20% buffer to gas estimate
+        const gasLimit = (gasEstimate * BigInt(120)) / BigInt(100)
+        console.log("Gas limit with buffer:", gasLimit.toString())
+
+        // Get current gas price
+        const feeData = await freshProvider.getFeeData()
+        console.log("Gas price:", feeData.gasPrice?.toString())
+
+        // Deploy with explicit gas settings
         console.log("Sending deployment transaction...")
         let contract
 
-        // Try deployment without constructor parameters first (for our generated contracts)
         try {
-          contract = await factory.deploy()
-        } catch (constructorError) {
-          // If it fails, it might need constructor parameters
-          console.log("Trying with constructor parameters...")
+          contract = await factory.deploy({
+            gasLimit,
+          })
+        } catch (constructorError: any) {
+          console.log("Trying with constructor parameters...", constructorError.message)
           const supply = ethers.parseEther(initialSupply)
-          contract = await factory.deploy(tokenName, tokenSymbol, supply)
+          contract = await factory.deploy(tokenName, tokenSymbol, supply, {
+            gasLimit,
+          })
         }
 
         console.log("Waiting for deployment confirmation...")
@@ -327,7 +377,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
         // Save to store for project manager
         const networkConfig = CELO_NETWORKS[network]
         const explorerUrl = `${networkConfig.explorerUrl}/address/${contractAddress}`
-        addDeployedContract({
+        const deployedContractInfo = {
           id: Date.now().toString(),
           contractAddress,
           contractName,
@@ -336,7 +386,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
           network,
           networkName: networkConfig.name,
           chainId: networkConfig.chainId,
-          deployer: walletAddress || '',
+          deployer: signerAddress,
           deployedAt: new Date().toISOString(),
           transactionHash: deployTx?.hash || contractAddress,
           contractType: baseBlock.type as "erc20" | "nft",
@@ -344,7 +394,39 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
           solidityCode,
           blocks: [...blocks],
           explorerUrl,
-        })
+        }
+
+        addDeployedContract(deployedContractInfo)
+
+        // Save to Supabase if user is logged in
+        if (currentUser?.id) {
+          try {
+            await saveDeployedContract(currentUser.id, {
+              contractAddress,
+              contractName,
+              tokenName,
+              tokenSymbol,
+              network,
+              networkName: networkConfig.name,
+              chainId: networkConfig.chainId,
+              deployer: signerAddress,
+              deployedAt: new Date().toISOString(),
+              transactionHash: deployTx?.hash || contractAddress,
+              contractType: baseBlock.type,
+              abi,
+              solidityCode,
+              blocks,
+              explorerUrl,
+            })
+
+            // Sync deployed contracts after saving
+            await syncDeployedContracts()
+            console.log('✅ ERC20 Contract saved to Supabase')
+          } catch (supabaseError) {
+            console.error('Failed to save ERC20 contract to Supabase:', supabaseError)
+            // Don't fail deployment if Supabase save fails
+          }
+        }
 
         setStep("success")
       } else if (baseBlock.type === "nft") {
@@ -352,9 +434,23 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
         console.log("Name:", tokenName)
         console.log("Symbol:", tokenSymbol)
 
-        // Deploy NFT contract (no constructor parameters in our generated contracts)
+        // Estimate gas for NFT deployment
+        console.log("Estimating gas...")
+        const deployTxData = await factory.getDeployTransaction()
+        const gasEstimate = await freshProvider.estimateGas({
+          ...deployTxData,
+          from: signerAddress,
+        })
+        console.log("Estimated gas:", gasEstimate.toString())
+
+        // Add 20% buffer
+        const gasLimit = (gasEstimate * BigInt(120)) / BigInt(100)
+
+        // Deploy NFT contract with gas settings
         console.log("Sending deployment transaction...")
-        const contract = await factory.deploy()
+        const contract = await factory.deploy({
+          gasLimit,
+        })
 
         console.log("Waiting for deployment confirmation...")
         await contract.waitForDeployment()
@@ -379,7 +475,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
         // Save to store for project manager
         const networkConfig = CELO_NETWORKS[network]
         const explorerUrl = `${networkConfig.explorerUrl}/address/${contractAddress}`
-        addDeployedContract({
+        const deployedContractInfo = {
           id: Date.now().toString(),
           contractAddress,
           contractName,
@@ -388,7 +484,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
           network,
           networkName: networkConfig.name,
           chainId: networkConfig.chainId,
-          deployer: walletAddress || '',
+          deployer: signerAddress,
           deployedAt: new Date().toISOString(),
           transactionHash: deployTx?.hash || contractAddress,
           contractType: baseBlock.type as "erc20" | "nft",
@@ -396,7 +492,39 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
           solidityCode,
           blocks: [...blocks],
           explorerUrl,
-        })
+        }
+
+        addDeployedContract(deployedContractInfo)
+
+        // Save to Supabase if user is logged in
+        if (currentUser?.id) {
+          try {
+            await saveDeployedContract(currentUser.id, {
+              contractAddress,
+              contractName,
+              tokenName,
+              tokenSymbol,
+              network,
+              networkName: networkConfig.name,
+              chainId: networkConfig.chainId,
+              deployer: signerAddress,
+              deployedAt: new Date().toISOString(),
+              transactionHash: deployTx?.hash || contractAddress,
+              contractType: baseBlock.type,
+              abi,
+              solidityCode,
+              blocks,
+              explorerUrl,
+            })
+
+            // Sync deployed contracts after saving
+            await syncDeployedContracts()
+            console.log('✅ NFT Contract saved to Supabase')
+          } catch (supabaseError) {
+            console.error('Failed to save NFT contract to Supabase:', supabaseError)
+            // Don't fail deployment if Supabase save fails
+          }
+        }
 
         setStep("success")
       } else {
@@ -404,7 +532,25 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
       }
     } catch (err: any) {
       console.error("Deployment error:", err)
-      setError(err.message || "Deployment failed")
+
+      // Parse error message for user-friendly display
+      let errorMessage = "Deployment failed"
+
+      if (err.code === "ACTION_REJECTED" || err.code === 4001) {
+        errorMessage = "Transaction was rejected by user"
+      } else if (err.message?.includes("insufficient funds")) {
+        errorMessage = "Insufficient CELO balance. Please fund your wallet from the Celo Faucet."
+      } else if (err.message?.includes("nonce")) {
+        errorMessage = "Transaction nonce error. Please reset your MetaMask account or wait for pending transactions."
+      } else if (err.message?.includes("403") || err.message?.includes("RPC endpoint")) {
+        errorMessage = "RPC connection error. Please try again or switch networks in MetaMask."
+      } else if (err.message?.includes("network") || err.message?.includes("chain")) {
+        errorMessage = err.message
+      } else if (err.message) {
+        errorMessage = err.message.length > 200 ? err.message.substring(0, 200) + "..." : err.message
+      }
+
+      setError(errorMessage)
       setStep("error")
     } finally {
       setLoading(false)
@@ -721,6 +867,29 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
                 </div>
               </div>
 
+              {/* Preview Button - Prominent */}
+              <button
+                onClick={() => {
+                  const baseBlock = blocks.find((b) => b.type === "erc20" || b.type === "nft")
+                  setDeployedContractData({
+                    contractAddress: contractAddress,
+                    contractName: contractName,
+                    tokenName: tokenName,
+                    tokenSymbol: tokenSymbol,
+                    network: network,
+                    networkName: CELO_NETWORKS[network].name,
+                    contractType: baseBlock?.type || "erc20",
+                    solidityCode: solidityCode,
+                    blocks: [...blocks],
+                  })
+                  setShowPreview(true)
+                }}
+                className="w-full px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-background rounded-lg font-semibold transition-all flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 hover:scale-[1.02]"
+              >
+                <Eye size={18} />
+                Preview & Interact with Contract
+              </button>
+
               <div className="flex gap-3">
                 <button
                   onClick={() => window.open(getExplorerUrl(txHash, network), "_blank")}
@@ -767,6 +936,16 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
           )}
         </div>
       </div>
+
+      {/* Contract Preview Modal */}
+      {showPreview && deployedContractData && (
+        <ContractPreviewModal
+          isOpen={showPreview}
+          onClose={() => setShowPreview(false)}
+          contract={deployedContractData}
+          walletAddress={walletAddress}
+        />
+      )}
     </div>
   )
 }

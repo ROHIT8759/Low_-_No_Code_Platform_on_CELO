@@ -4,64 +4,64 @@ import type { Block } from "./store"
 import { getTemplate, ContractConfig } from "./solidity-templates"
 
 export function generateSolidityCode(blocks: Block[]): string {
-  if (blocks.length === 0) {
-    return "// Add blocks to generate code"
-  }
-
-  const baseBlock = blocks.find((b) => b.type === "erc20" || b.type === "nft")
-  const standaloneTypes = ["staking", "payment", "governance"]
-  const standaloneBlock = blocks.find((b) => standaloneTypes.includes(b.type))
-
-  // If there's a standalone contract, return it (these can't be combined)
-  if (standaloneBlock) {
-    const config: ContractConfig = {
-      name: standaloneBlock.config?.name || "StandaloneContract",
-      symbol: standaloneBlock.config?.symbol || "SC",
-      stablecoin: standaloneBlock.config?.stablecoin || "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1",
-      stakingToken: standaloneBlock.config?.stakingToken || "0x0000000000000000000000000000000000000000",
-      rewardToken: standaloneBlock.config?.rewardToken || "0x0000000000000000000000000000000000000000",
-      governanceToken: standaloneBlock.config?.governanceToken || "0x0000000000000000000000000000000000000000",
+    if (blocks.length === 0) {
+        return "// Add blocks to generate code"
     }
 
-    return getTemplate(standaloneBlock.type, config)
-  }
+    const baseBlock = blocks.find((b) => b.type === "erc20" || b.type === "nft")
+    const standaloneTypes = ["staking", "payment", "governance"]
+    const standaloneBlock = blocks.find((b) => standaloneTypes.includes(b.type))
 
-  // If no base contract, prompt user
-  if (!baseBlock) {
-    return "// Start by adding an ERC20 Token or NFT Contract block"
-  }
+    // If there's a standalone contract, return it (these can't be combined)
+    if (standaloneBlock) {
+        const config: ContractConfig = {
+            name: standaloneBlock.config?.name || "StandaloneContract",
+            symbol: standaloneBlock.config?.symbol || "SC",
+            stablecoin: standaloneBlock.config?.stablecoin || "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1",
+            stakingToken: standaloneBlock.config?.stakingToken || "0x0000000000000000000000000000000000000000",
+            rewardToken: standaloneBlock.config?.rewardToken || "0x0000000000000000000000000000000000000000",
+            governanceToken: standaloneBlock.config?.governanceToken || "0x0000000000000000000000000000000000000000",
+        }
 
-  // Get all feature blocks (mint, transfer, burn, stake, withdraw, pausable, whitelist, etc.)
-  const featureBlocks = blocks.filter((b) =>
-    ["mint", "transfer", "burn", "stake", "withdraw", "pausable", "whitelist", "blacklist",
-      "royalty", "airdrop", "timelock", "multisig", "voting", "snapshot", "permit"].includes(b.type)
-  )
+        return getTemplate(standaloneBlock.type, config)
+    }
 
-  // Build the combined contract
-  return buildCombinedContract(baseBlock, featureBlocks)
+    // If no base contract, prompt user
+    if (!baseBlock) {
+        return "// Start by adding an ERC20 Token or NFT Contract block"
+    }
+
+    // Get all feature blocks (mint, transfer, burn, stake, withdraw, pausable, whitelist, etc.)
+    const featureBlocks = blocks.filter((b) =>
+        ["mint", "transfer", "burn", "stake", "withdraw", "pausable", "whitelist", "blacklist",
+            "royalty", "airdrop", "timelock", "multisig", "voting", "snapshot", "permit"].includes(b.type)
+    )
+
+    // Build the combined contract
+    return buildCombinedContract(baseBlock, featureBlocks)
 }
 
 function buildCombinedContract(baseBlock: Block, featureBlocks: Block[]): string {
-  const config = {
-    name: baseBlock.config?.name || "MyToken",
-    symbol: baseBlock.config?.symbol || "MTK",
-    initialSupply: baseBlock.config?.initialSupply || "1000000",
-    baseUri: baseBlock.config?.baseUri || "https://ipfs.io/ipfs/",
-  }
+    const config = {
+        name: baseBlock.config?.name || "MyToken",
+        symbol: baseBlock.config?.symbol || "MTK",
+        initialSupply: baseBlock.config?.initialSupply || "1000000",
+        baseUri: baseBlock.config?.baseUri || "https://ipfs.io/ipfs/",
+    }
 
-  const isERC20 = baseBlock.type === "erc20"
-  const isNFT = baseBlock.type === "nft"
+    const isERC20 = baseBlock.type === "erc20"
+    const isNFT = baseBlock.type === "nft"
 
-  // Start with base template
-  let contractCode = `// SPDX-License-Identifier: MIT
+    // Start with base template
+    let contractCode = `// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
 contract ${config.name} {
 `
 
-  // Add state variables based on contract type
-  if (isERC20) {
-    contractCode += `    string public name = "${config.name}";
+    // Add state variables based on contract type
+    if (isERC20) {
+        contractCode += `    string public name = "${config.name}";
     string public symbol = "${config.symbol}";
     uint8 public decimals = 18;
     uint256 public totalSupply;
@@ -108,8 +108,8 @@ contract ${config.name} {
         return true;
     }
 `
-  } else if (isNFT) {
-    contractCode += `    string public name = "${config.name}";
+    } else if (isNFT) {
+        contractCode += `    string public name = "${config.name}";
     string public symbol = "${config.symbol}";
     string public baseURI = "${config.baseUri}";
     uint256 public tokenIdCounter;
@@ -185,22 +185,22 @@ contract ${config.name} {
         return string(buffer);
     }
 `
-  }
+    }
 
-  // Add feature functions based on selected blocks
-  const hasFeature = (type: string) => featureBlocks.some((b) => b.type === type)
+    // Add feature functions based on selected blocks
+    const hasFeature = (type: string) => featureBlocks.some((b) => b.type === type)
 
-  if (hasFeature("mint")) {
-    if (isERC20) {
-      contractCode += `
+    if (hasFeature("mint")) {
+        if (isERC20) {
+            contractCode += `
     function mint(address to, uint256 amount) public onlyOwner {
         totalSupply += amount;
         balanceOf[to] += amount;
         emit Transfer(address(0), to, amount);
     }
 `
-    } else if (isNFT) {
-      contractCode += `
+        } else if (isNFT) {
+            contractCode += `
     function mint(address to) public onlyOwner {
         uint256 tokenId = tokenIdCounter;
         tokenIdCounter++;
@@ -209,11 +209,11 @@ contract ${config.name} {
         emit Transfer(address(0), to, tokenId);
     }
 `
+        }
     }
-  }
 
-  if (hasFeature("burn") && isERC20) {
-    contractCode += `
+    if (hasFeature("burn") && isERC20) {
+        contractCode += `
     function burn(uint256 amount) public {
         require(balanceOf[msg.sender] >= amount, "Insufficient balance");
         balanceOf[msg.sender] -= amount;
@@ -221,10 +221,10 @@ contract ${config.name} {
         emit Transfer(msg.sender, address(0), amount);
     }
 `
-  }
+    }
 
-  if (hasFeature("stake") && isERC20) {
-    contractCode += `
+    if (hasFeature("stake") && isERC20) {
+        contractCode += `
     mapping(address => uint256) public stakedBalance;
     mapping(address => uint256) public stakeTimestamp;
     uint256 public rewardRate = 100; // 1% per day (100 basis points)
@@ -293,21 +293,21 @@ contract ${config.name} {
         return reward;
     }
 `
-  }
+    }
 
-  if (hasFeature("withdraw")) {
-    contractCode += `
+    if (hasFeature("withdraw")) {
+        contractCode += `
     function withdraw() public onlyOwner {
         payable(owner).transfer(address(this).balance);
     }
 
     receive() external payable {}
 `
-  }
+    }
 
-  // Pausable feature
-  if (hasFeature("pausable")) {
-    contractCode += `
+    // Pausable feature
+    if (hasFeature("pausable")) {
+        contractCode += `
     bool public paused;
 
     event Paused(address account);
@@ -333,11 +333,11 @@ contract ${config.name} {
         emit Unpaused(msg.sender);
     }
 `
-  }
+    }
 
-  // Whitelist feature
-  if (hasFeature("whitelist")) {
-    contractCode += `
+    // Whitelist feature
+    if (hasFeature("whitelist")) {
+        contractCode += `
     mapping(address => bool) public whitelist;
     bool public whitelistEnabled = true;
 
@@ -372,11 +372,11 @@ contract ${config.name} {
         whitelistEnabled = enabled;
     }
 `
-  }
+    }
 
-  // Blacklist feature
-  if (hasFeature("blacklist")) {
-    contractCode += `
+    // Blacklist feature
+    if (hasFeature("blacklist")) {
+        contractCode += `
     mapping(address => bool) public blacklist;
 
     event AddedToBlacklist(address indexed account);
@@ -397,11 +397,11 @@ contract ${config.name} {
         emit RemovedFromBlacklist(account);
     }
 `
-  }
+    }
 
-  // NFT Royalty feature (EIP-2981)
-  if (hasFeature("royalty") && isNFT) {
-    contractCode += `
+    // NFT Royalty feature (EIP-2981)
+    if (hasFeature("royalty") && isNFT) {
+        contractCode += `
     address public royaltyReceiver;
     uint256 public royaltyPercentage = 250; // 2.5% in basis points (100 = 1%)
 
@@ -419,11 +419,11 @@ contract ${config.name} {
         return (royaltyReceiver, royaltyAmount);
     }
 `
-  }
+    }
 
-  // Airdrop feature
-  if (hasFeature("airdrop")) {
-    contractCode += `
+    // Airdrop feature
+    if (hasFeature("airdrop")) {
+        contractCode += `
     event AirdropCompleted(uint256 totalRecipients, uint256 totalAmount);
 
     function airdrop(address[] calldata recipients, uint256[] calldata amounts) public onlyOwner {
@@ -449,11 +449,11 @@ contract ${config.name} {
         emit AirdropCompleted(recipients.length, totalAmount);
     }
 `
-  }
+    }
 
-  // Timelock feature
-  if (hasFeature("timelock")) {
-    contractCode += `
+    // Timelock feature
+    if (hasFeature("timelock")) {
+        contractCode += `
     mapping(bytes32 => uint256) public timelocks;
     uint256 public timelockDuration = 2 days;
 
@@ -476,11 +476,11 @@ contract ${config.name} {
         emit TimelockExecuted(id);
     }
 `
-  }
+    }
 
-  // Snapshot feature
-  if (hasFeature("snapshot") && isERC20) {
-    contractCode += `
+    // Snapshot feature
+    if (hasFeature("snapshot") && isERC20) {
+        contractCode += `
     uint256 public currentSnapshotId;
     mapping(uint256 => mapping(address => uint256)) public snapshots;
 
@@ -497,11 +497,11 @@ contract ${config.name} {
         return snapshots[snapshotId][account];
     }
 `
-  }
+    }
 
-  // Voting feature
-  if (hasFeature("voting") && isERC20) {
-    contractCode += `
+    // Voting feature
+    if (hasFeature("voting") && isERC20) {
+        contractCode += `
     struct Proposal {
         string description;
         uint256 forVotes;
@@ -545,11 +545,11 @@ contract ${config.name} {
         emit Voted(proposalId, msg.sender, support, weight);
     }
 `
-  }
+    }
 
-  // Permit feature (EIP-2612 for gasless approvals)
-  if (hasFeature("permit") && isERC20) {
-    contractCode += `
+    // Permit feature (EIP-2612 for gasless approvals)
+    if (hasFeature("permit") && isERC20) {
+        contractCode += `
     mapping(address => uint256) public nonces;
 
     function permit(
@@ -581,39 +581,231 @@ contract ${config.name} {
         emit Approval(owner, spender, value);
     }
 `
-  }
+    }
 
-  // Add transferOwnership function
-  contractCode += `
+    // Add transferOwnership function
+    contractCode += `
     function transferOwnership(address newOwner) public onlyOwner {
         require(newOwner != address(0), "Invalid address");
         owner = newOwner;
     }
 `
 
-  // Close the contract
-  contractCode += `}`
+    // Close the contract
+    contractCode += `}`
 
-  return contractCode
+    return contractCode
 }
 
 export function generateTypeScriptCode(blocks: Block[]): string {
-  const baseBlock = blocks.find((b) => b.type === "erc20" || b.type === "nft")
+    const baseBlock = blocks.find((b) => b.type === "erc20" || b.type === "nft")
 
-  if (!baseBlock) {
-    return "// Add blocks to generate frontend code"
+    if (!baseBlock) {
+        return "// Add blocks to generate frontend code"
+    }
+
+    const config = {
+        name: baseBlock.config?.name || "MyToken",
+        symbol: baseBlock.config?.symbol || "MTK",
+    }
+
+    const isERC20 = baseBlock.type === "erc20"
+    const isNFT = baseBlock.type === "nft"
+
+    // Get feature blocks
+    const hasFeature = (type: string) => blocks.some((b) => b.type === type)
+
+    let code = `"use client"
+
+import { useState, useEffect } from 'react'
+import { ethers } from 'ethers'
+
+// Contract ABI (simplified - use full ABI from deployment)
+const CONTRACT_ABI = [
+  "function name() view returns (string)",
+  "function symbol() view returns (string)",
+  ${isERC20 ? '"function balanceOf(address) view returns (uint256)",' : ''}
+  ${isERC20 ? '"function transfer(address, uint256) returns (bool)",' : ''}
+  ${isNFT ? '"function ownerOf(uint256) view returns (address)",' : ''}
+  ${isNFT ? '"function tokenURI(uint256) view returns (string)",' : ''}
+  ${hasFeature('mint') ? (isERC20 ? '"function mint(address, uint256)",' : '"function mint(address, string) returns (uint256)",') : ''}
+  ${hasFeature('burn') ? (isERC20 ? '"function burn(uint256)"' : '"function burn(uint256)"') : ''}
+]
+
+export default function ${config.name}App() {
+  const [account, setAccount] = useState<string>('')
+  const [contract, setContract] = useState<any>(null)
+  ${isERC20 ? 'const [balance, setBalance] = useState<string>(\'0\')' : ''}
+  ${isNFT ? 'const [tokenId, setTokenId] = useState<string>(\'0\')' : ''}
+  ${hasFeature('transfer') ? 'const [recipient, setRecipient] = useState<string>(\'\')' : ''}
+  ${hasFeature('transfer') && isERC20 ? 'const [amount, setAmount] = useState<string>(\'\')' : ''}
+
+  // Replace with your deployed contract address
+  const CONTRACT_ADDRESS = '0x...'
+
+  const connectWallet = async () => {
+    if (typeof window.ethereum !== 'undefined') {
+      try {
+        const provider = new ethers.BrowserProvider(window.ethereum)
+        await provider.send('eth_requestAccounts', [])
+        const signer = await provider.getSigner()
+        const address = await signer.getAddress()
+        setAccount(address)
+
+        const contractInstance = new ethers.Contract(
+          CONTRACT_ADDRESS,
+          CONTRACT_ABI,
+          signer
+        )
+        setContract(contractInstance)
+      } catch (error) {
+        console.error('Failed to connect:', error)
+      }
+    } else {
+      alert('Please install MetaMask!')
+    }
+  }
+${isERC20 ? `
+  const loadBalance = async () => {
+    if (contract && account) {
+      try {
+        const bal = await contract.balanceOf(account)
+        setBalance(ethers.formatEther(bal))
+      } catch (error) {
+        console.error('Failed to load balance:', error)
+      }
+    }
   }
 
-  const config = {
-    name: baseBlock.config?.name || "MyToken",
-    symbol: baseBlock.config?.symbol || "MTK",
-  }
+  useEffect(() => {
+    if (contract && account) {
+      loadBalance()
+    }
+  }, [contract, account])` : ''}
+${isERC20 && hasFeature('transfer') ? `
+  const handleTransfer = async () => {
+    if (!contract || !recipient || !amount) return
+    try {
+      const tx = await contract.transfer(recipient, ethers.parseEther(amount))
+      await tx.wait()
+      alert('Transfer successful!')
+      loadBalance()
+      setRecipient('')
+      setAmount('')
+    } catch (error: any) {
+      alert('Transfer failed: ' + error.message)
+    }
+  }` : ''}
+${isNFT ? `
+  const loadTokenURI = async () => {
+    if (contract && tokenId) {
+      try {
+        const uri = await contract.tokenURI(tokenId)
+        console.log('Token URI:', uri)
+      } catch (error) {
+        console.error('Failed to load token URI:', error)
+      }
+    }
+  }` : ''}
+${hasFeature('mint') && isNFT ? `
+  const handleMint = async () => {
+    if (!contract || !recipient) return
+    try {
+      const tx = await contract.mint(recipient, 'ipfs://...')
+      await tx.wait()
+      alert('Mint successful!')
+    } catch (error: any) {
+      alert('Mint failed: ' + error.message)
+    }
+  }` : ''}
 
-  if (baseBlock.type === "erc20") {
-    return "// ERC20 Frontend coming soon"
-  } else if (baseBlock.type === "nft") {
-    return "// NFT Frontend coming soon"
-  }
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-8">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-4xl font-bold text-white mb-8">
+          ${config.name} ${isERC20 ? 'Token' : 'NFT'} dApp
+        </h1>
 
-  return "// Frontend code generation coming soon"
+        {!account ? (
+          <button
+            onClick={connectWallet}
+            className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold"
+          >
+            Connect Wallet
+          </button>
+        ) : (
+          <div className="space-y-6">
+            <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
+              <p className="text-slate-400">Connected Account:</p>
+              <p className="text-white font-mono">{account}</p>
+              ${isERC20 ? `<p className="text-slate-400 mt-4">Balance:</p>
+              <p className="text-white text-2xl font-bold">{balance} ${config.symbol}</p>` : ''}
+            </div>
+${isERC20 && hasFeature('transfer') ? `
+            <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
+              <h2 className="text-xl font-bold text-white mb-4">Transfer ${config.symbol}</h2>
+              <input
+                type="text"
+                placeholder="Recipient address"
+                value={recipient}
+                onChange={(e) => setRecipient(e.target.value)}
+                className="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white mb-3"
+              />
+              <input
+                type="number"
+                placeholder="Amount"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                className="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white mb-3"
+              />
+              <button
+                onClick={handleTransfer}
+                className="w-full px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold"
+              >
+                Send ${config.symbol}
+              </button>
+            </div>` : ''}
+${isNFT ? `
+            <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
+              <h2 className="text-xl font-bold text-white mb-4">View NFT</h2>
+              <input
+                type="number"
+                placeholder="Token ID"
+                value={tokenId}
+                onChange={(e) => setTokenId(e.target.value)}
+                className="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white mb-3"
+              />
+              <button
+                onClick={loadTokenURI}
+                className="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold"
+              >
+                Load Token URI
+              </button>
+            </div>` : ''}
+${hasFeature('mint') && isNFT ? `
+            <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
+              <h2 className="text-xl font-bold text-white mb-4">Mint NFT</h2>
+              <input
+                type="text"
+                placeholder="Recipient address"
+                value={recipient}
+                onChange={(e) => setRecipient(e.target.value)}
+                className="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white mb-3"
+              />
+              <button
+                onClick={handleMint}
+                className="w-full px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-bold"
+              >
+                Mint NFT
+              </button>
+            </div>` : ''}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+`
+
+    return code
 }

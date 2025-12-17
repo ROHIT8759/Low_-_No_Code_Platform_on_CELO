@@ -26,6 +26,8 @@ declare global {
 export function DeployModal({ isOpen, onClose }: DeployModalProps) {
   const blocks = useBuilderStore((state) => state.blocks)
   const addDeployedContract = useBuilderStore((state) => state.addDeployedContract)
+  const currentUser = useSupabaseStore((state) => state.user)
+  const syncDeployedContracts = useSupabaseStore((state) => state.syncDeployedContracts)
   const [step, setStep] = useState<DeployStep>("connect")
   const [network, setNetwork] = useState<"sepolia" | "mainnet">("sepolia")
   const [contractName, setContractName] = useState("GeneratedToken")

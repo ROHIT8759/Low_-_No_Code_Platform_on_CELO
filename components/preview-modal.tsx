@@ -30,6 +30,7 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
 
     // Collect all features
     const features = []
+    if (hasFeature("transfer")) features.push("Transfer")
     if (hasFeature("mint")) features.push("Mint")
     if (hasFeature("burn")) features.push("Burn")
     if (hasFeature("stake")) features.push("Stake")
@@ -42,6 +43,11 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
     if (hasFeature("voting")) features.push("Voting")
     if (hasFeature("snapshot")) features.push("Snapshot")
     if (hasFeature("timelock")) features.push("Timelock")
+
+    // Always add balance viewing for ERC20/NFT
+    if (baseBlock) {
+      features.unshift("Balance")
+    }
 
     return `
       <!DOCTYPE html>
@@ -170,7 +176,7 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
         <script>
           let provider = null;
           let signer = null;
-          let walletAddress = '${walletAddress || ''}';
+          let walletAddress = null;
           let contract = null;
           
           // Get deployed contract address from localStorage
@@ -195,8 +201,25 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
             "function setTimelockDuration(uint256 duration) external",
             "function balanceOf(address account) view returns (uint256)",
             "function totalSupply() view returns (uint256)",
-            "function owner() view returns (address)"
+            "function owner() view returns (address)",
+            "function transfer(address to, uint256 amount) external returns (bool)",
+            "function transferFrom(address from, address to, uint256 tokenId) external"
           ];
+
+          // Check for existing wallet connection on load
+          async function checkExistingWallet() {
+            try {
+              if (typeof window.ethereum !== 'undefined') {
+                const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                if (accounts && accounts.length > 0) {
+                  walletAddress = accounts[0];
+                  await autoConnectWallet();
+                }
+              }
+            } catch (error) {
+              console.error('Error checking existing wallet:', error);
+            }
+          }
 
           // Update contract info on page load
           window.addEventListener('DOMContentLoaded', () => {
@@ -219,10 +242,8 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
               contractInfo.classList.add('text-yellow-400');
             }
             
-            // Auto-connect if wallet is already connected in navbar
-            if (walletAddress) {
-              autoConnectWallet();
-            }
+            // Check for existing wallet connection
+            checkExistingWallet();
           });
 
           function openExplorer() {
@@ -266,9 +287,32 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
           }
 
           async function autoConnectWallet() {
+            const connectBtn = document.getElementById('connectBtn');
+            
             try {
-              if (typeof window.ethereum === 'undefined' || !walletAddress) {
+              // Early return if window.ethereum is not available
+              if (typeof window.ethereum === 'undefined') {
+                if (connectBtn) connectBtn.textContent = '🦊 Install MetaMask';
                 return;
+              }
+              
+              // Check if we already have a wallet address, if not try to get it
+              if (!walletAddress) {
+                try {
+                  // Request accounts to get the current connected wallet
+                  const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                  if (accounts && accounts.length > 0) {
+                    walletAddress = accounts[0];
+                  } else {
+                    // No wallet connected yet
+                    if (connectBtn) connectBtn.textContent = '🔗 Connect Wallet';
+                    return;
+                  }
+                } catch (error) {
+                  console.error('Error getting accounts:', error);
+                  if (connectBtn) connectBtn.textContent = '🔗 Connect Wallet';
+                  return;
+                }
               }
 
               // Create provider and signer
@@ -430,6 +474,97 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
               });
             } catch (error) {
               console.error('Balance update error:', error);
+            }
+          }
+
+          async function checkBalance(event) {
+            const card = event.target.closest('.bg-slate-800');
+            const addressInput = card.querySelector('#balanceCheckAddress');
+            const resultDiv = card.querySelector('#balanceResult');
+            
+            if (!contract) {
+              showNotification('⚠️ Please connect your wallet and deploy the contract first!', 'warning');
+              return;
+            }
+            
+            try {
+              const address = addressInput && addressInput.value ? addressInput.value : walletAddress;
+              
+              if (!address) {
+                showNotification('❌ Please enter an address or connect your wallet', 'error');
+                return;
+              }
+              
+              showNotification('🔄 Checking balance...', 'info');
+              
+              const balance = await contract.balanceOf(address);
+              const formattedBalance = ethers.utils.formatEther(balance);
+              
+              if (resultDiv) {
+                resultDiv.textContent = formattedBalance + ' tokens';
+                resultDiv.style.display = 'block';
+              }
+              
+              showNotification('✅ Balance: ' + formattedBalance + ' tokens', 'success');
+            } catch (error) {
+              console.error('Check balance error:', error);
+              showNotification('❌ Failed to check balance: ' + error.message, 'error');
+              if (resultDiv) resultDiv.style.display = 'none';
+            }
+          }
+
+          async function executeTransfer(event) {
+            const card = event.target.closest('.bg-slate-800');
+            const inputs = card.querySelectorAll('input');
+            const recipientInput = inputs[0];
+            const amountInput = inputs[1];
+            
+            if (!walletAddress) {
+              showNotification('⚠️ Please connect your wallet first!', 'warning');
+              return;
+            }
+            
+            if (CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") {
+              showNotification('⚠️ Please deploy your contract first!', 'warning');
+              return;
+            }
+            
+            try {
+              const recipient = recipientInput ? recipientInput.value : '';
+              const amount = amountInput ? amountInput.value : '0';
+              
+              if (!recipient || !amount || amount === '0') {
+                showNotification('❌ Please fill in all fields', 'error');
+                return;
+              }
+              
+              showNotification('🔄 Transferring tokens...', 'info');
+              
+              // Check if it's NFT or ERC20 based on whether it's a tokenId
+              const isNFT = amountInput && amountInput.placeholder.includes('Token ID');
+              
+              let tx;
+              if (isNFT) {
+                // NFT transfer
+                tx = await contract.transferFrom(walletAddress, recipient, amount);
+              } else {
+                // ERC20 transfer
+                tx = await contract.transfer(recipient, ethers.utils.parseEther(amount));
+              }
+              
+              showNotification('⏳ Transaction sent! Waiting for confirmation...', 'info');
+              
+              await tx.wait();
+              showNotification('✅ Transfer successful!', 'success');
+              
+              // Clear inputs
+              if (recipientInput) recipientInput.value = '';
+              if (amountInput) amountInput.value = '';
+              
+              await updateBalance();
+            } catch (error) {
+              console.error('Transfer error:', error);
+              showNotification('❌ Transfer failed: ' + error.message, 'error');
             }
           }
 
@@ -951,7 +1086,11 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
             document.querySelectorAll('button').forEach(btn => {
               const text = btn.textContent;
               
-              if (text.includes('Mint')) {
+              if (text.includes('Check Balance')) {
+                btn.onclick = checkBalance;
+              } else if (text.includes('Transfer') || text.includes('Send Tokens')) {
+                btn.onclick = executeTransfer;
+              } else if (text.includes('Mint')) {
                 btn.onclick = executeMint;
               } else if (text.includes('Burn')) {
                 btn.onclick = executeBurn;
@@ -976,6 +1115,30 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
 
   const generateFeatureUI = (feature: string, isNFT: boolean) => {
     switch (feature) {
+      case "Balance":
+        return isNFT
+          ? `<div class="mb-3">
+               <label class="text-sm text-slate-400 mb-2 block">Check Balance</label>
+               <input type="text" id="balanceCheckAddress" placeholder="Enter address (or leave empty for your wallet)" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white mb-3 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none">
+             </div>
+             <button onclick="checkBalance(event)" class="w-full px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-medium rounded-lg transition-all transform hover:scale-105 shadow-lg shadow-cyan-500/30">📊 Check NFT Balance</button>
+             <div id="balanceResult" class="mt-3 text-center text-xl font-bold text-green-400"></div>`
+          : `<div class="mb-3">
+               <label class="text-sm text-slate-400 mb-2 block">Check Balance</label>
+               <input type="text" id="balanceCheckAddress" placeholder="Enter address (or leave empty for your wallet)" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white mb-3 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none">
+             </div>
+             <button onclick="checkBalance(event)" class="w-full px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-medium rounded-lg transition-all transform hover:scale-105 shadow-lg shadow-cyan-500/30">📊 Check Balance</button>
+             <div id="balanceResult" class="mt-3 text-center text-xl font-bold text-green-400"></div>`
+
+      case "Transfer":
+        return isNFT
+          ? `<input type="text" placeholder="Recipient Address" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white mb-2 focus:border-green-500 focus:ring-1 focus:ring-green-500 outline-none">
+             <input type="number" placeholder="Token ID" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white mb-3 focus:border-green-500 focus:ring-1 focus:ring-green-500 outline-none">
+             <button onclick="executeTransfer(event)" class="w-full px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-400 hover:to-emerald-400 text-white font-medium rounded-lg transition-all transform hover:scale-105 shadow-lg shadow-green-500/30">➡️ Transfer NFT</button>`
+          : `<input type="text" placeholder="Recipient Address" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white mb-2 focus:border-green-500 focus:ring-1 focus:ring-green-500 outline-none">
+             <input type="number" placeholder="Amount" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white mb-3 focus:border-green-500 focus:ring-1 focus:ring-green-500 outline-none">
+             <button onclick="executeTransfer(event)" class="w-full px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-400 hover:to-emerald-400 text-white font-medium rounded-lg transition-all transform hover:scale-105 shadow-lg shadow-green-500/30">💸 Send Tokens</button>`
+
       case "Mint":
         return isNFT
           ? `<input type="text" placeholder="Recipient Address" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white mb-3 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none">

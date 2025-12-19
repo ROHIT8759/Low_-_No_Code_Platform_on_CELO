@@ -56,9 +56,323 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
         <title>${contractName} dApp Preview</title>
       </head>
       <body class="bg-gradient-to-br from-slate-900 to-slate-800">
+        <script>
+          let provider = null;
+          let signer = null;
+          let walletAddress = null;
+          let contract = null;
+          
+          // Get deployed contract address from localStorage
+          let CONTRACT_ADDRESS = localStorage.getItem('deployedContractAddress') || "0x0000000000000000000000000000000000000000";
+          
+          // Helper function to get ethereum provider (works in iframe)
+          function getEthereum() {
+            if (typeof window.ethereum !== 'undefined') return window.ethereum;
+            try {
+              if (window.parent && typeof window.parent.ethereum !== 'undefined') return window.parent.ethereum;
+            } catch (e) {}
+            try {
+              if (window.top && typeof window.top.ethereum !== 'undefined') return window.top.ethereum;
+            } catch (e) {}
+            return null;
+          }
+          
+          // Simple ABI - add functions as needed
+          const CONTRACT_ABI = [
+            "function mint(address to, uint256 amount) external",
+            "function mint(address to) external",
+            "function burn(uint256 amount) external",
+            "function stake(uint256 amount) external",
+            "function withdraw() external",
+            "function pause() external",
+            "function unpause() external",
+            "function addToWhitelist(address account) external",
+            "function addToBlacklist(address account) external",
+            "function setRoyaltyInfo(address receiver, uint256 percentage) external",
+            "function airdrop(address[] calldata recipients, uint256[] calldata amounts) external",
+            "function snapshot() external returns (uint256)",
+            "function createProposal(string memory description, uint256 votingPeriod) external returns (uint256)",
+            "function vote(uint256 proposalId, bool support) external",
+            "function setTimelockDuration(uint256 duration) external",
+            "function balanceOf(address account) view returns (uint256)",
+            "function totalSupply() view returns (uint256)",
+            "function owner() view returns (address)",
+            "function transfer(address to, uint256 amount) external returns (bool)",
+            "function transferFrom(address from, address to, uint256 tokenId) external"
+          ];
+
+          // Notification function
+          function showNotification(message, type = 'info') {
+            const colors = {
+              success: 'bg-green-500',
+              error: 'bg-red-500',
+              warning: 'bg-yellow-500',
+              info: 'bg-blue-500'
+            };
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 ' + colors[type] + ' text-white px-6 py-4 rounded-lg shadow-lg z-50 animate-fade-in max-w-sm';
+            notification.innerHTML = message.replace(/\\n/g, '<br>');
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 5000);
+          }
+
+          // Check for existing wallet connection on load
+          async function checkExistingWallet() {
+            try {
+              const ethereum = getEthereum();
+              if (ethereum) {
+                const accounts = await ethereum.request({ method: 'eth_accounts' });
+                if (accounts && accounts.length > 0) {
+                  walletAddress = accounts[0];
+                  await autoConnectWallet();
+                }
+              }
+            } catch (error) {
+              console.error('Error checking existing wallet:', error);
+            }
+          }
+
+          // Update contract info on page load
+          window.addEventListener('DOMContentLoaded', () => {
+            const contractInfo = document.getElementById('contractInfo');
+            const contractAddressCard = document.getElementById('contractAddressCard');
+            const contractAddressDisplay = document.getElementById('contractAddressDisplay');
+            const explorerLink = document.getElementById('explorerLink');
+            
+            if (CONTRACT_ADDRESS !== "0x0000000000000000000000000000000000000000") {
+              if (contractInfo) {
+                contractInfo.textContent = '📄 Contract: ' + CONTRACT_ADDRESS.slice(0, 10) + '...' + CONTRACT_ADDRESS.slice(-8);
+                contractInfo.classList.remove('text-slate-500');
+                contractInfo.classList.add('text-green-400');
+              }
+              
+              // Show contract address card
+              if (contractAddressCard) contractAddressCard.classList.remove('hidden');
+              if (contractAddressDisplay) contractAddressDisplay.textContent = CONTRACT_ADDRESS;
+              if (explorerLink) explorerLink.href = 'https://sepolia.celoscan.io/address/' + CONTRACT_ADDRESS;
+            } else {
+              if (contractInfo) {
+                contractInfo.textContent = '⚠️ No contract deployed - Deploy first from builder';
+                contractInfo.classList.add('text-yellow-400');
+              }
+            }
+            
+            // Check for existing wallet connection
+            checkExistingWallet();
+          });
+
+          function openExplorer() {
+            if (CONTRACT_ADDRESS !== "0x0000000000000000000000000000000000000000") {
+              window.open('https://sepolia.celoscan.io/address/' + CONTRACT_ADDRESS, '_blank');
+            } else {
+              showNotification('⚠️ No contract deployed yet!', 'warning');
+            }
+          }
+
+          function copyContractAddress() {
+            if (CONTRACT_ADDRESS !== "0x0000000000000000000000000000000000000000") {
+              navigator.clipboard.writeText(CONTRACT_ADDRESS);
+              showNotification('📋 Contract address copied!', 'success');
+            }
+          }
+
+          function verifyContract() {
+            showNotification('✅ Contract verification coming soon!\\n\\nYou can verify manually on CeloScan', 'info');
+          }
+
+          async function updateBalance() {
+            if (!contract || !walletAddress) return;
+            try {
+              const balance = await contract.balanceOf(walletAddress);
+              const formatted = ethers.utils.formatEther(balance);
+              // Update balance displays if they exist
+              document.querySelectorAll('.balance-display').forEach(el => {
+                el.textContent = parseFloat(formatted).toFixed(4);
+              });
+            } catch (error) {
+              console.error('Error fetching balance:', error);
+            }
+          }
+
+          async function autoConnectWallet() {
+            try {
+              if (typeof ethers === 'undefined') {
+                setTimeout(autoConnectWallet, 300);
+                return;
+              }
+              
+              const ethereum = getEthereum();
+              if (!ethereum) return;
+              
+              provider = new ethers.providers.Web3Provider(ethereum);
+              signer = provider.getSigner();
+              walletAddress = await signer.getAddress();
+              
+              // Update button
+              const connectBtn = document.getElementById('connectBtn');
+              if (connectBtn) {
+                connectBtn.textContent = '✅ ' + walletAddress.slice(0, 6) + '...' + walletAddress.slice(-4);
+                connectBtn.classList.remove('from-cyan-500', 'to-blue-600');
+                connectBtn.classList.add('from-green-500', 'to-green-600');
+              }
+              
+              // Initialize contract if deployed
+              if (CONTRACT_ADDRESS !== "0x0000000000000000000000000000000000000000") {
+                contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+              }
+              
+              // Load balance if contract exists
+              if (contract) {
+                await updateBalance();
+              }
+            } catch (error) {
+              console.error('Auto-connect error:', error);
+            }
+          }
+
+          async function connectWallet() {
+            console.log('🔌 Connect Wallet clicked');
+            try {
+              // Wait for ethers to load if needed
+              if (typeof ethers === 'undefined') {
+                console.log('⏳ Waiting for ethers.js to load...');
+                showNotification('⏳ Loading Web3 libraries...', 'info');
+                setTimeout(connectWallet, 500);
+                return;
+              }
+
+              console.log('✓ ethers.js loaded');
+              
+              // Check if MetaMask or compatible wallet is installed
+              const ethereum = getEthereum();
+              if (!ethereum) {
+                console.error('❌ No Web3 wallet detected');
+                showNotification('❌ No Web3 wallet detected!\\n\\nPlease install MetaMask or another Web3 wallet.', 'error');
+                window.open('https://metamask.io/download/', '_blank');
+                return;
+              }
+
+              console.log('✓ ethereum available');
+              showNotification('🔄 Connecting wallet...', 'info');
+
+              // Request account access
+              console.log('📱 Requesting wallet accounts...');
+              const accounts = await ethereum.request({ 
+                method: 'eth_requestAccounts' 
+              });
+              console.log('📱 Accounts returned:', accounts);
+              
+              if (!accounts || accounts.length === 0) {
+                console.error('❌ No accounts found');
+                showNotification('❌ No accounts found. Please unlock your wallet.', 'error');
+                return;
+              }
+
+              walletAddress = accounts[0];
+              console.log('✅ Wallet connected:', walletAddress);
+              
+              // Create provider and signer
+              provider = new ethers.providers.Web3Provider(ethereum);
+              signer = provider.getSigner();
+              
+              // Check network
+              const network = await provider.getNetwork();
+              const celoSepoliaChainId = 44787; // Celo Alfajores Testnet
+              console.log('📡 Current network chainId:', network.chainId);
+              
+              if (network.chainId !== celoSepoliaChainId) {
+                console.warn('⚠️ Wrong network, switching...');
+                showNotification('⚠️ Wrong network! Switching to Celo Sepolia...', 'warning');
+                try {
+                  await ethereum.request({
+                    method: 'wallet_switchEthereumChain',
+                    params: [{ chainId: '0x' + celoSepoliaChainId.toString(16) }],
+                  });
+                  console.log('✅ Network switched');
+                } catch (switchError) {
+                  console.log('Network not added, trying to add...');
+                  // Network not added, try to add it
+                  if (switchError.code === 4902) {
+                    try {
+                      await ethereum.request({
+                        method: 'wallet_addEthereumChain',
+                        params: [{
+                          chainId: '0x' + celoSepoliaChainId.toString(16),
+                          chainName: 'Celo Alfajores Testnet',
+                          nativeCurrency: {
+                            name: 'CELO',
+                            symbol: 'CELO',
+                            decimals: 18
+                          },
+                          rpcUrls: ['https://alfajores-forno.celo-testnet.org'],
+                          blockExplorerUrls: ['https://alfajores.celoscan.io']
+                        }],
+                      });
+                      console.log('✅ Network added');
+                    } catch (addError) {
+                      console.error('❌ Failed to add network:', addError);
+                      showNotification('❌ Failed to add Celo network: ' + addError.message, 'error');
+                      return;
+                    }
+                  } else {
+                    console.error('❌ Failed to switch network:', switchError);
+                    showNotification('❌ Failed to switch network: ' + switchError.message, 'error');
+                    return;
+                  }
+                }
+              }
+              
+              // Initialize contract if deployed
+              if (CONTRACT_ADDRESS !== "0x0000000000000000000000000000000000000000") {
+                contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+                console.log('✅ Contract instance created');
+                showNotification('✅ Wallet connected!\\n📄 Contract loaded\\n👛 ' + walletAddress.slice(0, 6) + '...' + walletAddress.slice(-4), 'success');
+                await updateBalance();
+              } else {
+                console.log('⚠️ No contract deployed');
+                showNotification('✅ Wallet connected!\\n👛 ' + walletAddress.slice(0, 6) + '...' + walletAddress.slice(-4) + '\\n⚠️ Deploy contract to interact', 'success');
+              }
+              
+              // Update UI button
+              const connectBtn = document.getElementById('connectBtn');
+              if (connectBtn) {
+                connectBtn.textContent = '✅ ' + walletAddress.slice(0, 6) + '...' + walletAddress.slice(-4);
+                connectBtn.classList.remove('from-cyan-500', 'to-blue-600', 'hover:from-cyan-400', 'hover:to-blue-500');
+                connectBtn.classList.add('from-green-500', 'to-green-600', 'cursor-default');
+              }
+              
+              // Listen for account changes
+              if (ethereum && ethereum.on) {
+                ethereum.on('accountsChanged', (accounts) => {
+                  if (accounts.length === 0) {
+                    console.log('⚠️ Wallet disconnected');
+                    showNotification('⚠️ Wallet disconnected', 'warning');
+                    location.reload();
+                  } else {
+                    walletAddress = accounts[0];
+                    console.log('🔄 Account changed:', walletAddress);
+                    showNotification('🔄 Account changed to ' + walletAddress.slice(0, 6) + '...', 'info');
+                    location.reload();
+                  }
+                });
+              }
+              
+              // Listen for chain changes
+              window.ethereum.on('chainChanged', () => {
+                console.log('🔄 Chain changed, reloading...');
+                location.reload();
+              });
+              
+            } catch (error) {
+              console.error('❌ Connection error:', error);
+              showNotification('❌ ' + error.message, 'error');
+            }
+          }
+        </script>
         <div class="min-h-screen p-8">
           <div class="max-w-4xl mx-auto">
             <!-- Header -->
@@ -172,311 +486,9 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
           </div>
         </div>
 
-        <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
         <script>
-          let provider = null;
-          let signer = null;
-          let walletAddress = null;
-          let contract = null;
+          // Execute Functions (these use the variables defined in the first script)
           
-          // Get deployed contract address from localStorage
-          let CONTRACT_ADDRESS = localStorage.getItem('deployedContractAddress') || "0x0000000000000000000000000000000000000000";
-          
-          // Simple ABI - add functions as needed
-          const CONTRACT_ABI = [
-            "function mint(address to, uint256 amount) external",
-            "function mint(address to) external",
-            "function burn(uint256 amount) external",
-            "function stake(uint256 amount) external",
-            "function withdraw() external",
-            "function pause() external",
-            "function unpause() external",
-            "function addToWhitelist(address account) external",
-            "function addToBlacklist(address account) external",
-            "function setRoyaltyInfo(address receiver, uint256 percentage) external",
-            "function airdrop(address[] calldata recipients, uint256[] calldata amounts) external",
-            "function snapshot() external returns (uint256)",
-            "function createProposal(string memory description, uint256 votingPeriod) external returns (uint256)",
-            "function vote(uint256 proposalId, bool support) external",
-            "function setTimelockDuration(uint256 duration) external",
-            "function balanceOf(address account) view returns (uint256)",
-            "function totalSupply() view returns (uint256)",
-            "function owner() view returns (address)",
-            "function transfer(address to, uint256 amount) external returns (bool)",
-            "function transferFrom(address from, address to, uint256 tokenId) external"
-          ];
-
-          // Check for existing wallet connection on load
-          async function checkExistingWallet() {
-            try {
-              if (typeof window.ethereum !== 'undefined') {
-                const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-                if (accounts && accounts.length > 0) {
-                  walletAddress = accounts[0];
-                  await autoConnectWallet();
-                }
-              }
-            } catch (error) {
-              console.error('Error checking existing wallet:', error);
-            }
-          }
-
-          // Update contract info on page load
-          window.addEventListener('DOMContentLoaded', () => {
-            const contractInfo = document.getElementById('contractInfo');
-            const contractAddressCard = document.getElementById('contractAddressCard');
-            const contractAddressDisplay = document.getElementById('contractAddressDisplay');
-            const explorerLink = document.getElementById('explorerLink');
-            
-            if (CONTRACT_ADDRESS !== "0x0000000000000000000000000000000000000000") {
-              contractInfo.textContent = '📄 Contract: ' + CONTRACT_ADDRESS.slice(0, 10) + '...' + CONTRACT_ADDRESS.slice(-8);
-              contractInfo.classList.remove('text-slate-500');
-              contractInfo.classList.add('text-green-400');
-              
-              // Show contract address card
-              contractAddressCard.classList.remove('hidden');
-              contractAddressDisplay.textContent = CONTRACT_ADDRESS;
-              explorerLink.href = 'https://sepolia.celoscan.io/address/' + CONTRACT_ADDRESS;
-            } else {
-              contractInfo.textContent = '⚠️ No contract deployed - Deploy first from builder';
-              contractInfo.classList.add('text-yellow-400');
-            }
-            
-            // Check for existing wallet connection
-            checkExistingWallet();
-          });
-
-          function openExplorer() {
-            if (CONTRACT_ADDRESS !== "0x0000000000000000000000000000000000000000") {
-              const explorerUrl = 'https://sepolia.celoscan.io/address/' + CONTRACT_ADDRESS;
-              window.open(explorerUrl, '_blank');
-              showNotification('🔍 Opening Celo Scan Explorer...', 'info');
-            } else {
-              showNotification('⚠️ No contract deployed yet!\\n\\nDeploy your contract first from the builder page.', 'warning');
-            }
-          }
-
-          function copyContractAddress() {
-            if (CONTRACT_ADDRESS !== "0x0000000000000000000000000000000000000000") {
-              navigator.clipboard.writeText(CONTRACT_ADDRESS).then(() => {
-                showNotification('✅ Contract address copied!\\n\\n' + CONTRACT_ADDRESS, 'success');
-                
-                // Visual feedback
-                const btn = event.target.closest('button');
-                const originalText = btn.innerHTML;
-                btn.innerHTML = '✅ Copied!';
-                btn.classList.add('bg-green-600');
-                setTimeout(() => {
-                  btn.innerHTML = originalText;
-                  btn.classList.remove('bg-green-600');
-                }, 2000);
-              }).catch(err => {
-                showNotification('❌ Failed to copy address', 'error');
-              });
-            }
-          }
-
-          function verifyContract() {
-            if (CONTRACT_ADDRESS !== "0x0000000000000000000000000000000000000000") {
-              const verifyUrl = 'https://sepolia.celoscan.io/address/' + CONTRACT_ADDRESS + '#code';
-              window.open(verifyUrl, '_blank');
-              showNotification('📝 Opening verification page...\\n\\nYou can verify your contract source code on Celo Scan.', 'info');
-            } else {
-              showNotification('⚠️ No contract deployed yet!', 'warning');
-            }
-          }
-
-          async function autoConnectWallet() {
-            const connectBtn = document.getElementById('connectBtn');
-            
-            try {
-              // Early return if window.ethereum is not available
-              if (typeof window.ethereum === 'undefined') {
-                if (connectBtn) connectBtn.textContent = '🦊 Install MetaMask';
-                return;
-              }
-              
-              // Check if we already have a wallet address, if not try to get it
-              if (!walletAddress) {
-                try {
-                  // Request accounts to get the current connected wallet
-                  const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-                  if (accounts && accounts.length > 0) {
-                    walletAddress = accounts[0];
-                  } else {
-                    // No wallet connected yet
-                    if (connectBtn) connectBtn.textContent = '🔗 Connect Wallet';
-                    return;
-                  }
-                } catch (error) {
-                  console.error('Error getting accounts:', error);
-                  if (connectBtn) connectBtn.textContent = '🔗 Connect Wallet';
-                  return;
-                }
-              }
-
-              // Create provider and signer
-              provider = new ethers.providers.Web3Provider(window.ethereum);
-              signer = provider.getSigner();
-              
-              // Initialize contract
-              if (CONTRACT_ADDRESS !== "0x0000000000000000000000000000000000000000") {
-                contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-                showNotification('✅ Wallet connected!\\n📄 Contract loaded', 'success');
-              } else {
-                showNotification('✅ Wallet connected: ' + walletAddress.slice(0, 6) + '...' + walletAddress.slice(-4) + '\\n⚠️ No contract deployed yet', 'warning');
-              }
-              
-              // Update UI
-              document.querySelectorAll('button').forEach(btn => {
-                if (btn.textContent.includes('Connect Wallet')) {
-                  btn.textContent = '✅ ' + walletAddress.slice(0, 6) + '...' + walletAddress.slice(-4);
-                  btn.classList.remove('bg-green-500', 'hover:bg-green-600');
-                  btn.classList.add('bg-green-600');
-                  btn.disabled = true;
-                }
-              });
-              
-              // Load balance if contract exists
-              if (contract) {
-                await updateBalance();
-              }
-            } catch (error) {
-              console.error('Auto-connect error:', error);
-            }
-          }
-
-          async function connectWallet() {
-            try {
-              // Check if MetaMask or compatible wallet is installed
-              if (typeof window.ethereum === 'undefined') {
-                showNotification('❌ No Web3 wallet detected!\\n\\nPlease install MetaMask or another Web3 wallet.', 'error');
-                window.open('https://metamask.io/download/', '_blank');
-                return;
-              }
-
-              showNotification('🔄 Connecting wallet...', 'info');
-
-              // Request account access
-              const accounts = await window.ethereum.request({ 
-                method: 'eth_requestAccounts' 
-              });
-              
-              if (!accounts || accounts.length === 0) {
-                showNotification('❌ No accounts found. Please unlock your wallet.', 'error');
-                return;
-              }
-
-              walletAddress = accounts[0];
-              
-              // Create provider and signer
-              provider = new ethers.providers.Web3Provider(window.ethereum);
-              signer = provider.getSigner();
-              
-              // Check network
-              const network = await provider.getNetwork();
-              const celoSepoliaChainId = 44787; // Celo Alfajores Testnet
-              
-              if (network.chainId !== celoSepoliaChainId) {
-                showNotification('⚠️ Wrong network! Switching to Celo Sepolia...', 'warning');
-                try {
-                  await window.ethereum.request({
-                    method: 'wallet_switchEthereumChain',
-                    params: [{ chainId: '0x' + celoSepoliaChainId.toString(16) }],
-                  });
-                } catch (switchError) {
-                  // Network not added, try to add it
-                  if (switchError.code === 4902) {
-                    try {
-                      await window.ethereum.request({
-                        method: 'wallet_addEthereumChain',
-                        params: [{
-                          chainId: '0x' + celoSepoliaChainId.toString(16),
-                          chainName: 'Celo Alfajores Testnet',
-                          nativeCurrency: {
-                            name: 'CELO',
-                            symbol: 'CELO',
-                            decimals: 18
-                          },
-                          rpcUrls: ['https://alfajores-forno.celo-testnet.org'],
-                          blockExplorerUrls: ['https://alfajores.celoscan.io']
-                        }],
-                      });
-                    } catch (addError) {
-                      showNotification('❌ Failed to add Celo network: ' + addError.message, 'error');
-                      return;
-                    }
-                  } else {
-                    showNotification('❌ Failed to switch network: ' + switchError.message, 'error');
-                    return;
-                  }
-                }
-              }
-              
-              // Initialize contract if deployed
-              if (CONTRACT_ADDRESS !== "0x0000000000000000000000000000000000000000") {
-                contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-                showNotification('✅ Wallet connected!\\n📄 Contract loaded\\n👛 ' + walletAddress.slice(0, 6) + '...' + walletAddress.slice(-4), 'success');
-                await updateBalance();
-              } else {
-                showNotification('✅ Wallet connected!\\n👛 ' + walletAddress.slice(0, 6) + '...' + walletAddress.slice(-4) + '\\n⚠️ Deploy contract to interact', 'success');
-              }
-              
-              // Update UI button
-              const connectBtn = document.getElementById('connectBtn');
-              if (connectBtn) {
-                connectBtn.textContent = '✅ ' + walletAddress.slice(0, 6) + '...' + walletAddress.slice(-4);
-                connectBtn.classList.remove('from-cyan-500', 'to-blue-600', 'hover:from-cyan-400', 'hover:to-blue-500');
-                connectBtn.classList.add('from-green-500', 'to-green-600', 'cursor-default');
-                connectBtn.onclick = null;
-              }
-              
-              // Listen for account changes
-              window.ethereum.on('accountsChanged', (accounts) => {
-                if (accounts.length === 0) {
-                  showNotification('⚠️ Wallet disconnected', 'warning');
-                  location.reload();
-                } else {
-                  walletAddress = accounts[0];
-                  showNotification('🔄 Account changed to ' + walletAddress.slice(0, 6) + '...', 'info');
-                  location.reload();
-                }
-              });
-              
-              // Listen for chain changes
-              window.ethereum.on('chainChanged', () => {
-                location.reload();
-              });
-              
-            } catch (error) {
-              console.error('Wallet connection error:', error);
-              
-              if (error.code === 4001) {
-                showNotification('❌ Connection rejected\\n\\nYou rejected the connection request.', 'error');
-              } else {
-                showNotification('❌ Failed to connect wallet\\n\\n' + error.message, 'error');
-              }
-            }
-          }
-
-          async function updateBalance() {
-            if (!contract || !walletAddress) return;
-            
-            try {
-              const balance = await contract.balanceOf(walletAddress);
-              const formattedBalance = ethers.utils.formatEther(balance);
-              
-              // Update balance display
-              document.querySelectorAll('.text-green-400').forEach(el => {
-                if (el.parentElement && el.parentElement.textContent.includes('Your Balance')) {
-                  el.textContent = formattedBalance;
-                }
-              });
-            } catch (error) {
-              console.error('Balance update error:', error);
-            }
-          }
-
           async function checkBalance(event) {
             const card = event.target.closest('.bg-slate-800');
             const addressInput = card.querySelector('#balanceCheckAddress');
@@ -540,27 +552,20 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
               
               showNotification('🔄 Transferring tokens...', 'info');
               
-              // Check if it's NFT or ERC20 based on whether it's a tokenId
               const isNFT = amountInput && amountInput.placeholder.includes('Token ID');
-              
               let tx;
               if (isNFT) {
-                // NFT transfer
                 tx = await contract.transferFrom(walletAddress, recipient, amount);
               } else {
-                // ERC20 transfer
                 tx = await contract.transfer(recipient, ethers.utils.parseEther(amount));
               }
               
               showNotification('⏳ Transaction sent! Waiting for confirmation...', 'info');
-              
               await tx.wait();
               showNotification('✅ Transfer successful!', 'success');
               
-              // Clear inputs
               if (recipientInput) recipientInput.value = '';
               if (amountInput) amountInput.value = '';
-              
               await updateBalance();
             } catch (error) {
               console.error('Transfer error:', error);
@@ -579,7 +584,7 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
             }
             
             if (CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") {
-              showNotification('⚠️ Please deploy your contract first!\\n\\nGo to builder and click "Deploy Contract"', 'warning');
+              showNotification('⚠️ Please deploy your contract first!', 'warning');
               return;
             }
             
@@ -587,19 +592,11 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
               const to = addressInput ? addressInput.value : walletAddress;
               const amount = amountInput ? amountInput.value : '1';
               
-              if (!to || !amount) {
-                showNotification('❌ Please fill in all fields', 'error');
-                return;
-              }
-              
               showNotification('🔄 Minting tokens...', 'info');
-              
               const tx = await contract.mint(to, ethers.utils.parseEther(amount));
               showNotification('⏳ Transaction sent! Waiting for confirmation...', 'info');
-              
               await tx.wait();
               showNotification('✅ Tokens minted successfully!', 'success');
-              
               await updateBalance();
             } catch (error) {
               console.error('Mint error:', error);
@@ -623,20 +620,16 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
             
             try {
               const amount = amountInput ? amountInput.value : '0';
-              
               if (!amount || amount === '0') {
                 showNotification('❌ Please enter amount to burn', 'error');
                 return;
               }
               
               showNotification('🔄 Burning tokens...', 'info');
-              
               const tx = await contract.burn(ethers.utils.parseEther(amount));
               showNotification('⏳ Transaction sent! Waiting for confirmation...', 'info');
-              
               await tx.wait();
               showNotification('✅ Tokens burned successfully!', 'success');
-              
               await updateBalance();
             } catch (error) {
               console.error('Burn error:', error);
@@ -660,20 +653,16 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
             
             try {
               const amount = amountInput ? amountInput.value : '0';
-              
               if (!amount || amount === '0') {
                 showNotification('❌ Please enter amount to stake', 'error');
                 return;
               }
               
               showNotification('🔄 Staking tokens...', 'info');
-              
               const tx = await contract.stake(ethers.utils.parseEther(amount));
               showNotification('⏳ Transaction sent! Waiting for confirmation...', 'info');
-              
               await tx.wait();
-              showNotification('✅ Tokens staked successfully! Earning 1% daily!', 'success');
-              
+              showNotification('✅ Tokens staked successfully!', 'success');
               await updateBalance();
             } catch (error) {
               console.error('Stake error:', error);
@@ -682,22 +671,13 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
           }
 
           async function executePause() {
-            if (!walletAddress) {
-              showNotification('⚠️ Please connect your wallet first!', 'warning');
-              return;
-            }
-            
-            if (CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") {
-              showNotification('⚠️ Please deploy your contract first!', 'warning');
-              return;
-            }
+            if (!walletAddress) { showNotification('⚠️ Please connect your wallet first!', 'warning'); return; }
+            if (CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") { showNotification('⚠️ Please deploy your contract first!', 'warning'); return; }
             
             try {
               showNotification('🔄 Pausing contract...', 'info');
-              
               const tx = await contract.pause();
               await tx.wait();
-              
               showNotification('✅ Contract paused!', 'success');
             } catch (error) {
               console.error('Pause error:', error);
@@ -706,22 +686,13 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
           }
 
           async function executeUnpause() {
-            if (!walletAddress) {
-              showNotification('⚠️ Please connect your wallet first!', 'warning');
-              return;
-            }
-            
-            if (CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") {
-              showNotification('⚠️ Please deploy your contract first!', 'warning');
-              return;
-            }
+            if (!walletAddress) { showNotification('⚠️ Please connect your wallet first!', 'warning'); return; }
+            if (CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") { showNotification('⚠️ Please deploy your contract first!', 'warning'); return; }
             
             try {
               showNotification('🔄 Unpausing contract...', 'info');
-              
               const tx = await contract.unpause();
               await tx.wait();
-              
               showNotification('✅ Contract unpaused!', 'success');
             } catch (error) {
               console.error('Unpause error:', error);
@@ -733,29 +704,16 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
             const card = event.target.closest('.bg-slate-800');
             const addressInput = card.querySelector('input[type="text"]');
             
-            if (!walletAddress) {
-              showNotification('⚠️ Please connect your wallet first!', 'warning');
-              return;
-            }
-            
-            if (CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") {
-              showNotification('⚠️ Please deploy your contract first!', 'warning');
-              return;
-            }
+            if (!walletAddress) { showNotification('⚠️ Please connect your wallet first!', 'warning'); return; }
+            if (CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") { showNotification('⚠️ Please deploy your contract first!', 'warning'); return; }
             
             try {
               const address = addressInput ? addressInput.value : '';
-              
-              if (!address) {
-                showNotification('❌ Please enter an address', 'error');
-                return;
-              }
+              if (!address) { showNotification('❌ Please enter an address', 'error'); return; }
               
               showNotification('🔄 Adding to whitelist...', 'info');
-              
               const tx = await contract.addToWhitelist(address);
               await tx.wait();
-              
               showNotification('✅ Address added to whitelist!', 'success');
             } catch (error) {
               console.error('Whitelist error:', error);
@@ -767,29 +725,16 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
             const card = event.target.closest('.bg-slate-800');
             const addressInput = card.querySelector('input[type="text"]');
             
-            if (!walletAddress) {
-              showNotification('⚠️ Please connect your wallet first!', 'warning');
-              return;
-            }
-            
-            if (CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") {
-              showNotification('⚠️ Please deploy your contract first!', 'warning');
-              return;
-            }
+            if (!walletAddress) { showNotification('⚠️ Please connect your wallet first!', 'warning'); return; }
+            if (CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") { showNotification('⚠️ Please deploy your contract first!', 'warning'); return; }
             
             try {
               const address = addressInput ? addressInput.value : '';
-              
-              if (!address) {
-                showNotification('❌ Please enter an address', 'error');
-                return;
-              }
+              if (!address) { showNotification('❌ Please enter an address', 'error'); return; }
               
               showNotification('🔄 Adding to blacklist...', 'info');
-              
               const tx = await contract.addToBlacklist(address);
               await tx.wait();
-              
               showNotification('✅ Address blacklisted!', 'success');
             } catch (error) {
               console.error('Blacklist error:', error);
@@ -798,22 +743,13 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
           }
 
           async function executeWithdraw(event) {
-            if (!walletAddress) {
-              showNotification('⚠️ Please connect your wallet first!', 'warning');
-              return;
-            }
-            
-            if (CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") {
-              showNotification('⚠️ Please deploy your contract first!', 'warning');
-              return;
-            }
+            if (!walletAddress) { showNotification('⚠️ Please connect your wallet first!', 'warning'); return; }
+            if (CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") { showNotification('⚠️ Please deploy your contract first!', 'warning'); return; }
             
             try {
               showNotification('🔄 Withdrawing funds...', 'info');
-              
               const tx = await contract.withdraw();
               showNotification('⏳ Transaction sent! Waiting for confirmation...', 'info');
-              
               await tx.wait();
               showNotification('✅ Funds withdrawn successfully!', 'success');
             } catch (error) {
@@ -827,30 +763,17 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
             const addressInput = card.querySelectorAll('input[type="text"]')[0];
             const percentageInput = card.querySelector('input[type="number"]');
             
-            if (!walletAddress) {
-              showNotification('⚠️ Please connect your wallet first!', 'warning');
-              return;
-            }
-            
-            if (CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") {
-              showNotification('⚠️ Please deploy your contract first!', 'warning');
-              return;
-            }
+            if (!walletAddress) { showNotification('⚠️ Please connect your wallet first!', 'warning'); return; }
+            if (CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") { showNotification('⚠️ Please deploy your contract first!', 'warning'); return; }
             
             try {
               const receiver = addressInput ? addressInput.value : '';
               const percentage = percentageInput ? percentageInput.value : '250';
-              
-              if (!receiver) {
-                showNotification('❌ Please enter a receiver address', 'error');
-                return;
-              }
+              if (!receiver) { showNotification('❌ Please enter a receiver address', 'error'); return; }
               
               showNotification('🔄 Setting royalty info...', 'info');
-              
               const tx = await contract.setRoyaltyInfo(receiver, percentage);
               await tx.wait();
-              
               showNotification('✅ Royalty updated to ' + (parseInt(percentage) / 100) + '%!', 'success');
             } catch (error) {
               console.error('Royalty error:', error);
@@ -863,37 +786,20 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
             const textarea = card.querySelector('textarea');
             const amountInput = card.querySelector('input[type="number"]');
             
-            if (!walletAddress) {
-              showNotification('⚠️ Please connect your wallet first!', 'warning');
-              return;
-            }
-            
-            if (CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") {
-              showNotification('⚠️ Please deploy your contract first!', 'warning');
-              return;
-            }
+            if (!walletAddress) { showNotification('⚠️ Please connect your wallet first!', 'warning'); return; }
+            if (CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") { showNotification('⚠️ Please deploy your contract first!', 'warning'); return; }
             
             try {
               const addresses = textarea ? textarea.value.split('\\n').filter(a => a.trim()) : [];
               const amount = amountInput ? amountInput.value : '0';
               
-              if (addresses.length === 0) {
-                showNotification('❌ Please enter at least one address', 'error');
-                return;
-              }
-              
-              if (!amount || amount === '0') {
-                showNotification('❌ Please enter amount per address', 'error');
-                return;
-              }
+              if (addresses.length === 0) { showNotification('❌ Please enter at least one address', 'error'); return; }
+              if (!amount || amount === '0') { showNotification('❌ Please enter amount per address', 'error'); return; }
               
               const amounts = addresses.map(() => ethers.utils.parseEther(amount));
-              
               showNotification('🔄 Executing airdrop to ' + addresses.length + ' addresses...', 'info');
-              
               const tx = await contract.airdrop(addresses, amounts);
               showNotification('⏳ Transaction sent! Waiting for confirmation...', 'info');
-              
               await tx.wait();
               showNotification('✅ Airdrop completed to ' + addresses.length + ' addresses!', 'success');
             } catch (error) {
@@ -908,31 +814,18 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
             const descriptionInput = inputs[0];
             const periodInput = inputs[1];
             
-            if (!walletAddress) {
-              showNotification('⚠️ Please connect your wallet first!', 'warning');
-              return;
-            }
-            
-            if (CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") {
-              showNotification('⚠️ Please deploy your contract first!', 'warning');
-              return;
-            }
+            if (!walletAddress) { showNotification('⚠️ Please connect your wallet first!', 'warning'); return; }
+            if (CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") { showNotification('⚠️ Please deploy your contract first!', 'warning'); return; }
             
             try {
               const description = descriptionInput ? descriptionInput.value : '';
-              const period = periodInput ? periodInput.value : '86400'; // 1 day default
-              
-              if (!description) {
-                showNotification('❌ Please enter a proposal description', 'error');
-                return;
-              }
+              const period = periodInput ? periodInput.value : '86400';
+              if (!description) { showNotification('❌ Please enter a proposal description', 'error'); return; }
               
               showNotification('🔄 Creating proposal...', 'info');
-              
               const tx = await contract.createProposal(description, period);
               showNotification('⏳ Transaction sent! Waiting for confirmation...', 'info');
-              
-              const receipt = await tx.wait();
+              await tx.wait();
               showNotification('✅ Proposal created successfully!', 'success');
             } catch (error) {
               console.error('Create proposal error:', error);
@@ -941,25 +834,16 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
           }
 
           async function executeVote(support) {
-            if (!walletAddress) {
-              showNotification('⚠️ Please connect your wallet first!', 'warning');
-              return;
-            }
-            
-            if (CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") {
-              showNotification('⚠️ Please deploy your contract first!', 'warning');
-              return;
-            }
+            if (!walletAddress) { showNotification('⚠️ Please connect your wallet first!', 'warning'); return; }
+            if (CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") { showNotification('⚠️ Please deploy your contract first!', 'warning'); return; }
             
             try {
               const proposalId = prompt('Enter Proposal ID to vote on:');
               if (!proposalId) return;
               
               showNotification('🔄 Submitting vote...', 'info');
-              
               const tx = await contract.vote(proposalId, support);
               showNotification('⏳ Transaction sent! Waiting for confirmation...', 'info');
-              
               await tx.wait();
               showNotification('✅ Vote submitted: ' + (support ? 'For' : 'Against') + '!', 'success');
             } catch (error) {
@@ -969,23 +853,14 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
           }
 
           async function executeSnapshot(event) {
-            if (!walletAddress) {
-              showNotification('⚠️ Please connect your wallet first!', 'warning');
-              return;
-            }
-            
-            if (CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") {
-              showNotification('⚠️ Please deploy your contract first!', 'warning');
-              return;
-            }
+            if (!walletAddress) { showNotification('⚠️ Please connect your wallet first!', 'warning'); return; }
+            if (CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") { showNotification('⚠️ Please deploy your contract first!', 'warning'); return; }
             
             try {
               showNotification('🔄 Taking snapshot...', 'info');
-              
               const tx = await contract.snapshot();
               showNotification('⏳ Transaction sent! Waiting for confirmation...', 'info');
-              
-              const receipt = await tx.wait();
+              await tx.wait();
               showNotification('✅ Snapshot taken successfully!', 'success');
             } catch (error) {
               console.error('Snapshot error:', error);
@@ -997,29 +872,16 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
             const card = event.target.closest('.bg-slate-800');
             const durationInput = card.querySelector('input[type="number"]');
             
-            if (!walletAddress) {
-              showNotification('⚠️ Please connect your wallet first!', 'warning');
-              return;
-            }
-            
-            if (CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") {
-              showNotification('⚠️ Please deploy your contract first!', 'warning');
-              return;
-            }
+            if (!walletAddress) { showNotification('⚠️ Please connect your wallet first!', 'warning'); return; }
+            if (CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") { showNotification('⚠️ Please deploy your contract first!', 'warning'); return; }
             
             try {
-              const duration = durationInput ? durationInput.value : '172800'; // 2 days default
-              
-              if (!duration || duration === '0') {
-                showNotification('❌ Please enter a valid duration', 'error');
-                return;
-              }
+              const duration = durationInput ? durationInput.value : '172800';
+              if (!duration || duration === '0') { showNotification('❌ Please enter a valid duration', 'error'); return; }
               
               showNotification('🔄 Setting timelock duration...', 'info');
-              
               const tx = await contract.setTimelockDuration(duration);
               await tx.wait();
-              
               const days = Math.floor(parseInt(duration) / 86400);
               const hours = Math.floor((parseInt(duration) % 86400) / 3600);
               showNotification('✅ Timelock set to ' + days + ' days ' + hours + ' hours!', 'success');
@@ -1030,83 +892,10 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
           }
 
           function executeAction(action) {
-            // Fallback for features not yet implemented
-            if (!walletAddress) {
-              showNotification('⚠️ Please connect your wallet first!', 'warning');
-              return;
-            }
-            
-            if (CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") {
-              showNotification('⚠️ Please deploy your contract first!\\n\\nGo to builder and click "Deploy Contract"', 'warning');
-              return;
-            }
-            
+            if (!walletAddress) { showNotification('⚠️ Please connect your wallet first!', 'warning'); return; }
+            if (CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") { showNotification('⚠️ Please deploy your contract first!', 'warning'); return; }
             showNotification('ℹ️ ' + action + ' feature\\n\\nThis would execute the transaction on your deployed contract.', 'info');
           }
-
-          function showNotification(message, type = 'info') {
-            // Remove existing notifications
-            const existing = document.getElementById('notification');
-            if (existing) existing.remove();
-            
-            // Create notification
-            const notification = document.createElement('div');
-            notification.id = 'notification';
-            notification.className = 'fixed top-4 right-4 z-50 px-6 py-4 rounded-lg shadow-lg max-w-md animate-slide-in';
-            
-            let bgColor = 'bg-blue-500';
-            let icon = 'ℹ️';
-            
-            if (type === 'success') {
-              bgColor = 'bg-green-500';
-              icon = '✅';
-            } else if (type === 'error') {
-              bgColor = 'bg-red-500';
-              icon = '❌';
-            } else if (type === 'warning') {
-              bgColor = 'bg-yellow-500';
-              icon = '⚠️';
-            }
-            
-            notification.className += ' ' + bgColor + ' text-white';
-            notification.innerHTML = '<div class="flex items-start gap-3"><span class="text-2xl">' + icon + '</span><div class="flex-1 whitespace-pre-line">' + message + '</div></div>';
-            
-            document.body.appendChild(notification);
-            
-            // Auto remove after 5 seconds
-            setTimeout(() => {
-              if (notification.parentElement) {
-                notification.remove();
-              }
-            }, 5000);
-          }
-
-          // Replace onclick handlers when page loads
-          document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('button').forEach(btn => {
-              const text = btn.textContent;
-              
-              if (text.includes('Check Balance')) {
-                btn.onclick = checkBalance;
-              } else if (text.includes('Transfer') || text.includes('Send Tokens')) {
-                btn.onclick = executeTransfer;
-              } else if (text.includes('Mint')) {
-                btn.onclick = executeMint;
-              } else if (text.includes('Burn')) {
-                btn.onclick = executeBurn;
-              } else if (text.includes('Stake')) {
-                btn.onclick = executeStake;
-              } else if (text.includes('Pause') && !text.includes('Unpause')) {
-                btn.onclick = executePause;
-              } else if (text.includes('Unpause')) {
-                btn.onclick = executeUnpause;
-              } else if (text.includes('Whitelist')) {
-                btn.onclick = executeWhitelist;
-              } else if (text.includes('Blacklist')) {
-                btn.onclick = executeBlacklist;
-              }
-            });
-          });
         </script>
       </body>
       </html>

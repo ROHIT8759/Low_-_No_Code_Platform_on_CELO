@@ -448,7 +448,15 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
                       <div className="mt-4 flex flex-col gap-3">
                         {/* Preview Button - Full Width */}
                         <button
-                          onClick={() => setPreviewContract(contract)}
+                          onClick={() => {
+                            console.log('Opening preview for contract:', {
+                              name: contract.contractName,
+                              address: contract.contractAddress,
+                              blocksCount: contract.blocks?.length || 0,
+                              blockTypes: contract.blocks?.map((b: any) => b.type) || [],
+                            })
+                            setPreviewContract(contract)
+                          }}
                           className="w-full px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 rounded-lg font-medium transition-all flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 hover:scale-[1.02]"
                         >
                           <Eye size={18} className="text-white" />
@@ -633,12 +641,28 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
 
       {/* Contract Preview Modal */}
       {previewContract && (
-        <ContractPreviewModal
-          isOpen={true}
-          onClose={() => setPreviewContract(null)}
-          contract={previewContract}
-          walletAddress={walletAddress}
-        />
+        <>
+          {console.log('🚀 Rendering ContractPreviewModal with (from Supabase):', {
+            contract: previewContract.contractName,
+            blocks: previewContract.blocks?.length || 0,
+            abi: previewContract.abi?.length || 0,
+            abiTypes: previewContract.abi ? {
+              functions: previewContract.abi.filter((item: any) => item.type === 'function').length,
+              events: previewContract.abi.filter((item: any) => item.type === 'event').length,
+              constructor: previewContract.abi.filter((item: any) => item.type === 'constructor').length,
+            } : 'NO_ABI',
+            walletAddress: walletAddress,
+            contractAddress: previewContract.contractAddress,
+            network: previewContract.network,
+            hasSolidityCode: !!previewContract.solidityCode,
+          })}
+          <ContractPreviewModal
+            isOpen={true}
+            onClose={() => setPreviewContract(null)}
+            contract={previewContract}
+            walletAddress={walletAddress}
+          />
+        </>
       )}
     </>
   )

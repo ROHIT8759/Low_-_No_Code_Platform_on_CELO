@@ -1,11 +1,11 @@
 ﻿"use client"
 
-import { useEffect, useRef, useState, Suspense, lazy } from "react"
+import { useEffect, useRef, useState, Suspense, lazy, useCallback, memo } from "react"
 import Link from "next/link"
-import { ArrowRight, Zap, Code2, Rocket, Github, Twitter, Sparkles, Shield, Clock, Menu, X, Blocks, Layers, Globe, ChevronDown } from "lucide-react"
+import { ArrowRight, Zap, Code2, Rocket, Github, Twitter, Sparkles, Shield, Menu, X, Blocks, Layers, Globe, ChevronDown } from "lucide-react"
 import FaucetInfo from "../components/faucet-info"
 import SectionDivider from "../components/section-divider"
-import { ScrollReveal, ScrollProgress, ParallaxScroll } from "../components/scroll-reveal"
+import { ScrollReveal, ScrollProgress } from "../components/scroll-reveal"
 
 // Lazy load 3D scene for better performance
 const Hero3DScene = lazy(() => import("../components/hero-3d-scene"))
@@ -19,42 +19,50 @@ function Scene3DLoader() {
   )
 }
 
-// Animated Counter Component
-function AnimatedCounter({ end, duration = 2000, suffix = "" }: { end: number; duration?: number; suffix?: string }) {
+// Optimized Animated Counter Component with memo
+const AnimatedCounter = memo(function AnimatedCounter({ end, duration = 2000, suffix = "" }: { end: number; duration?: number; suffix?: string }) {
   const [count, setCount] = useState(0)
   const [isVisible, setIsVisible] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    const currentRef = ref.current
+    if (!currentRef) return
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && !isVisible) {
           setIsVisible(true)
+          observer.unobserve(currentRef)
         }
       },
       { threshold: 0.5 }
     )
 
-    if (ref.current) {
-      observer.observe(ref.current)
-    }
+    observer.observe(currentRef)
 
-    return () => observer.disconnect()
+    return () => {
+      if (currentRef) observer.unobserve(currentRef)
+    }
   }, [isVisible])
 
   useEffect(() => {
     if (!isVisible) return
 
     let startTime: number | null = null
+    let animationId: number
+
     const step = (timestamp: number) => {
       if (!startTime) startTime = timestamp
       const progress = Math.min((timestamp - startTime) / duration, 1)
       setCount(Math.floor(progress * end))
       if (progress < 1) {
-        requestAnimationFrame(step)
+        animationId = requestAnimationFrame(step)
       }
     }
-    requestAnimationFrame(step)
+    animationId = requestAnimationFrame(step)
+
+    return () => cancelAnimationFrame(animationId)
   }, [isVisible, end, duration])
 
   return (
@@ -62,21 +70,29 @@ function AnimatedCounter({ end, duration = 2000, suffix = "" }: { end: number; d
       {count}{suffix}
     </div>
   )
-}
+})
 
 export default function Home() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const ticking = useRef(false)
+
+  // Throttled mouse move handler for better performance
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (!ticking.current) {
+      requestAnimationFrame(() => {
+        setMousePosition({
+          x: (e.clientX / window.innerWidth - 0.5) * 20,
+          y: (e.clientY / window.innerHeight - 0.5) * 20,
+        })
+        ticking.current = false
+      })
+      ticking.current = true
+    }
+  }, [])
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({
-        x: (e.clientX / window.innerWidth - 0.5) * 20,
-        y: (e.clientY / window.innerHeight - 0.5) * 20,
-      })
-    }
-
-    window.addEventListener("mousemove", handleMouseMove)
+    window.addEventListener("mousemove", handleMouseMove, { passive: true })
     return () => window.removeEventListener("mousemove", handleMouseMove)
   }, [])
 

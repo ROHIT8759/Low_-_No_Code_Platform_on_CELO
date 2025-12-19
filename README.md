@@ -1,17 +1,17 @@
 <div align="center">
   
   <!-- Use banner for full-width display or logo for centered display -->
-  <img src="./public/assets/banner.svg" alt="CELO Builder Banner" width="100%"/>
+  <img src="./public/assets/banner.svg" alt="Celo Builder Banner" width="100%"/>
   
   <!-- Alternative: Use logo instead
-  <img src="./public/assets/logo.svg" alt="CELO Builder Logo" width="500"/>
+  <img src="./public/assets/logo.svg" alt="Celo Builder Logo" width="500"/>
   -->
   
-  # 🚀 Low/No-Code Platform on CELO
+  # 🚀 Celo Builder
   
   ### *Generate production-ready Next.js frontends from smart contract ABIs in seconds*
   
-  **🌐 [Live Demo](https://low-no-code-platform-on-celo.vercel.app/) • [Builder](https://low-no-code-platform-on-celo.vercel.app/builder)**
+  **🌐 [Live Demo](https://celobuilder.vercel.app/) • [Builder](https://celobuilder.vercel.app/builder)**
   
   [![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
   [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
@@ -24,7 +24,7 @@
   ![GitHub Issues](https://img.shields.io/github/issues/ROHIT8759/Low_-_No_Code_Platform_on_CELO)
   ![License](https://img.shields.io/github/license/ROHIT8759/Low_-_No_Code_Platform_on_CELO)
   
-  [![Website](https://img.shields.io/badge/🌐_Try_Live_Demo-Online-00D084?style=for-the-badge)](https://low-no-code-platform-on-celo.vercel.app/)
+  [![Website](https://img.shields.io/badge/🌐_Try_Live_Demo-Online-00D084?style=for-the-badge)](https://celobuilder.vercel.app/)
   
   [Features](#-features) •
   [Quick Start](#-quick-start) •
@@ -41,7 +41,7 @@
 
 **[Click here to watch the full demo video →](https://youtu.be/-GR1HKnp26Q)**
 
-See CELO Builder in action! This video demonstrates:
+See Celo Builder in action! This video demonstrates:
 
 - ✨ Building smart contracts with the visual builder
 - 🚀 Deploying contracts to Celo network
@@ -59,7 +59,7 @@ See CELO Builder in action! This video demonstrates:
 
 _Beautiful, modern landing page with interactive animations_
 
-<img src="./public/Landing page.png" alt="CELO Builder Landing Page" width="100%"/>
+<img src="./public/Landing page.png" alt="Celo Builder Landing Page" width="100%"/>
 
 ---
 
@@ -67,7 +67,7 @@ _Beautiful, modern landing page with interactive animations_
 
 _Visual drag-and-drop interface for building smart contracts_
 
-<img src="./public/Bulder page.png" alt="CELO Builder Interface" width="100%"/>
+<img src="./public/Bulder page.png" alt="Celo Builder Interface" width="100%"/>
 
 ---
 
@@ -83,7 +83,7 @@ _Manage deployed contracts and generate frontends_
 
 ## �📖 About
 
-**CELO Builder** is an intelligent no-code/low-code platform that automatically generates fully-functional Next.js dApps from your smart contract ABIs. Deploy a contract, paste the ABI, and get a production-ready frontend with wallet integration, transaction handling, and beautiful UI.
+**Celo Builder** is an intelligent no-code/low-code platform that automatically generates fully-functional Next.js dApps from your smart contract ABIs. Deploy a contract, paste the ABI, and get a production-ready frontend with wallet integration, transaction handling, and beautiful UI.
 
 ### 🎯 What's Included
 
@@ -95,9 +95,9 @@ _Manage deployed contracts and generate frontends_
 | 📊 **Block Explorer**     | Celoscan API integration for tx verification          |
 | 🎭 **ABI-Aware UI**       | Automatically detects and renders available functions |
 
-### 📊 Why Use CELO Builder?
+### 📊 Why Use Celo Builder?
 
-| Traditional Approach        | With CELO Builder          |
+| Traditional Approach        | With Celo Builder          |
 | --------------------------- | -------------------------- |
 | ⏰ Days of coding           | ⚡ Minutes to generate     |
 | 🔧 Manual ABI parsing       | 🤖 Automatic detection     |
@@ -183,7 +183,7 @@ _Manage deployed contracts and generate frontends_
 
 ### Installation
 
-**🌐 Try it online: [https://low-no-code-platform-on-celo.vercel.app/](https://low-no-code-platform-on-celo.vercel.app/)**
+**🌐 Try it online: [https://celobuilder.vercel.app/](https://celobuilder.vercel.app/)**
 
 Or run locally:
 
@@ -207,7 +207,7 @@ npm run dev
 
 ### Step 1: Access the Builder
 
-**🌐 Online:** [https://low-no-code-platform-on-celo.vercel.app/builder](https://low-no-code-platform-on-celo.vercel.app/builder)
+**🌐 Online:** [https://celobuilder.vercel.app/builder](https://celobuilder.vercel.app/builder)
 
 **💻 Local:** http://localhost:3000/builder
 

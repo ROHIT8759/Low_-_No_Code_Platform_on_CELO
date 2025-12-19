@@ -62,6 +62,10 @@ export function Navbar() {
           // Get current chain ID
           const network = await provider.getNetwork()
           setWalletChainId(Number(network.chainId))
+
+          // Initialize user in Supabase (store wallet on reconnection)
+          await initializeUser(address)
+          console.log('✅ Wallet reconnected and stored in Supabase')
         }
       }
     } catch (err) {
@@ -69,12 +73,15 @@ export function Navbar() {
     }
   }
 
-  const handleAccountsChanged = (accounts: string[]) => {
+  const handleAccountsChanged = async (accounts: string[]) => {
     if (accounts.length === 0) {
       setWalletAddress(null)
       setWalletChainId(null)
     } else {
       setWalletAddress(accounts[0])
+      // Store new account in Supabase when user switches accounts
+      await initializeUser(accounts[0])
+      console.log('✅ Account changed and stored in Supabase')
     }
   }
 

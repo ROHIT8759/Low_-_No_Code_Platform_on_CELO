@@ -1,12 +1,12 @@
 "use client"
 
-import { useRef, useMemo, useState } from "react"
+import { useRef, useMemo, useState, useCallback, memo } from "react"
 import { Canvas, useFrame, useThree } from "@react-three/fiber"
 import { Float, MeshDistortMaterial, Sphere, Box } from "@react-three/drei"
 import * as THREE from "three"
 
-// Wave particle field - creates the flowing wave effect like SolCircle
-function WaveParticleField({ count = 15000, mousePosition }: { count?: number; mousePosition: { x: number; y: number } }) {
+// Optimized wave particle field - reduced particle count for better performance
+const WaveParticleField = memo(function WaveParticleField({ count = 8000, mousePosition }: { count?: number; mousePosition: { x: number; y: number } }) {
     const mesh = useRef<THREE.Points>(null)
     const { viewport } = useThree()
 
@@ -66,27 +66,28 @@ function WaveParticleField({ count = 15000, mousePosition }: { count?: number; m
         const time = state.clock.elapsedTime
         const positionArray = mesh.current.geometry.attributes.position.array as Float32Array
 
+        // Optimize: update every 2nd frame for better performance
+        if (Math.floor(time * 60) % 2 !== 0) return
+
         for (let i = 0; i < count; i++) {
             const i3 = i * 3
             const x = originalPositions[i3]
             const originalY = originalPositions[i3 + 1]
 
-            // Create flowing wave effect
-            const wave1 = Math.sin(x * 0.15 + time * 0.6) * 2.5
-            const wave2 = Math.sin(x * 0.1 - time * 0.4) * 2
-            const wave3 = Math.cos(x * 0.2 + time * 0.3) * 1.5
+            // Simplified wave calculation for better performance
+            const wave = Math.sin(x * 0.12 + time * 0.5) * 2.5 +
+                Math.cos(x * 0.15 + time * 0.3) * 1.8
 
-            // Mouse interaction - particles react to mouse position
+            // Optimized mouse interaction
             const dx = mousePosition.x * 10 - x
             const dy = mousePosition.y * 8 - originalY
-            const dist = Math.sqrt(dx * dx + dy * dy)
-            const mouseEffect = Math.max(0, 1 - dist / 8) * 3
+            const distSq = dx * dx + dy * dy
+            const mouseEffect = distSq < 64 ? (1 - distSq / 64) * 3 : 0
 
-            positionArray[i3 + 1] = originalY + wave1 + wave2 + wave3 + mouseEffect
+            positionArray[i3 + 1] = originalY + wave + mouseEffect
         }
 
         mesh.current.geometry.attributes.position.needsUpdate = true
-        mesh.current.rotation.y = Math.sin(time * 0.1) * 0.1
     })
 
     return (
@@ -101,12 +102,13 @@ function WaveParticleField({ count = 15000, mousePosition }: { count?: number; m
             />
         </points>
     )
-}
+})
 
-// Floating blockchain block component with hover effect
-function BlockchainBlock({ position, color, delay = 0 }: { position: [number, number, number]; color: string; delay?: number }) {
+// Optimized floating blockchain block component with hover effect
+const BlockchainBlock = memo(function BlockchainBlock({ position, color, delay = 0 }: { position: [number, number, number]; color: string; delay?: number }) {
     const meshRef = useRef<THREE.Mesh>(null)
     const [hovered, setHovered] = useState(false)
+    const targetScale = useRef(new THREE.Vector3(1, 1, 1))
 
     useFrame((state) => {
         if (meshRef.current) {
@@ -114,10 +116,14 @@ function BlockchainBlock({ position, color, delay = 0 }: { position: [number, nu
             meshRef.current.rotation.y = Math.cos(state.clock.elapsedTime + delay) * 0.3
 
             // Smooth hover scale effect
-            const targetScale = hovered ? 1.4 : 1
-            meshRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.1)
+            const scale = hovered ? 1.4 : 1
+            targetScale.current.set(scale, scale, scale)
+            meshRef.current.scale.lerp(targetScale.current, 0.1)
         }
     })
+
+    const handlePointerOver = useCallback(() => setHovered(true), [])
+    const handlePointerOut = useCallback(() => setHovered(false), [])
 
     return (
         <Float
@@ -130,8 +136,8 @@ function BlockchainBlock({ position, color, delay = 0 }: { position: [number, nu
                 ref={meshRef}
                 args={[0.7, 0.7, 0.7]}
                 position={position}
-                onPointerOver={() => setHovered(true)}
-                onPointerOut={() => setHovered(false)}
+                onPointerOver={handlePointerOver}
+                onPointerOut={handlePointerOut}
             >
                 <meshStandardMaterial
                     color={color}
@@ -143,32 +149,35 @@ function BlockchainBlock({ position, color, delay = 0 }: { position: [number, nu
             </Box>
         </Float>
     )
-}
+})
 
-// Glowing orb component with hover effect
-function GlowingOrb({ position, color, scale = 1 }: { position: [number, number, number]; color: string; scale?: number }) {
+// Optimized glowing orb component with hover effect
+const GlowingOrb = memo(function GlowingOrb({ position, color, scale = 1 }: { position: [number, number, number]; color: string; scale?: number }) {
     const meshRef = useRef<THREE.Mesh>(null)
     const [hovered, setHovered] = useState(false)
+    const targetScale = useRef(new THREE.Vector3(scale, scale, scale))
 
     useFrame((state) => {
         if (meshRef.current) {
             const baseScale = scale + Math.sin(state.clock.elapsedTime * 2) * 0.1
             const hoverMultiplier = hovered ? 1.6 : 1
-            meshRef.current.scale.lerp(
-                new THREE.Vector3(baseScale * hoverMultiplier, baseScale * hoverMultiplier, baseScale * hoverMultiplier),
-                0.1
-            )
+            const finalScale = baseScale * hoverMultiplier
+            targetScale.current.set(finalScale, finalScale, finalScale)
+            meshRef.current.scale.lerp(targetScale.current, 0.1)
         }
     })
+
+    const handlePointerOver = useCallback(() => setHovered(true), [])
+    const handlePointerOut = useCallback(() => setHovered(false), [])
 
     return (
         <Float speed={3} rotationIntensity={0.2} floatIntensity={2}>
             <Sphere
                 ref={meshRef}
-                args={[0.2, 32, 32]}
+                args={[0.2, 16, 16]}
                 position={position}
-                onPointerOver={() => setHovered(true)}
-                onPointerOut={() => setHovered(false)}
+                onPointerOver={handlePointerOver}
+                onPointerOut={handlePointerOut}
             >
                 <MeshDistortMaterial
                     color={color}
@@ -183,10 +192,10 @@ function GlowingOrb({ position, color, scale = 1 }: { position: [number, number,
             </Sphere>
         </Float>
     )
-}
+})
 
-// Main 3D scene
-function Scene({ mousePosition }: { mousePosition: { x: number; y: number } }) {
+// Memoized main 3D scene
+const Scene = memo(function Scene({ mousePosition }: { mousePosition: { x: number; y: number } }) {
     return (
         <>
             {/* Lighting */}
@@ -196,35 +205,32 @@ function Scene({ mousePosition }: { mousePosition: { x: number; y: number } }) {
             <pointLight position={[0, 5, 5]} intensity={0.8} color="#35D07F" />
             <spotLight position={[0, 15, 0]} angle={0.5} penumbra={1} intensity={2} color="#e879f9" />
 
-            {/* Wave particle field - main visual effect */}
-            <WaveParticleField count={10000} mousePosition={mousePosition} />
+            {/* Wave particle field - main visual effect (optimized count) */}
+            <WaveParticleField count={6000} mousePosition={mousePosition} />
 
             {/* Floating blocks - Celo colors */}
             <BlockchainBlock position={[-5, 2, -3]} color="#FCFF52" delay={0} />
             <BlockchainBlock position={[5, -1, -2]} color="#35D07F" delay={1} />
             <BlockchainBlock position={[-4, -2, -4]} color="#86E8FF" delay={2} />
-            <BlockchainBlock position={[4, 2.5, -3]} color="#a855f7" delay={3} />
 
-            {/* Glowing orbs */}
+            {/* Glowing orbs - reduced count for performance */}
             <GlowingOrb position={[-6, 1, -1]} color="#86E8FF" scale={0.8} />
             <GlowingOrb position={[6, 0, -2]} color="#e879f9" scale={1} />
             <GlowingOrb position={[0, -4, -1]} color="#35D07F" scale={0.7} />
-            <GlowingOrb position={[-3, 4, -2]} color="#FCFF52" scale={0.6} />
-            <GlowingOrb position={[3, -3, 0]} color="#a855f7" scale={0.9} />
         </>
     )
-}
+})
 
-// Exported component with mouse tracking
+// Exported component with mouse tracking - optimized with useCallback
 export default function Hero3DScene() {
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
 
-    const handleMouseMove = (event: React.MouseEvent) => {
+    const handleMouseMove = useCallback((event: React.MouseEvent) => {
         setMousePosition({
             x: (event.clientX / window.innerWidth) * 2 - 1,
             y: -(event.clientY / window.innerHeight) * 2 + 1
         })
-    }
+    }, [])
 
     return (
         <div
@@ -233,7 +239,14 @@ export default function Hero3DScene() {
         >
             <Canvas
                 camera={{ position: [0, 0, 14], fov: 55 }}
-                gl={{ antialias: true, alpha: true }}
+                gl={{
+                    antialias: false, // Disable for performance
+                    alpha: true,
+                    powerPreference: "high-performance",
+                    stencil: false,
+                    depth: true
+                }}
+                dpr={[1, 1.5]} // Limit pixel ratio for performance
                 style={{ background: 'transparent' }}
             >
                 <Scene mousePosition={mousePosition} />

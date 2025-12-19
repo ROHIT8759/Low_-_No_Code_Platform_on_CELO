@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, memo, useCallback } from "react"
 
 type AnimationVariant =
     | "fade-up"
@@ -66,7 +66,8 @@ const variantClasses: Record<AnimationVariant, { hidden: string; visible: string
     }
 }
 
-export function ScrollReveal({
+// Memoized ScrollReveal component for better performance
+export const ScrollReveal = memo(function ScrollReveal({
     children,
     delay = 0,
     variant = "fade-up",
@@ -78,25 +79,33 @@ export function ScrollReveal({
     const ref = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
+        const currentRef = ref.current
+        if (!currentRef) return
+
         const observer = new IntersectionObserver(
             ([entry]) => {
                 if (entry.isIntersecting) {
-                    setTimeout(() => setIsVisible(true), delay)
-                    if (once && ref.current) {
-                        observer.unobserve(ref.current)
+                    // Use requestAnimationFrame for smoother animation triggering
+                    requestAnimationFrame(() => {
+                        setTimeout(() => setIsVisible(true), delay)
+                    })
+                    if (once) {
+                        observer.unobserve(currentRef)
                     }
                 } else if (!once) {
                     setIsVisible(false)
                 }
             },
-            { threshold }
+            { threshold, rootMargin: '50px' }
         )
 
-        if (ref.current) {
-            observer.observe(ref.current)
-        }
+        observer.observe(currentRef)
 
-        return () => observer.disconnect()
+        return () => {
+            if (currentRef) {
+                observer.unobserve(currentRef)
+            }
+        }
     }, [delay, threshold, once])
 
     const { hidden, visible } = variantClasses[variant]
@@ -104,24 +113,30 @@ export function ScrollReveal({
     return (
         <div
             ref={ref}
-            className={`transition-all duration-700 ease-out ${isVisible ? visible : hidden} ${className}`}
-            style={{ transitionDelay: `${delay}ms` }}
+            className={`transition-all duration-700 ease-out will-change-transform ${isVisible ? visible : hidden} ${className}`}
         >
             {children}
         </div>
     )
-}
+})
 
-// Scroll Progress Bar Component
-export function ScrollProgress() {
+// Optimized Scroll Progress Bar Component with throttling
+export const ScrollProgress = memo(function ScrollProgress() {
     const [progress, setProgress] = useState(0)
+    const ticking = useRef(false)
 
     useEffect(() => {
         const handleScroll = () => {
-            const scrollTop = window.scrollY
-            const docHeight = document.documentElement.scrollHeight - window.innerHeight
-            const scrollPercent = (scrollTop / docHeight) * 100
-            setProgress(scrollPercent)
+            if (!ticking.current) {
+                requestAnimationFrame(() => {
+                    const scrollTop = window.scrollY
+                    const docHeight = document.documentElement.scrollHeight - window.innerHeight
+                    const scrollPercent = (scrollTop / docHeight) * 100
+                    setProgress(scrollPercent)
+                    ticking.current = false
+                })
+                ticking.current = true
+            }
         }
 
         window.addEventListener("scroll", handleScroll, { passive: true })
@@ -130,11 +145,11 @@ export function ScrollProgress() {
 
     return (
         <div
-            className="fixed top-0 left-0 h-1 bg-gradient-to-r from-cyan-400 via-purple-500 to-fuchsia-500 z-[9999] transition-all duration-100"
+            className="fixed top-0 left-0 h-1 bg-gradient-to-r from-cyan-400 via-purple-500 to-fuchsia-500 z-[9999] will-change-transform"
             style={{ width: `${progress}%` }}
         />
     )
-}
+})
 
 // Parallax Scroll Component
 interface ParallaxProps {
@@ -143,16 +158,24 @@ interface ParallaxProps {
     className?: string
 }
 
-export function ParallaxScroll({ children, speed = 0.5, className = "" }: ParallaxProps) {
+// Optimized Parallax Scroll Component with throttling
+export const ParallaxScroll = memo(function ParallaxScroll({ children, speed = 0.5, className = "" }: ParallaxProps) {
     const ref = useRef<HTMLDivElement>(null)
     const [offset, setOffset] = useState(0)
+    const ticking = useRef(false)
 
     useEffect(() => {
         const handleScroll = () => {
-            if (ref.current) {
-                const rect = ref.current.getBoundingClientRect()
-                const scrollProgress = (window.innerHeight - rect.top) / (window.innerHeight + rect.height)
-                setOffset(scrollProgress * 100 * speed)
+            if (!ticking.current && ref.current) {
+                requestAnimationFrame(() => {
+                    if (ref.current) {
+                        const rect = ref.current.getBoundingClientRect()
+                        const scrollProgress = (window.innerHeight - rect.top) / (window.innerHeight + rect.height)
+                        setOffset(scrollProgress * 100 * speed)
+                    }
+                    ticking.current = false
+                })
+                ticking.current = true
             }
         }
 
@@ -170,7 +193,7 @@ export function ParallaxScroll({ children, speed = 0.5, className = "" }: Parall
             {children}
         </div>
     )
-}
+})
 
 // Stagger Children Animation
 interface StaggerProps {

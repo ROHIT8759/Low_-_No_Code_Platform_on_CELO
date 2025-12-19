@@ -1,10 +1,22 @@
 ﻿"use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, Suspense, lazy } from "react"
 import Link from "next/link"
-import { ArrowRight, Zap, Code2, Rocket, Github, Twitter, Sparkles, Shield, Clock, Menu, X } from "lucide-react"
+import { ArrowRight, Zap, Code2, Rocket, Github, Twitter, Sparkles, Shield, Clock, Menu, X, Blocks, Layers, Globe, ChevronDown } from "lucide-react"
 import FaucetInfo from "../components/faucet-info"
 import SectionDivider from "../components/section-divider"
+
+// Lazy load 3D scene for better performance
+const Hero3DScene = lazy(() => import("../components/hero-3d-scene"))
+
+// Loading fallback for 3D scene
+function Scene3DLoader() {
+  return (
+    <div className="absolute inset-0 z-0 flex items-center justify-center">
+      <div className="w-32 h-32 border-4 border-cyan-400/30 border-t-cyan-400 rounded-full animate-spin"></div>
+    </div>
+  )
+}
 
 // Animated Counter Component
 function AnimatedCounter({ end, duration = 2000, suffix = "" }: { end: number; duration?: number; suffix?: string }) {
@@ -247,10 +259,18 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* Hero Section - Enhanced with Parallax & Animations */}
-      <section className="relative px-4 sm:px-6 pt-24 sm:pt-32 pb-12 sm:pb-20 overflow-hidden">
+      {/* Hero Section - Enhanced with 3D Scene & Parallax */}
+      <section className="relative px-4 sm:px-6 pt-24 sm:pt-32 pb-12 sm:pb-20 min-h-screen flex items-center overflow-hidden">
+        {/* 3D Scene Background */}
+        <Suspense fallback={<Scene3DLoader />}>
+          <Hero3DScene />
+        </Suspense>
+
+        {/* Gradient Overlay for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/80 via-slate-950/60 to-slate-950/90 z-[1]"></div>
+
         {/* Animated Background Elements with Parallax */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none z-[2]">
           <div
             className="absolute top-20 left-10 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl animate-pulse"
             style={{ transform: `translate(${mousePosition.x * 0.5}px, ${mousePosition.y * 0.5}px)` }}
@@ -269,25 +289,14 @@ export default function Home() {
               animationDelay: '2s'
             }}
           ></div>
-
-          {/* Floating Elements */}
-          <div className="absolute top-40 right-1/4 animate-bounce" style={{ animationDuration: '3s' }}>
-            <Code2 className="w-8 h-8 text-cyan-500/30" />
-          </div>
-          <div className="absolute bottom-40 left-1/4 animate-bounce" style={{ animationDuration: '4s', animationDelay: '1s' }}>
-            <Rocket className="w-10 h-10 text-fuchsia-500/30" />
-          </div>
-          <div className="absolute top-1/3 right-1/3 animate-bounce" style={{ animationDuration: '5s', animationDelay: '0.5s' }}>
-            <Shield className="w-6 h-6 text-blue-500/30" />
-          </div>
         </div>
 
         <div className="max-w-6xl mx-auto text-center relative z-10">
           {/* Animated Badge with Pulse */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-500/10 to-fuchsia-500/10 border border-cyan-500/20 rounded-full mb-8 animate-fade-in-up hover:scale-105 transition-transform cursor-default">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-500/10 to-fuchsia-500/10 border border-cyan-500/20 rounded-full mb-8 animate-fade-in-up hover:scale-105 transition-transform cursor-default backdrop-blur-sm">
             <span className="w-2 h-2 bg-cyan-400 rounded-full animate-ping"></span>
             <span className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse absolute"></span>
-            <span className="text-sm text-cyan-400 font-medium">No-Code Smart Contract Platform</span>
+            <span className="text-sm text-cyan-400 font-medium">Powered by Celo Blockchain</span>
             <Sparkles className="w-4 h-4 text-fuchsia-400 animate-pulse" />
           </div>
 
@@ -295,13 +304,10 @@ export default function Home() {
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-4 sm:mb-6 leading-tight animate-fade-in-up">
             <span className="bg-gradient-to-r from-white via-slate-200 to-slate-400 text-transparent bg-clip-text inline-block animate-slide-in-left">
               Build Smart Contracts
-              <br /><span className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-8xl">
-                Without Code
-              </span>
             </span>
             <br />
             <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-fuchsia-500 text-transparent bg-clip-text inline-block animate-slide-in-right relative animate-neon-glow">
-              Without Code
+              Without Writing Code
               <span className="absolute -right-1 sm:-right-2 -top-1 sm:-top-2 flex h-2 w-2 sm:h-3 sm:w-3">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 sm:h-3 sm:w-3 bg-cyan-500"></span>
@@ -329,36 +335,121 @@ export default function Home() {
             </Link>
             <a
               href="#features"
-              className="group w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-slate-800/50 hover:bg-slate-700/50 text-white font-bold rounded-xl transition-all duration-300 border border-slate-700/50 hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/20 hover:-translate-y-1 flex items-center justify-center gap-2 text-sm sm:text-base"
+              className="group w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-slate-800/50 hover:bg-slate-700/50 text-white font-bold rounded-xl transition-all duration-300 border border-slate-700/50 hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/20 hover:-translate-y-1 flex items-center justify-center gap-2 text-sm sm:text-base backdrop-blur-sm"
             >
               <span>Explore Features</span>
-              <Clock size={18} className="group-hover:rotate-45 transition-transform sm:w-5 sm:h-5" />
+              <ChevronDown size={18} className="group-hover:translate-y-1 transition-transform sm:w-5 sm:h-5" />
             </a>
           </div>
 
           {/* Stats - Enhanced with Animated Counters */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 max-w-2xl mx-auto mt-12 sm:mt-20 pt-12 sm:pt-20 border-t border-slate-800/50">
             <ScrollReveal delay={600}>
-              <div className="text-center group cursor-default hover:transform hover:scale-110 transition-all">
+              <div className="text-center group cursor-default hover:transform hover:scale-110 transition-all p-4 rounded-xl hover:bg-slate-800/30 backdrop-blur-sm">
                 <AnimatedCounter end={17} suffix="+" />
                 <div className="text-xs sm:text-sm text-slate-500 group-hover:text-cyan-400 transition-colors">Smart Contract Blocks</div>
               </div>
             </ScrollReveal>
             <ScrollReveal delay={700}>
-              <div className="text-center group cursor-default hover:transform hover:scale-110 transition-all">
+              <div className="text-center group cursor-default hover:transform hover:scale-110 transition-all p-4 rounded-xl hover:bg-slate-800/30 backdrop-blur-sm">
                 <div className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-blue-400 to-cyan-500 text-transparent bg-clip-text mb-2">1-Click</div>
                 <div className="text-xs sm:text-sm text-slate-500 group-hover:text-blue-400 transition-colors">Deploy to Celo</div>
               </div>
             </ScrollReveal>
             <ScrollReveal delay={800}>
-              <div className="text-center group cursor-default hover:transform hover:scale-110 transition-all">
+              <div className="text-center group cursor-default hover:transform hover:scale-110 transition-all p-4 rounded-xl hover:bg-slate-800/30 backdrop-blur-sm">
                 <div className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-fuchsia-400 to-pink-500 text-transparent bg-clip-text mb-2">Auto</div>
                 <div className="text-xs sm:text-sm text-slate-500 group-hover:text-fuchsia-400 transition-colors">Code Generation</div>
               </div>
             </ScrollReveal>
           </div>
         </div>
+
+        {/* Scroll indicator */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 animate-bounce">
+          <ChevronDown className="w-8 h-8 text-cyan-400/50" />
+        </div>
       </section>
+
+      {/* How It Works Section */}
+      <section id="about" className="px-4 sm:px-6 py-16 sm:py-24 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-500/5 to-transparent"></div>
+        <div className="max-w-6xl mx-auto relative z-10">
+          <ScrollReveal>
+            <div className="text-center mb-12 sm:mb-16">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-500/10 border border-cyan-500/20 rounded-full mb-6">
+                <Layers className="w-4 h-4 text-cyan-400" />
+                <span className="text-sm text-cyan-400 font-medium">Simple 3-Step Process</span>
+              </div>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+                How It Works
+              </h2>
+              <p className="text-lg text-slate-400 max-w-2xl mx-auto">
+                Build production-ready smart contracts in minutes, not weeks
+              </p>
+            </div>
+          </ScrollReveal>
+
+          <div className="grid md:grid-cols-3 gap-8 relative">
+            {/* Connection lines */}
+            <div className="hidden md:block absolute top-1/2 left-1/4 right-1/4 h-0.5 bg-gradient-to-r from-cyan-500/50 via-fuchsia-500/50 to-cyan-500/50 -translate-y-1/2"></div>
+
+            {/* Step 1 */}
+            <ScrollReveal delay={100}>
+              <div className="relative group">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
+                <div className="relative bg-slate-900/80 backdrop-blur-xl p-8 rounded-2xl border border-slate-800 hover:border-cyan-500/50 transition-all">
+                  <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                    <Blocks className="w-8 h-8 text-white" />
+                  </div>
+                  <div className="absolute -top-3 -right-3 w-8 h-8 bg-cyan-500 rounded-full flex items-center justify-center text-white font-bold text-sm">1</div>
+                  <h3 className="text-xl font-bold text-white mb-3">Drag & Drop Blocks</h3>
+                  <p className="text-slate-400">
+                    Choose from 17+ pre-built smart contract blocks including ERC-20, NFT, staking, governance, and more.
+                  </p>
+                </div>
+              </div>
+            </ScrollReveal>
+
+            {/* Step 2 */}
+            <ScrollReveal delay={200}>
+              <div className="relative group">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-fuchsia-500 to-pink-500 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
+                <div className="relative bg-slate-900/80 backdrop-blur-xl p-8 rounded-2xl border border-slate-800 hover:border-fuchsia-500/50 transition-all">
+                  <div className="w-16 h-16 bg-gradient-to-br from-fuchsia-500 to-pink-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                    <Code2 className="w-8 h-8 text-white" />
+                  </div>
+                  <div className="absolute -top-3 -right-3 w-8 h-8 bg-fuchsia-500 rounded-full flex items-center justify-center text-white font-bold text-sm">2</div>
+                  <h3 className="text-xl font-bold text-white mb-3">Auto-Generate Code</h3>
+                  <p className="text-slate-400">
+                    Watch your Solidity code generate in real-time. Learn how contracts work as you build them.
+                  </p>
+                </div>
+              </div>
+            </ScrollReveal>
+
+            {/* Step 3 */}
+            <ScrollReveal delay={300}>
+              <div className="relative group">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
+                <div className="relative bg-slate-900/80 backdrop-blur-xl p-8 rounded-2xl border border-slate-800 hover:border-green-500/50 transition-all">
+                  <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                    <Rocket className="w-8 h-8 text-white" />
+                  </div>
+                  <div className="absolute -top-3 -right-3 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white font-bold text-sm">3</div>
+                  <h3 className="text-xl font-bold text-white mb-3">Deploy & Launch</h3>
+                  <p className="text-slate-400">
+                    One-click deploy to Celo Mainnet or Testnet. Get auto-generated frontend and verification.
+                  </p>
+                </div>
+              </div>
+            </ScrollReveal>
+          </div>
+        </div>
+      </section>
+
+      {/* Separator */}
+      <SectionDivider />
 
       {/* Features Section - Enhanced with Scroll Animations */}
       <section id="features" className="px-4 sm:px-6 py-12 sm:py-20 relative">
@@ -393,10 +484,10 @@ export default function Home() {
 
             {/* Feature Card 2 - Enhanced 3D Effect */}
             <ScrollReveal delay={200}>
-              <div className="group relative p-6 sm:p-8 rounded-2xl bg-linear-to-br from-slate-900/50 to-slate-800/50 border border-slate-800/50 hover:border-blue-500/50 transition-all duration-300 hover:transform hover:scale-105 hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/20">
-                <div className="absolute inset-0 bg-linear-to-br from-blue-500/5 to-cyan-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div className="group relative p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-slate-900/50 to-slate-800/50 border border-slate-800/50 hover:border-blue-500/50 transition-all duration-300 hover:transform hover:scale-105 hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/20">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-cyan-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 <div className="relative">
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-linear-to-br from-blue-500/20 to-cyan-500/20 flex items-center justify-center mb-4 sm:mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 flex items-center justify-center mb-4 sm:mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all">
                     <Code2 className="w-6 h-6 sm:w-7 sm:h-7 text-blue-400 group-hover:animate-pulse" />
                   </div>
                   <h3 className="text-lg sm:text-xl font-bold text-white mb-2 sm:mb-3 group-hover:text-blue-400 transition-colors">Learn by Doing</h3>
@@ -409,15 +500,63 @@ export default function Home() {
 
             {/* Feature Card 3 - Enhanced 3D Effect */}
             <ScrollReveal delay={300}>
-              <div className="group relative p-8 rounded-2xl bg-gradient-to-br from-slate-900/50 to-slate-800/50 border border-slate-800/50 hover:border-fuchsia-500/50 transition-all duration-300 hover:transform hover:scale-105 hover:-translate-y-2 hover:shadow-2xl hover:shadow-fuchsia-500/20">
+              <div className="group relative p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-slate-900/50 to-slate-800/50 border border-slate-800/50 hover:border-fuchsia-500/50 transition-all duration-300 hover:transform hover:scale-105 hover:-translate-y-2 hover:shadow-2xl hover:shadow-fuchsia-500/20">
                 <div className="absolute inset-0 bg-gradient-to-br from-fuchsia-500/5 to-pink-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 <div className="relative">
-                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-fuchsia-500/20 to-pink-500/20 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all">
-                    <Rocket className="w-7 h-7 text-fuchsia-400 group-hover:animate-pulse" />
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-fuchsia-500/20 to-pink-500/20 flex items-center justify-center mb-4 sm:mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all">
+                    <Rocket className="w-6 h-6 sm:w-7 sm:h-7 text-fuchsia-400 group-hover:animate-pulse" />
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-3 group-hover:text-fuchsia-400 transition-colors">Deploy Instantly</h3>
-                  <p className="text-slate-400 leading-relaxed group-hover:text-slate-300 transition-colors">
+                  <h3 className="text-lg sm:text-xl font-bold text-white mb-2 sm:mb-3 group-hover:text-fuchsia-400 transition-colors">Deploy Instantly</h3>
+                  <p className="text-sm sm:text-base text-slate-400 leading-relaxed group-hover:text-slate-300 transition-colors">
                     One-click deployment to Celo Mainnet or Testnet with MetaMask integration and auto-generated frontend.
+                  </p>
+                </div>
+              </div>
+            </ScrollReveal>
+
+            {/* Feature Card 4 - Security */}
+            <ScrollReveal delay={400}>
+              <div className="group relative p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-slate-900/50 to-slate-800/50 border border-slate-800/50 hover:border-green-500/50 transition-all duration-300 hover:transform hover:scale-105 hover:-translate-y-2 hover:shadow-2xl hover:shadow-green-500/20">
+                <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-emerald-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div className="relative">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-green-500/20 to-emerald-500/20 flex items-center justify-center mb-4 sm:mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all">
+                    <Shield className="w-6 h-6 sm:w-7 sm:h-7 text-green-400 group-hover:animate-pulse" />
+                  </div>
+                  <h3 className="text-lg sm:text-xl font-bold text-white mb-2 sm:mb-3 group-hover:text-green-400 transition-colors">Battle-Tested</h3>
+                  <p className="text-sm sm:text-base text-slate-400 leading-relaxed group-hover:text-slate-300 transition-colors">
+                    Built with security best practices. Includes pausable, whitelist, blacklist, multisig, and timelock features.
+                  </p>
+                </div>
+              </div>
+            </ScrollReveal>
+
+            {/* Feature Card 5 - Global */}
+            <ScrollReveal delay={500}>
+              <div className="group relative p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-slate-900/50 to-slate-800/50 border border-slate-800/50 hover:border-yellow-500/50 transition-all duration-300 hover:transform hover:scale-105 hover:-translate-y-2 hover:shadow-2xl hover:shadow-yellow-500/20">
+                <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/5 to-orange-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div className="relative">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-yellow-500/20 to-orange-500/20 flex items-center justify-center mb-4 sm:mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all">
+                    <Globe className="w-6 h-6 sm:w-7 sm:h-7 text-yellow-400 group-hover:animate-pulse" />
+                  </div>
+                  <h3 className="text-lg sm:text-xl font-bold text-white mb-2 sm:mb-3 group-hover:text-yellow-400 transition-colors">Celo Native</h3>
+                  <p className="text-sm sm:text-base text-slate-400 leading-relaxed group-hover:text-slate-300 transition-colors">
+                    Built specifically for Celo blockchain. Support for both Mainnet and Alfajores Testnet with low gas fees.
+                  </p>
+                </div>
+              </div>
+            </ScrollReveal>
+
+            {/* Feature Card 6 - Blocks */}
+            <ScrollReveal delay={600}>
+              <div className="group relative p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-slate-900/50 to-slate-800/50 border border-slate-800/50 hover:border-purple-500/50 transition-all duration-300 hover:transform hover:scale-105 hover:-translate-y-2 hover:shadow-2xl hover:shadow-purple-500/20">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-violet-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div className="relative">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-purple-500/20 to-violet-500/20 flex items-center justify-center mb-4 sm:mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all">
+                    <Blocks className="w-6 h-6 sm:w-7 sm:h-7 text-purple-400 group-hover:animate-pulse" />
+                  </div>
+                  <h3 className="text-lg sm:text-xl font-bold text-white mb-2 sm:mb-3 group-hover:text-purple-400 transition-colors">17+ Block Types</h3>
+                  <p className="text-sm sm:text-base text-slate-400 leading-relaxed group-hover:text-slate-300 transition-colors">
+                    ERC-20, NFT, mint, burn, stake, withdraw, voting, airdrop, snapshot, royalty, permit and more.
                   </p>
                 </div>
               </div>

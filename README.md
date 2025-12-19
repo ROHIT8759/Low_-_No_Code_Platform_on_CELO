@@ -115,7 +115,7 @@ _Manage deployed contracts and generate frontends_
 | ⚡ **Generation Time** | < 5 seconds |
 | 📦 **Files Generated** | 10+ ready-to-use files |
 | 🎨 **UI Components** | Wallet, Contract, Forms |
-| 🔍 **Supported Functions** | mint, burn, transfer, approve, balanceOf |
+| 🔍 **Supported Blocks** | 17 block types (see below) |
 | 🌐 **Networks** | Celo Mainnet & Alfajores |
   
 </div>
@@ -129,8 +129,15 @@ _Manage deployed contracts and generate frontends_
 
 - Automatically detects function signatures (`mint(address)` vs `mint(address, uint256)`)
 - Generates UI components only for functions present in your contract
-- Supports: `mint`, `burn`, `transfer`, `approve`, `balanceOf`, and more
+- **17 Supported Block Types:**
+  - **Base Contracts:** ERC20 Token, NFT (ERC721)
+  - **Token Functions:** Mint, Transfer, Burn
+  - **DeFi Features:** Stake, Withdraw
+  - **Security:** Pausable, Whitelist, Blacklist, Multi-Signature, Time Lock
+  - **NFT Specific:** Royalties
+  - **Advanced:** Airdrop, Voting, Snapshot, Gasless Approval (EIP-2612)
 - Smart parameter detection and validation
+- Fallback ABI generation for contracts without stored ABI
 
 </details>
 
@@ -296,35 +303,270 @@ NEXT_PUBLIC_BLOCK_EXPLORER_URL=https://celoscan.io
 
 ## 📚 Documentation
 
-### 🏗️ Architecture
+### 🏗️ System Architecture
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                     Builder UI                          │
-│              (Next.js App Router)                       │
-└─────────────────┬───────────────────────────────────────┘
-                  │
-                  ▼
-┌─────────────────────────────────────────────────────────┐
-│            Frontend Generator                           │
-│         (lib/frontend-generator.ts)                     │
-│                                                         │
-│  • Analyzes ABI signatures                             │
-│  • Generates complete Next.js project                  │
-│  • Creates: app/, components/, lib/                    │
-│  • Configures: Tailwind, TypeScript, ethers.js        │
-└─────────────────┬───────────────────────────────────────┘
-                  │
-                  ▼
-┌─────────────────────────────────────────────────────────┐
-│              Generated dApp                             │
-│                                                         │
-│  • WalletConnect Component                             │
-│  • ContractInteraction Component                       │
-│  • Alchemy + MetaMask Providers                        │
-│  • Celoscan Integration                                │
-└─────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────────────┐
+│                              USER INTERFACE LAYER                               │
+├────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                 │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐                │
+│  │   Landing Page  │  │  Builder Page   │  │   Docs Page     │                │
+│  │   (app/page)    │  │(app/builder)    │  │  (app/docs)     │                │
+│  └────────┬────────┘  └────────┬────────┘  └─────────────────┘                │
+│           │                    │                                               │
+│           └──────────┬─────────┘                                              │
+│                      ▼                                                         │
+│  ┌───────────────────────────────────────────────────────────────────────┐    │
+│  │                        COMPONENT LAYER                                 │    │
+│  ├───────────────────────────────────────────────────────────────────────┤    │
+│  │ • Navbar          • BlockSidebar      • Canvas         • CodeViewer   │    │
+│  │ • DeployModal     • PreviewModal      • ProjectManager • FaucetInfo   │    │
+│  │ • ContractPreviewModal                                                 │    │
+│  └───────────────────────────────────────────────────────────────────────┘    │
+│                                                                                 │
+└────────────────────────────────────────────────────────────────────────────────┘
+                                      │
+                                      ▼
+┌────────────────────────────────────────────────────────────────────────────────┐
+│                              BUSINESS LOGIC LAYER                               │
+├────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                 │
+│  ┌─────────────────────────────────────────────────────────────────────────┐  │
+│  │                     STATE MANAGEMENT (Zustand)                           │  │
+│  │  store.ts         │  supabase-store.ts                                   │  │
+│  │  • blocks[]       │  • user                                              │  │
+│  │  • projects[]     │  • syncProjects()                                    │  │
+│  │  • deployedContracts[]  • syncDeployedContracts()                        │  │
+│  │  • walletAddress  │  • saveToCloud()                                     │  │
+│  └─────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                 │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐           │
+│  │  Code Generator  │  │ Frontend Gen     │  │ Solidity Templates│           │
+│  │ code-generator   │  │ frontend-gen     │  │ solidity-templates│           │
+│  │ • buildContract()│  │ • generateFiles()│  │ • ERC20Template   │           │
+│  │ • addFeatures()  │  │ • generateABI()  │  │ • NFTTemplate     │           │
+│  └──────────────────┘  └──────────────────┘  └──────────────────┘           │
+│                                                                                 │
+└────────────────────────────────────────────────────────────────────────────────┘
+                                      │
+                                      ▼
+┌────────────────────────────────────────────────────────────────────────────────┐
+│                              DATA & NETWORK LAYER                               │
+├────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                 │
+│  ┌─────────────────────┐  ┌─────────────────────┐  ┌─────────────────────┐   │
+│  │      Supabase       │  │     Celo Network    │  │   External APIs     │   │
+│  │  (PostgreSQL DB)    │  │                     │  │                     │   │
+│  │  • users            │  │ • Mainnet (42220)   │  │ • Celoscan API      │   │
+│  │  • projects         │  │ • Alfajores (44787) │  │ • Alchemy RPC       │   │
+│  │  • deployed_contracts│  │ • Sepolia Testnet   │  │ • Solc Compiler     │   │
+│  └─────────────────────┘  └─────────────────────┘  └─────────────────────┘   │
+│                                                                                 │
+└────────────────────────────────────────────────────────────────────────────────┘
 ```
+
+---
+
+### 📦 Core Modules Deep Dive
+
+#### 1. State Management (`lib/store.ts`)
+
+The application uses **Zustand** for lightweight, performant state management with persistence.
+
+```typescript
+// Core State Structure
+interface BuilderStore {
+  // Project Management
+  currentProject: Project | null
+  projects: Project[]
+  
+  // Block System (17 types)
+  blocks: Block[]
+  selectedBlock: Block | null
+  
+  // Wallet Integration
+  walletAddress: string | null
+  walletChainId: number | null
+  
+  // Deployed Contracts Registry
+  deployedContracts: DeployedContract[]
+}
+
+// Block Type Definition
+type BlockType = 
+  | "erc20" | "nft"           // Base contracts
+  | "mint" | "transfer" | "burn"  // Token functions
+  | "stake" | "withdraw"      // DeFi features
+  | "pausable" | "whitelist" | "blacklist" | "multisig" | "timelock"  // Security
+  | "royalty"                 // NFT-specific
+  | "airdrop" | "voting" | "snapshot" | "permit"  // Advanced
+```
+
+**Key Features:**
+- 🔄 **Persistence**: Auto-saves to localStorage via Zustand middleware
+- ☁️ **Cloud Sync**: Syncs with Supabase when user is authenticated
+- 📊 **Reactive Updates**: Components auto-update on state changes
+
+---
+
+#### 2. Code Generation Pipeline (`lib/code-generator.tsx`)
+
+The code generator transforms visual blocks into deployable Solidity smart contracts.
+
+```
+┌─────────────┐     ┌──────────────────┐     ┌─────────────────┐
+│   Blocks    │ ──▶ │  Code Generator  │ ──▶ │  Solidity Code  │
+│   (Array)   │     │                  │     │   (String)      │
+└─────────────┘     └──────────────────┘     └─────────────────┘
+       │                    │                        │
+       │                    ▼                        ▼
+       │           ┌──────────────────┐     ┌─────────────────┐
+       │           │ buildCombined    │     │   Deploy via    │
+       │           │ Contract()       │     │   ethers.js     │
+       │           └──────────────────┘     └─────────────────┘
+       │
+       ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    BLOCK PROCESSING FLOW                        │
+├─────────────────────────────────────────────────────────────────┤
+│ 1. Find base block (ERC20 or NFT) - Required                    │
+│ 2. Collect feature blocks (mint, burn, stake, etc.)             │
+│ 3. Generate contract header with SPDX license                   │
+│ 4. Add state variables based on features                        │
+│ 5. Generate constructor with initialization                     │
+│ 6. Add feature functions (conditionally)                        │
+│ 7. Add modifiers (onlyOwner, whenNotPaused, etc.)              │
+│ 8. Return complete Solidity source code                         │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Feature Injection System:**
+```typescript
+// Each feature adds specific code segments
+const FEATURE_MAPPINGS = {
+  mint: {
+    stateVars: [],
+    functions: ['mint(address to, uint256 amount)'],
+    events: ['Mint(address indexed to, uint256 amount)'],
+    modifiers: ['onlyOwner']
+  },
+  pausable: {
+    stateVars: ['bool public paused'],
+    functions: ['pause()', 'unpause()'],
+    events: ['Paused(address account)', 'Unpaused(address account)'],
+    modifiers: ['whenNotPaused']
+  },
+  // ... 15 more features
+}
+```
+
+---
+
+#### 3. Frontend Generator (`lib/frontend-generator.ts`)
+
+Generates a complete, deployable Next.js application from contract metadata.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                  GENERATED FILE STRUCTURE                       │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  mytoken-frontend/                                              │
+│  ├── app/                                                       │
+│  │   ├── layout.tsx          # Root layout with metadata        │
+│  │   ├── page.tsx            # Main dApp page                   │
+│  │   └── globals.css         # Tailwind + custom styles         │
+│  │                                                              │
+│  ├── components/                                                │
+│  │   ├── WalletConnect.tsx   # MetaMask integration             │
+│  │   └── ContractInteraction.tsx  # ABI-aware UI               │
+│  │                                                              │
+│  ├── lib/                                                       │
+│  │   └── contract.ts         # Contract ABI + address           │
+│  │                                                              │
+│  ├── .env.local              # Environment variables            │
+│  ├── package.json            # Dependencies                     │
+│  ├── tailwind.config.js      # Styling configuration            │
+│  └── tsconfig.json           # TypeScript config                │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**ABI-Aware UI Generation:**
+```typescript
+// Dynamically generates UI based on contract functions
+function generateContractComponent(contract: DeployedContract): string {
+  const hasMint = hasAbiFunction(contract, 'mint')
+  const hasBurn = hasAbiFunction(contract, 'burn')
+  const hasTransfer = hasAbiFunction(contract, 'transfer')
+  // ... generates only relevant UI components
+}
+```
+
+---
+
+#### 4. Supabase Integration (`lib/supabase.ts` + `supabase-store.ts`)
+
+Cloud storage for user projects and deployed contracts.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    DATABASE SCHEMA                              │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  users                        deployed_contracts                │
+│  ├── id (UUID, PK)           ├── id (UUID, PK)                 │
+│  ├── wallet_address          ├── user_id (FK → users)          │
+│  ├── email                   ├── contract_address              │
+│  ├── username                ├── contract_name                 │
+│  ├── created_at              ├── token_name/symbol             │
+│  └── updated_at              ├── network (sepolia/mainnet)     │
+│                              ├── chain_id                       │
+│  projects                    ├── deployer                       │
+│  ├── id (UUID, PK)           ├── deployed_at                   │
+│  ├── user_id (FK → users)    ├── transaction_hash              │
+│  ├── name                    ├── contract_type                 │
+│  ├── description             ├── abi (JSONB)                   │
+│  ├── blocks (JSONB)          ├── solidity_code (TEXT)          │
+│  ├── contract_type           ├── blocks (JSONB)                │
+│  ├── solidity_code           ├── explorer_url                  │
+│  ├── frontend_code           ├── frontend_url                  │
+│  └── timestamps              └── github_repo                   │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Row Level Security (RLS):**
+- Users can only access their own data
+- Wallet address is used as identity
+
+---
+
+#### 5. Celo Network Configuration (`lib/celo-config.ts`)
+
+Network configurations for Celo blockchain connectivity.
+
+```typescript
+const CELO_NETWORKS = {
+  sepolia: {
+    name: "Celo Sepolia Testnet",
+    chainId: 11142220,
+    rpcUrl: "https://forno.celo-sepolia.celo-testnet.org/",
+    explorerUrl: "https://celo-sepolia.blockscout.com/",
+    nativeCurrency: { name: "CELO", symbol: "CELO", decimals: 18 }
+  },
+  mainnet: {
+    name: "Celo Mainnet", 
+    chainId: 42220,
+    rpcUrl: "https://forno.celo.org",
+    explorerUrl: "https://celoscan.io",
+    nativeCurrency: { name: "CELO", symbol: "CELO", decimals: 18 }
+  }
+}
+```
+
+---
 
 ### 🔧 Tech Stack
 
@@ -334,36 +576,301 @@ NEXT_PUBLIC_BLOCK_EXPLORER_URL=https://celoscan.io
 | **Language**       | TypeScript 5+              |
 | **Styling**        | Tailwind CSS 3             |
 | **Blockchain**     | ethers.js 6                |
-| **RPC Provider**   | Alchemy API                |
+| **State**          | Zustand (with persist)     |
+| **Database**       | Supabase (PostgreSQL)      |
+| **RPC Provider**   | Alchemy API / Forno        |
 | **Block Explorer** | Celoscan API               |
+| **Testing**        | Jest + React Testing Lib   |
+| **Compiler**       | solc (via API)             |
 
-### 📂 Project Structure
+---
+
+### 🔄 Data Flow Diagrams
+
+#### Contract Building Flow
+```
+User Action          State Update           Side Effects
+─────────────────────────────────────────────────────────
+Drag Block    ──▶   addBlock()      ──▶   • Update blocks[]
+                                          • Regenerate Solidity
+                                          • Update CodeViewer
+
+Click Deploy  ──▶   setStep()       ──▶   • Compile contract
+                                          • Estimate gas
+                                          • Send transaction
+                                          • Save to Supabase
+
+View Preview  ──▶   setPreview()    ──▶   • Generate iframe
+                                          • Load ethers.js
+                                          • Connect wallet
+```
+
+#### Wallet Connection Flow
+```
+┌──────────┐     ┌───────────────┐     ┌──────────────┐
+│  User    │────▶│   MetaMask    │────▶│  Ethereum    │
+│  Click   │     │   Prompt      │     │  Provider    │
+└──────────┘     └───────────────┘     └──────┬───────┘
+                                              │
+                 ┌───────────────────────────┘
+                 ▼
+┌─────────────────────────────────────────────────────┐
+│                  Application State                  │
+│  • walletAddress = "0x..."                         │
+│  • walletChainId = 44787                           │
+│  • Initialize Supabase user                        │
+│  • Sync cloud projects                             │
+└─────────────────────────────────────────────────────┘
+```
+
+---
+
+### 📂 Complete Project Structure
 
 ```
-d:\Celo Hackathon\aaaa\
-├── app/
-│   ├── page.tsx              # Landing page
-│   ├── builder/
-│   │   └── page.tsx          # Builder interface
-│   ├── layout.tsx            # Root layout
-│   └── globals.css           # Global styles
-├── components/
-│   ├── block-sidebar.tsx     # UI component library
-│   ├── canvas.tsx
-│   ├── code-viewer.tsx
-│   ├── deploy-modal.tsx
-│   ├── navbar.tsx
-│   ├── preview-modal.tsx
-│   └── project-manager.tsx
-├── lib/
-│   ├── frontend-generator.ts # ⭐ Core generator logic
-│   ├── code-generator.tsx
-│   ├── store.ts              # State management
-│   └── utils.ts
-├── public/
-│   └── assets/
-│       └── logo.svg          # Project logo
-└── README.md                 # This file
+d:\HACKATHONS\Celo Hackathon\aaaa\
+│
+├── 📁 app/                          # Next.js App Router
+│   ├── layout.tsx                   # Root layout
+│   ├── page.tsx                     # Landing page (/)
+│   ├── globals.css                  # Global styles
+│   ├── 📁 builder/
+│   │   └── page.tsx                 # Builder interface (/builder)
+│   ├── 📁 docs/
+│   │   └── page.tsx                 # Documentation (/docs)
+│   ├── 📁 api/
+│   │   └── 📁 compile/
+│   │       └── route.ts             # Solidity compilation API
+│   └── 📁 test-compile/
+│       └── page.tsx                 # Compilation testing
+│
+├── 📁 components/                   # React Components
+│   ├── navbar.tsx                   # Top navigation bar
+│   ├── block-sidebar.tsx            # Block selection sidebar (17 blocks)
+│   ├── canvas.tsx                   # Drag-drop canvas
+│   ├── code-viewer.tsx              # Live Solidity preview
+│   ├── deploy-modal.tsx             # Contract deployment wizard
+│   ├── preview-modal.tsx            # dApp preview (before deploy)
+│   ├── contract-preview-modal.tsx   # Deployed contract preview
+│   ├── project-manager.tsx          # Project & contract management
+│   ├── faucet-info.tsx              # Testnet faucet information
+│   ├── scroll-reveal.tsx            # Animation component
+│   └── section-divider.tsx          # UI divider component
+│
+├── 📁 lib/                          # Core Business Logic
+│   ├── store.ts                     # Zustand state management
+│   ├── supabase-store.ts            # Supabase sync store
+│   ├── supabase.ts                  # Database client & functions
+│   ├── code-generator.tsx           # Solidity code generator
+│   ├── solidity-templates.ts        # Contract templates
+│   ├── frontend-generator.ts        # Next.js dApp generator
+│   ├── celo-config.ts               # Network configurations
+│   ├── github-deploy.ts             # GitHub deployment
+│   ├── useWallet.ts                 # Wallet hook
+│   ├── utils.ts                     # Utility functions
+│   ├── gemini.ts                    # AI integration (optional)
+│   └── gemini-frontend-generator.ts # AI-powered generation
+│
+├── 📁 __tests__/                    # Jest Test Suites
+│   ├── store.test.ts                # State management tests
+│   ├── code-generator.test.ts       # Code generation tests
+│   ├── celo-config.test.ts          # Network config tests
+│   ├── canvas.test.tsx              # Canvas component tests
+│   ├── navbar.test.tsx              # Navbar tests
+│   ├── block-sidebar.test.tsx       # Sidebar tests
+│   └── wallet-connection.test.tsx   # Wallet integration tests
+│
+├── 📁 supabase/
+│   └── schema.sql                   # Database schema
+│
+├── 📁 public/                       # Static assets
+│   └── 📁 assets/
+│       ├── banner.svg               # Header banner
+│       └── logo.svg                 # Application logo
+│
+├── 📁 coverage/                     # Test coverage reports
+│
+├── 📄 Configuration Files
+│   ├── package.json                 # Dependencies
+│   ├── tsconfig.json                # TypeScript config
+│   ├── next.config.ts               # Next.js config
+│   ├── tailwind.config.ts           # Tailwind CSS config
+│   ├── jest.config.js               # Jest testing config
+│   ├── eslint.config.mjs            # ESLint config
+│   └── postcss.config.mjs           # PostCSS config
+│
+└── 📄 Documentation
+    └── README.md                    # This file
+```
+
+---
+
+### 📋 Complete Block Type Reference
+
+All 17 supported block types with their generated Solidity functions:
+
+| Block Type | Category | Generated Functions | Generated Events | Modifiers |
+|------------|----------|---------------------|------------------|-----------|
+| **erc20** | Base | `transfer()`, `approve()`, `transferFrom()`, `balanceOf()`, `totalSupply()`, `name()`, `symbol()`, `decimals()` | `Transfer`, `Approval` | - |
+| **nft** | Base | `mint()`, `transferFrom()`, `safeTransferFrom()`, `approve()`, `setApprovalForAll()`, `balanceOf()`, `ownerOf()`, `tokenURI()` | `Transfer`, `Approval`, `ApprovalForAll` | - |
+| **mint** | Token Function | `mint(address to, uint256 amount)` | `Mint(address indexed to, uint256 amount)` | `onlyOwner` |
+| **transfer** | Token Function | Enhanced `transfer()` with hooks | `Transfer` | `whenNotPaused` |
+| **burn** | Token Function | `burn(uint256 amount)`, `burnFrom(address, uint256)` | `Burn(address indexed from, uint256 amount)` | - |
+| **stake** | DeFi | `stake(uint256 amount)`, `getStake(address)`, `totalStaked()` | `Staked(address indexed user, uint256 amount)` | `whenNotPaused` |
+| **withdraw** | DeFi | `withdraw(uint256 amount)`, `withdrawAll()` | `Withdrawn(address indexed user, uint256 amount)` | `whenNotPaused` |
+| **pausable** | Security | `pause()`, `unpause()`, `paused()` | `Paused(address account)`, `Unpaused(address account)` | `onlyOwner` |
+| **whitelist** | Security | `addToWhitelist(address)`, `removeFromWhitelist(address)`, `isWhitelisted(address)` | `AddedToWhitelist`, `RemovedFromWhitelist` | `onlyOwner` |
+| **blacklist** | Security | `addToBlacklist(address)`, `removeFromBlacklist(address)`, `isBlacklisted(address)` | `AddedToBlacklist`, `RemovedFromBlacklist` | `onlyOwner` |
+| **multisig** | Security | `submitTransaction()`, `confirmTransaction()`, `executeTransaction()`, `revokeConfirmation()` | `TransactionSubmitted`, `TransactionConfirmed`, `TransactionExecuted` | - |
+| **timelock** | Security | `queueTransaction()`, `executeTransaction()`, `cancelTransaction()`, `setDelay()` | `TransactionQueued`, `TransactionExecuted`, `TransactionCancelled` | `onlyOwner` |
+| **royalty** | NFT Feature | `setRoyalty(uint256 percentage)`, `royaltyInfo(uint256 tokenId, uint256 salePrice)` | `RoyaltySet` | `onlyOwner` |
+| **airdrop** | Distribution | `airdrop(address[] recipients, uint256[] amounts)`, `batchAirdrop()` | `Airdropped(address indexed recipient, uint256 amount)` | `onlyOwner` |
+| **voting** | Governance | `createProposal()`, `vote()`, `executeProposal()`, `getProposal()` | `ProposalCreated`, `Voted`, `ProposalExecuted` | - |
+| **snapshot** | Governance | `createSnapshot()`, `balanceOfAt()`, `totalSupplyAt()` | `SnapshotCreated(uint256 snapshotId)` | `onlyOwner` |
+| **permit** | Gas Optimization | `permit()`, `nonces()`, `DOMAIN_SEPARATOR()` | - | EIP-2612 compliant |
+
+---
+
+### 🔌 API Reference
+
+#### Compile API (`/api/compile`)
+
+**POST** `/api/compile`
+
+Compiles Solidity source code using the solc compiler.
+
+```typescript
+// Request
+{
+  sourceCode: string;    // Solidity source code
+  contractName: string;  // Name of the main contract
+}
+
+// Response (Success)
+{
+  success: true;
+  abi: AbiItem[];        // Contract ABI
+  bytecode: string;      // Compiled bytecode
+}
+
+// Response (Error)
+{
+  success: false;
+  error: string;         // Compilation error message
+}
+```
+
+**Example Usage:**
+```typescript
+const response = await fetch('/api/compile', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    sourceCode: solidityCode,
+    contractName: 'MyToken'
+  })
+});
+const { abi, bytecode } = await response.json();
+```
+
+---
+
+### 🔐 Security Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    SECURITY LAYERS                               │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │ LAYER 1: Client-Side                                      │  │
+│  │ • MetaMask signature verification                         │  │
+│  │ • Transaction confirmation prompts                        │  │
+│  │ • Network validation                                      │  │
+│  └──────────────────────────────────────────────────────────┘  │
+│                                                                  │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │ LAYER 2: Database (Supabase RLS)                         │  │
+│  │ • Row Level Security policies                             │  │
+│  │ • Wallet address identity verification                    │  │
+│  │ • User-scoped data access                                 │  │
+│  └──────────────────────────────────────────────────────────┘  │
+│                                                                  │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │ LAYER 3: Smart Contract                                   │  │
+│  │ • onlyOwner modifier for admin functions                  │  │
+│  │ • whenNotPaused for emergency stops                       │  │
+│  │ • Whitelist/Blacklist access control                      │  │
+│  │ • Timelock for delayed execution                          │  │
+│  │ • Multisig for shared ownership                           │  │
+│  └──────────────────────────────────────────────────────────┘  │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### 🚀 Deployment Pipeline
+
+```
+┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│   Blocks     │────▶│   Generate   │────▶│   Compile    │
+│   Canvas     │     │   Solidity   │     │   (solc)     │
+└──────────────┘     └──────────────┘     └──────┬───────┘
+                                                  │
+                                                  ▼
+┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│   Save to    │◀────│   Verify on  │◀────│   Deploy     │
+│   Supabase   │     │   Celoscan   │     │   (ethers)   │
+└──────────────┘     └──────────────┘     └──────────────┘
+       │
+       ▼
+┌──────────────────────────────────────────────────────────┐
+│                POST-DEPLOYMENT ACTIONS                    │
+├──────────────────────────────────────────────────────────┤
+│ • Generate frontend dApp (14 files)                       │
+│ • Create GitHub repository (optional)                     │
+│ • Deploy to Vercel (optional)                             │
+│ • Store contract metadata in database                     │
+└──────────────────────────────────────────────────────────┘
+```
+
+---
+
+### 📊 Component Interaction Map
+
+```
+                              ┌─────────────────┐
+                              │     Navbar      │
+                              │  (wallet state) │
+                              └────────┬────────┘
+                                       │
+                     ┌─────────────────┼─────────────────┐
+                     ▼                 ▼                 ▼
+            ┌────────────────┐ ┌────────────────┐ ┌────────────────┐
+            │ BlockSidebar   │ │    Canvas      │ │  CodeViewer    │
+            │ (block types)  │ │  (block state) │ │  (generated)   │
+            └───────┬────────┘ └───────┬────────┘ └────────────────┘
+                    │                  │
+                    │    drag/drop     │
+                    └──────────────────┘
+                              │
+                              ▼
+                    ┌────────────────────┐
+                    │       Store        │
+                    │  (Zustand state)   │
+                    │  • blocks[]        │
+                    │  • projects[]      │
+                    │  • deployedContracts │
+                    └─────────┬──────────┘
+                              │
+           ┌──────────────────┼──────────────────┐
+           ▼                  ▼                  ▼
+    ┌─────────────┐   ┌─────────────┐   ┌─────────────────────┐
+    │DeployModal  │   │PreviewModal │   │ContractPreviewModal │
+    │(compile &   │   │(before      │   │(after deploy)       │
+    │ deploy)     │   │ deploy)     │   │                     │
+    └─────────────┘   └─────────────┘   └─────────────────────┘
 ```
 
 ---
@@ -526,10 +1033,14 @@ npm run build
 - [x] Celoscan transaction verification
 - [x] Tailwind CSS integration
 - [x] TypeScript support
+- [x] 17 smart contract block types
+- [x] Contract preview & interaction modal
+- [x] Supabase cloud storage integration
+- [x] Fallback ABI generation
+- [x] Multi-signature block support
+- [x] Automated testing suite (Jest)
 - [ ] Event viewer component
 - [ ] ERC-721 metadata display
-- [ ] Multi-signature wallet support
-- [ ] Automated testing suite
 - [ ] CI/CD pipeline
 
 ---

@@ -35,13 +35,13 @@ export function Canvas() {
   }
 
   return (
-    <div className="flex-1 bg-background p-8 overflow-auto flex flex-col">
+    <div className="flex-1 bg-background p-4 sm:p-6 md:p-8 overflow-auto flex flex-col">
       <div className="max-w-4xl w-full mx-auto flex-1">
-        <div className="flex items-center justify-between mb-6 animate-fade-in-down">
-          <h2 className="text-lg font-semibold text-foreground hover:text-primary transition-colors cursor-default">Canvas</h2>
+        <div className="flex items-center justify-between mb-4 sm:mb-6 animate-fade-in-down">
+          <h2 className="text-base sm:text-lg font-semibold text-foreground hover:text-primary transition-colors cursor-default">Canvas</h2>
           {blocks.length > 0 && (
-            <span className="text-xs bg-primary/20 text-primary px-3 py-1.5 rounded-full font-medium animate-fade-in-up hover:scale-110 transition-transform cursor-default shadow-lg shadow-primary/20">
-              {blocks.length} block{blocks.length !== 1 ? "s" : ""} added
+            <span className="text-[10px] sm:text-xs bg-primary/20 text-primary px-2 sm:px-3 py-1 sm:py-1.5 rounded-full font-medium animate-fade-in-up hover:scale-110 transition-transform cursor-default shadow-lg shadow-primary/20">
+              {blocks.length} block{blocks.length !== 1 ? "s" : ""}
             </span>
           )}
         </div>
@@ -50,59 +50,59 @@ export function Canvas() {
           <div
             onDragOver={handleDragOver}
             onDrop={handleDrop}
-            className="flex items-center justify-center h-96 border-2 border-dashed border-border rounded-lg hover:border-primary/50 transition-all hover:bg-primary/5 hover:scale-[1.02] animate-fade-in-up"
+            className="flex items-center justify-center h-48 sm:h-64 md:h-96 border-2 border-dashed border-border rounded-lg hover:border-primary/50 transition-all hover:bg-primary/5 hover:scale-[1.01] sm:hover:scale-[1.02] animate-fade-in-up"
           >
-            <div className="text-center">
-              <div className="mb-4 flex justify-center">
-                <div className="w-16 h-16 border-4 border-dashed border-primary/30 rounded-full flex items-center justify-center animate-pulse">
-                  <span className="text-3xl">📦</span>
+            <div className="text-center px-4">
+              <div className="mb-3 sm:mb-4 flex justify-center">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 border-4 border-dashed border-primary/30 rounded-full flex items-center justify-center animate-pulse">
+                  <span className="text-2xl sm:text-3xl">📦</span>
                 </div>
               </div>
-              <p className="text-muted mb-2 text-lg font-medium">Drag blocks here to start building</p>
-              <p className="text-xs text-muted/60">Your canvas is empty - add blocks from the sidebar</p>
+              <p className="text-muted mb-1 sm:mb-2 text-sm sm:text-lg font-medium">Drag blocks here to start building</p>
+              <p className="text-[10px] sm:text-xs text-muted/60">Your canvas is empty - add blocks from the sidebar</p>
             </div>
           </div>
         ) : (
-          <div onDragOver={handleDragOver} onDrop={handleDrop} className="space-y-3 pb-8">
+          <div onDragOver={handleDragOver} onDrop={handleDrop} className="space-y-2 sm:space-y-3 pb-20 sm:pb-8">
             {blocks.map((block, index) => (
               <div
                 key={block.id}
                 onClick={() => selectBlock(block)}
-                className={`p-4 rounded-lg border-2 transition-all cursor-pointer group animate-fade-in-up ${selectedBlock?.id === block.id
-                  ? "border-primary bg-primary/10 shadow-xl shadow-primary/30 scale-[1.02]"
-                  : "border-border bg-card hover:border-primary/50 hover:bg-card/80 hover:scale-[1.01] hover:shadow-lg"
+                className={`p-3 sm:p-4 rounded-lg border-2 transition-all cursor-pointer group animate-fade-in-up ${selectedBlock?.id === block.id
+                  ? "border-primary bg-primary/10 shadow-xl shadow-primary/30 scale-[1.01] sm:scale-[1.02]"
+                  : "border-border bg-card hover:border-primary/50 hover:bg-card/80 hover:scale-[1.005] sm:hover:scale-[1.01] hover:shadow-lg"
                   }`}
                 style={{ animationDelay: `${index * 50}ms` }}
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-mono text-muted bg-background px-2 py-1 rounded group-hover:bg-primary group-hover:text-background transition-all">{index + 1}</span>
-                      <p className="font-medium text-foreground group-hover:text-primary transition-colors">{block.label}</p>
+                      <span className="text-[10px] sm:text-xs font-mono text-muted bg-background px-1.5 sm:px-2 py-0.5 sm:py-1 rounded group-hover:bg-primary group-hover:text-background transition-all">{index + 1}</span>
+                      <p className="font-medium text-sm sm:text-base text-foreground group-hover:text-primary transition-colors truncate">{block.label}</p>
                     </div>
-                    <p className="text-xs text-muted mt-2 group-hover:text-muted-foreground transition-colors">Type: {block.type}</p>
+                    <p className="text-[10px] sm:text-xs text-muted mt-1 sm:mt-2 group-hover:text-muted-foreground transition-colors">Type: {block.type}</p>
                   </div>
 
-                  <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                  <div className="flex items-center gap-1 sm:gap-2 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-all">
                     <button
                       onClick={(e) => {
                         e.stopPropagation()
                         duplicateBlock(block)
                       }}
-                      className="p-2 hover:bg-background rounded-lg transition-all text-muted hover:text-foreground hover:scale-110 hover:rotate-6"
+                      className="p-1.5 sm:p-2 hover:bg-background rounded-lg transition-all text-muted hover:text-foreground hover:scale-110"
                       title="Duplicate block"
                     >
-                      <Copy size={18} />
+                      <Copy size={16} className="sm:w-[18px] sm:h-[18px]" />
                     </button>
                     <button
                       onClick={(e) => {
                         e.stopPropagation()
                         setConfigOpen(!configOpen)
                       }}
-                      className="p-2 hover:bg-background rounded-lg transition-all text-muted hover:text-foreground hover:scale-110 hover:rotate-6"
+                      className="p-1.5 sm:p-2 hover:bg-background rounded-lg transition-all text-muted hover:text-foreground hover:scale-110"
                       title="Configure block"
                     >
-                      <Settings size={18} />
+                      <Settings size={16} className="sm:w-[18px] sm:h-[18px]" />
                     </button>
                     <button
                       onClick={(e) => {
@@ -110,10 +110,10 @@ export function Canvas() {
                         removeBlock(block.id)
                         selectBlock(null)
                       }}
-                      className="p-2 hover:bg-background rounded-lg transition-all text-muted hover:text-destructive hover:scale-110 hover:rotate-12"
+                      className="p-1.5 sm:p-2 hover:bg-background rounded-lg transition-all text-muted hover:text-destructive hover:scale-110"
                       title="Delete block"
                     >
-                      <Trash2 size={18} />
+                      <Trash2 size={16} className="sm:w-[18px] sm:h-[18px]" />
                     </button>
                   </div>
                 </div>
@@ -154,11 +154,11 @@ export function Canvas() {
         {blocks.length > 0 && (
           <button
             onClick={() => setDeployOpen(true)}
-            className="fixed bottom-8 right-8 w-16 h-16 bg-primary hover:bg-primary-dark text-background rounded-full shadow-2xl shadow-primary/50 hover:shadow-primary/70 flex items-center justify-center transition-all hover:scale-110 animate-bounce-slow z-40 group"
+            className="fixed bottom-4 right-4 sm:bottom-8 sm:right-8 w-12 h-12 sm:w-16 sm:h-16 bg-primary hover:bg-primary-dark text-background rounded-full shadow-2xl shadow-primary/50 hover:shadow-primary/70 flex items-center justify-center transition-all hover:scale-110 animate-bounce-slow z-40 group"
             title="Deploy your contract to Celo"
           >
-            <Rocket size={28} className="group-hover:rotate-12 group-hover:scale-110 transition-transform" />
-            <span className="absolute -top-2 -right-2 w-6 h-6 bg-cyan-500 rounded-full flex items-center justify-center text-xs font-bold animate-pulse shadow-lg shadow-cyan-500/50">
+            <Rocket size={24} className="sm:w-7 sm:h-7 group-hover:rotate-12 group-hover:scale-110 transition-transform" />
+            <span className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-5 h-5 sm:w-6 sm:h-6 bg-cyan-500 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold animate-pulse shadow-lg shadow-cyan-500/50">
               !
             </span>
             <span className="absolute inset-0 rounded-full bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity"></span>

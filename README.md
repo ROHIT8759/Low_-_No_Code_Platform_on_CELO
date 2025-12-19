@@ -378,32 +378,44 @@ The application uses **Zustand** for lightweight, performant state management wi
 // Core State Structure
 interface BuilderStore {
   // Project Management
-  currentProject: Project | null
-  projects: Project[]
-  
+  currentProject: Project | null;
+  projects: Project[];
+
   // Block System (17 types)
-  blocks: Block[]
-  selectedBlock: Block | null
-  
+  blocks: Block[];
+  selectedBlock: Block | null;
+
   // Wallet Integration
-  walletAddress: string | null
-  walletChainId: number | null
-  
+  walletAddress: string | null;
+  walletChainId: number | null;
+
   // Deployed Contracts Registry
-  deployedContracts: DeployedContract[]
+  deployedContracts: DeployedContract[];
 }
 
 // Block Type Definition
-type BlockType = 
-  | "erc20" | "nft"           // Base contracts
-  | "mint" | "transfer" | "burn"  // Token functions
-  | "stake" | "withdraw"      // DeFi features
-  | "pausable" | "whitelist" | "blacklist" | "multisig" | "timelock"  // Security
-  | "royalty"                 // NFT-specific
-  | "airdrop" | "voting" | "snapshot" | "permit"  // Advanced
+type BlockType =
+  | "erc20"
+  | "nft" // Base contracts
+  | "mint"
+  | "transfer"
+  | "burn" // Token functions
+  | "stake"
+  | "withdraw" // DeFi features
+  | "pausable"
+  | "whitelist"
+  | "blacklist"
+  | "multisig"
+  | "timelock" // Security
+  | "royalty" // NFT-specific
+  | "airdrop"
+  | "voting"
+  | "snapshot"
+  | "permit"; // Advanced
 ```
 
 **Key Features:**
+
 - 🔄 **Persistence**: Auto-saves to localStorage via Zustand middleware
 - ☁️ **Cloud Sync**: Syncs with Supabase when user is authenticated
 - 📊 **Reactive Updates**: Components auto-update on state changes
@@ -442,23 +454,24 @@ The code generator transforms visual blocks into deployable Solidity smart contr
 ```
 
 **Feature Injection System:**
+
 ```typescript
 // Each feature adds specific code segments
 const FEATURE_MAPPINGS = {
   mint: {
     stateVars: [],
-    functions: ['mint(address to, uint256 amount)'],
-    events: ['Mint(address indexed to, uint256 amount)'],
-    modifiers: ['onlyOwner']
+    functions: ["mint(address to, uint256 amount)"],
+    events: ["Mint(address indexed to, uint256 amount)"],
+    modifiers: ["onlyOwner"],
   },
   pausable: {
-    stateVars: ['bool public paused'],
-    functions: ['pause()', 'unpause()'],
-    events: ['Paused(address account)', 'Unpaused(address account)'],
-    modifiers: ['whenNotPaused']
+    stateVars: ["bool public paused"],
+    functions: ["pause()", "unpause()"],
+    events: ["Paused(address account)", "Unpaused(address account)"],
+    modifiers: ["whenNotPaused"],
   },
   // ... 15 more features
-}
+};
 ```
 
 ---
@@ -494,12 +507,13 @@ Generates a complete, deployable Next.js application from contract metadata.
 ```
 
 **ABI-Aware UI Generation:**
+
 ```typescript
 // Dynamically generates UI based on contract functions
 function generateContractComponent(contract: DeployedContract): string {
-  const hasMint = hasAbiFunction(contract, 'mint')
-  const hasBurn = hasAbiFunction(contract, 'burn')
-  const hasTransfer = hasAbiFunction(contract, 'transfer')
+  const hasMint = hasAbiFunction(contract, "mint");
+  const hasBurn = hasAbiFunction(contract, "burn");
+  const hasTransfer = hasAbiFunction(contract, "transfer");
   // ... generates only relevant UI components
 }
 ```
@@ -538,6 +552,7 @@ Cloud storage for user projects and deployed contracts.
 ```
 
 **Row Level Security (RLS):**
+
 - Users can only access their own data
 - Wallet address is used as identity
 
@@ -554,16 +569,16 @@ const CELO_NETWORKS = {
     chainId: 11142220,
     rpcUrl: "https://forno.celo-sepolia.celo-testnet.org/",
     explorerUrl: "https://celo-sepolia.blockscout.com/",
-    nativeCurrency: { name: "CELO", symbol: "CELO", decimals: 18 }
+    nativeCurrency: { name: "CELO", symbol: "CELO", decimals: 18 },
   },
   mainnet: {
-    name: "Celo Mainnet", 
+    name: "Celo Mainnet",
     chainId: 42220,
     rpcUrl: "https://forno.celo.org",
     explorerUrl: "https://celoscan.io",
-    nativeCurrency: { name: "CELO", symbol: "CELO", decimals: 18 }
-  }
-}
+    nativeCurrency: { name: "CELO", symbol: "CELO", decimals: 18 },
+  },
+};
 ```
 
 ---
@@ -588,6 +603,7 @@ const CELO_NETWORKS = {
 ### 🔄 Data Flow Diagrams
 
 #### Contract Building Flow
+
 ```
 User Action          State Update           Side Effects
 ─────────────────────────────────────────────────────────
@@ -606,6 +622,7 @@ View Preview  ──▶   setPreview()    ──▶   • Generate iframe
 ```
 
 #### Wallet Connection Flow
+
 ```
 ┌──────────┐     ┌───────────────┐     ┌──────────────┐
 │  User    │────▶│   MetaMask    │────▶│  Ethereum    │
@@ -709,25 +726,25 @@ d:\HACKATHONS\Celo Hackathon\aaaa\
 
 All 17 supported block types with their generated Solidity functions:
 
-| Block Type | Category | Generated Functions | Generated Events | Modifiers |
-|------------|----------|---------------------|------------------|-----------|
-| **erc20** | Base | `transfer()`, `approve()`, `transferFrom()`, `balanceOf()`, `totalSupply()`, `name()`, `symbol()`, `decimals()` | `Transfer`, `Approval` | - |
-| **nft** | Base | `mint()`, `transferFrom()`, `safeTransferFrom()`, `approve()`, `setApprovalForAll()`, `balanceOf()`, `ownerOf()`, `tokenURI()` | `Transfer`, `Approval`, `ApprovalForAll` | - |
-| **mint** | Token Function | `mint(address to, uint256 amount)` | `Mint(address indexed to, uint256 amount)` | `onlyOwner` |
-| **transfer** | Token Function | Enhanced `transfer()` with hooks | `Transfer` | `whenNotPaused` |
-| **burn** | Token Function | `burn(uint256 amount)`, `burnFrom(address, uint256)` | `Burn(address indexed from, uint256 amount)` | - |
-| **stake** | DeFi | `stake(uint256 amount)`, `getStake(address)`, `totalStaked()` | `Staked(address indexed user, uint256 amount)` | `whenNotPaused` |
-| **withdraw** | DeFi | `withdraw(uint256 amount)`, `withdrawAll()` | `Withdrawn(address indexed user, uint256 amount)` | `whenNotPaused` |
-| **pausable** | Security | `pause()`, `unpause()`, `paused()` | `Paused(address account)`, `Unpaused(address account)` | `onlyOwner` |
-| **whitelist** | Security | `addToWhitelist(address)`, `removeFromWhitelist(address)`, `isWhitelisted(address)` | `AddedToWhitelist`, `RemovedFromWhitelist` | `onlyOwner` |
-| **blacklist** | Security | `addToBlacklist(address)`, `removeFromBlacklist(address)`, `isBlacklisted(address)` | `AddedToBlacklist`, `RemovedFromBlacklist` | `onlyOwner` |
-| **multisig** | Security | `submitTransaction()`, `confirmTransaction()`, `executeTransaction()`, `revokeConfirmation()` | `TransactionSubmitted`, `TransactionConfirmed`, `TransactionExecuted` | - |
-| **timelock** | Security | `queueTransaction()`, `executeTransaction()`, `cancelTransaction()`, `setDelay()` | `TransactionQueued`, `TransactionExecuted`, `TransactionCancelled` | `onlyOwner` |
-| **royalty** | NFT Feature | `setRoyalty(uint256 percentage)`, `royaltyInfo(uint256 tokenId, uint256 salePrice)` | `RoyaltySet` | `onlyOwner` |
-| **airdrop** | Distribution | `airdrop(address[] recipients, uint256[] amounts)`, `batchAirdrop()` | `Airdropped(address indexed recipient, uint256 amount)` | `onlyOwner` |
-| **voting** | Governance | `createProposal()`, `vote()`, `executeProposal()`, `getProposal()` | `ProposalCreated`, `Voted`, `ProposalExecuted` | - |
-| **snapshot** | Governance | `createSnapshot()`, `balanceOfAt()`, `totalSupplyAt()` | `SnapshotCreated(uint256 snapshotId)` | `onlyOwner` |
-| **permit** | Gas Optimization | `permit()`, `nonces()`, `DOMAIN_SEPARATOR()` | - | EIP-2612 compliant |
+| Block Type    | Category         | Generated Functions                                                                                                            | Generated Events                                                      | Modifiers          |
+| ------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------- | ------------------ |
+| **erc20**     | Base             | `transfer()`, `approve()`, `transferFrom()`, `balanceOf()`, `totalSupply()`, `name()`, `symbol()`, `decimals()`                | `Transfer`, `Approval`                                                | -                  |
+| **nft**       | Base             | `mint()`, `transferFrom()`, `safeTransferFrom()`, `approve()`, `setApprovalForAll()`, `balanceOf()`, `ownerOf()`, `tokenURI()` | `Transfer`, `Approval`, `ApprovalForAll`                              | -                  |
+| **mint**      | Token Function   | `mint(address to, uint256 amount)`                                                                                             | `Mint(address indexed to, uint256 amount)`                            | `onlyOwner`        |
+| **transfer**  | Token Function   | Enhanced `transfer()` with hooks                                                                                               | `Transfer`                                                            | `whenNotPaused`    |
+| **burn**      | Token Function   | `burn(uint256 amount)`, `burnFrom(address, uint256)`                                                                           | `Burn(address indexed from, uint256 amount)`                          | -                  |
+| **stake**     | DeFi             | `stake(uint256 amount)`, `getStake(address)`, `totalStaked()`                                                                  | `Staked(address indexed user, uint256 amount)`                        | `whenNotPaused`    |
+| **withdraw**  | DeFi             | `withdraw(uint256 amount)`, `withdrawAll()`                                                                                    | `Withdrawn(address indexed user, uint256 amount)`                     | `whenNotPaused`    |
+| **pausable**  | Security         | `pause()`, `unpause()`, `paused()`                                                                                             | `Paused(address account)`, `Unpaused(address account)`                | `onlyOwner`        |
+| **whitelist** | Security         | `addToWhitelist(address)`, `removeFromWhitelist(address)`, `isWhitelisted(address)`                                            | `AddedToWhitelist`, `RemovedFromWhitelist`                            | `onlyOwner`        |
+| **blacklist** | Security         | `addToBlacklist(address)`, `removeFromBlacklist(address)`, `isBlacklisted(address)`                                            | `AddedToBlacklist`, `RemovedFromBlacklist`                            | `onlyOwner`        |
+| **multisig**  | Security         | `submitTransaction()`, `confirmTransaction()`, `executeTransaction()`, `revokeConfirmation()`                                  | `TransactionSubmitted`, `TransactionConfirmed`, `TransactionExecuted` | -                  |
+| **timelock**  | Security         | `queueTransaction()`, `executeTransaction()`, `cancelTransaction()`, `setDelay()`                                              | `TransactionQueued`, `TransactionExecuted`, `TransactionCancelled`    | `onlyOwner`        |
+| **royalty**   | NFT Feature      | `setRoyalty(uint256 percentage)`, `royaltyInfo(uint256 tokenId, uint256 salePrice)`                                            | `RoyaltySet`                                                          | `onlyOwner`        |
+| **airdrop**   | Distribution     | `airdrop(address[] recipients, uint256[] amounts)`, `batchAirdrop()`                                                           | `Airdropped(address indexed recipient, uint256 amount)`               | `onlyOwner`        |
+| **voting**    | Governance       | `createProposal()`, `vote()`, `executeProposal()`, `getProposal()`                                                             | `ProposalCreated`, `Voted`, `ProposalExecuted`                        | -                  |
+| **snapshot**  | Governance       | `createSnapshot()`, `balanceOfAt()`, `totalSupplyAt()`                                                                         | `SnapshotCreated(uint256 snapshotId)`                                 | `onlyOwner`        |
+| **permit**    | Gas Optimization | `permit()`, `nonces()`, `DOMAIN_SEPARATOR()`                                                                                   | -                                                                     | EIP-2612 compliant |
 
 ---
 
@@ -761,14 +778,15 @@ Compiles Solidity source code using the solc compiler.
 ```
 
 **Example Usage:**
+
 ```typescript
-const response = await fetch('/api/compile', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
+const response = await fetch("/api/compile", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
     sourceCode: solidityCode,
-    contractName: 'MyToken'
-  })
+    contractName: "MyToken",
+  }),
 });
 const { abi, bytecode } = await response.json();
 ```

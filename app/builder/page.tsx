@@ -41,10 +41,19 @@ export default function BuilderPage() {
   return (
     <div className="flex flex-col h-screen bg-background">
       <Navbar />
-      <div className="flex flex-1 overflow-hidden">
-        <BlockSidebar />
+      <div className="flex flex-1 overflow-hidden flex-col md:flex-row">
+        {/* Mobile: Horizontal scrollable blocks, Desktop: Sidebar */}
+        <div className="md:hidden">
+          <BlockSidebar />
+        </div>
+        <div className="hidden md:block">
+          <BlockSidebar />
+        </div>
         <Canvas />
-        <CodeViewer />
+        {/* CodeViewer hidden on mobile, shown on desktop */}
+        <div className="hidden lg:block">
+          <CodeViewer />
+        </div>
       </div>
     </div>
   )

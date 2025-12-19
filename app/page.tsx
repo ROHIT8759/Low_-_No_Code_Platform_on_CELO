@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
-import { ArrowRight, Zap, Code2, Rocket, Github, Twitter, Sparkles, Shield, Clock } from "lucide-react"
+import { ArrowRight, Zap, Code2, Rocket, Github, Twitter, Sparkles, Shield, Clock, Menu, X } from "lucide-react"
 import FaucetInfo from "../components/faucet-info"
 import SectionDivider from "../components/section-divider"
 
@@ -45,7 +45,7 @@ function AnimatedCounter({ end, duration = 2000, suffix = "" }: { end: number; d
   }, [isVisible, end, duration])
 
   return (
-    <div ref={ref} className="text-4xl font-bold mb-2">
+    <div ref={ref} className="text-3xl sm:text-4xl font-bold mb-2">
       {count}{suffix}
     </div>
   )
@@ -86,6 +86,7 @@ function ScrollReveal({ children, delay = 0 }: { children: React.ReactNode; dela
 
 export default function Home() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -103,21 +104,21 @@ export default function Home() {
     <main className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 overflow-hidden">
       {/* Navigation - Enhanced with Animations */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-lg border-b border-slate-800/50 animate-fade-in-down">
-        <div className="max-w-7xl mx-auto px-6 py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between">
             {/* Logo - Enhanced 3D Effect */}
-            <Link href="/" className="flex items-center gap-3 group">
+            <Link href="/" className="flex items-center gap-2 sm:gap-3 group">
               <div className="relative">
                 <div className="absolute inset-0 bg-cyan-400/50 blur-xl group-hover:blur-2xl transition-all duration-300 animate-pulse"></div>
-                <div className="relative w-10 h-10 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-xl flex items-center justify-center transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg shadow-cyan-500/50">
-                  <span className="text-white font-bold text-xl">C</span>
+                <div className="relative w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-xl flex items-center justify-center transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg shadow-cyan-500/50">
+                  <span className="text-white font-bold text-lg sm:text-xl">C</span>
                 </div>
               </div>
-              <span className="font-bold text-xl text-white tracking-tight group-hover:text-cyan-400 transition-colors">CELO BUILDER</span>
+              <span className="font-bold text-lg sm:text-xl text-white tracking-tight group-hover:text-cyan-400 transition-colors">CELO BUILDER</span>
             </Link>
 
             {/* Center Navigation Links - Enhanced */}
-            <div className="hidden md:flex items-center gap-8">
+            <div className="hidden md:flex items-center gap-6 lg:gap-8">
               <Link
                 href="#about"
                 className="relative text-slate-300 hover:text-white transition-colors font-medium group"
@@ -149,42 +150,105 @@ export default function Home() {
             </div>
 
             {/* Right Side - Enhanced Social & CTA */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               <a
                 href="https://github.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="GitHub"
-                className="hidden md:flex w-10 h-10 items-center justify-center rounded-lg bg-slate-800/50 hover:bg-slate-700/50 text-slate-400 hover:text-white transition-all hover:scale-110 hover:rotate-6"
+                className="hidden sm:flex w-9 h-9 sm:w-10 sm:h-10 items-center justify-center rounded-lg bg-slate-800/50 hover:bg-slate-700/50 text-slate-400 hover:text-white transition-all hover:scale-110 hover:rotate-6"
               >
-                <Github size={20} />
+                <Github size={18} className="sm:w-5 sm:h-5" />
               </a>
               <a
                 href="https://twitter.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Twitter"
-                className="hidden md:flex w-10 h-10 items-center justify-center rounded-lg bg-slate-800/50 hover:bg-slate-700/50 text-slate-400 hover:text-white transition-all hover:scale-110 hover:rotate-6"
+                className="hidden sm:flex w-9 h-9 sm:w-10 sm:h-10 items-center justify-center rounded-lg bg-slate-800/50 hover:bg-slate-700/50 text-slate-400 hover:text-white transition-all hover:scale-110 hover:rotate-6"
               >
-                <Twitter size={20} />
+                <Twitter size={18} className="sm:w-5 sm:h-5" />
               </a>
               <Link
                 href="/builder"
-                className="group relative px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg shadow-cyan-500/30 overflow-hidden"
+                className="group relative px-4 sm:px-6 py-2 sm:py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg shadow-cyan-500/30 overflow-hidden text-sm sm:text-base"
               >
                 <span className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity"></span>
-                <span className="relative flex items-center gap-2">
-                  Launch App
-                  <Sparkles size={16} className="group-hover:animate-spin" />
+                <span className="relative flex items-center gap-1 sm:gap-2">
+                  <span className="hidden sm:inline">Launch App</span>
+                  <span className="sm:hidden">Build</span>
+                  <Sparkles size={14} className="group-hover:animate-spin sm:w-4 sm:h-4" />
                 </span>
               </Link>
+
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden p-2 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 text-slate-400 hover:text-white transition-all"
+              >
+                {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+              </button>
             </div>
           </div>
+
+          {/* Mobile Menu Dropdown */}
+          {mobileMenuOpen && (
+            <div className="md:hidden mt-4 pb-4 border-t border-slate-800/50 pt-4 animate-fade-in-down">
+              <div className="flex flex-col gap-3">
+                <Link
+                  href="#about"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-slate-300 hover:text-cyan-400 transition-colors font-medium py-2"
+                >
+                  About
+                </Link>
+                <Link
+                  href="#features"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-slate-300 hover:text-cyan-400 transition-colors font-medium py-2"
+                >
+                  Features
+                </Link>
+                <Link
+                  href="#faucet"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-slate-300 hover:text-cyan-400 transition-colors font-medium py-2"
+                >
+                  Faucet
+                </Link>
+                <Link
+                  href="/docs"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-slate-300 hover:text-cyan-400 transition-colors font-medium py-2"
+                >
+                  Docs
+                </Link>
+                <div className="flex gap-3 pt-2">
+                  <a
+                    href="https://github.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 flex items-center justify-center rounded-lg bg-slate-800/50 text-slate-400 hover:text-white transition-all"
+                  >
+                    <Github size={20} />
+                  </a>
+                  <a
+                    href="https://twitter.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 flex items-center justify-center rounded-lg bg-slate-800/50 text-slate-400 hover:text-white transition-all"
+                  >
+                    <Twitter size={20} />
+                  </a>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </nav>
 
       {/* Hero Section - Enhanced with Parallax & Animations */}
-      <section className="relative px-6 pt-32 pb-20 overflow-hidden">
+      <section className="relative px-4 sm:px-6 pt-24 sm:pt-32 pb-12 sm:pb-20 overflow-hidden">
         {/* Animated Background Elements with Parallax */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div
@@ -228,25 +292,25 @@ export default function Home() {
           </div>
 
           {/* Main Heading - Enhanced Typography Animation */}
-          <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight animate-fade-in-up">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-4 sm:mb-6 leading-tight animate-fade-in-up">
             <span className="bg-gradient-to-r from-white via-slate-200 to-slate-400 text-transparent bg-clip-text inline-block animate-slide-in-left">
               Build Smart Contracts
-              <br /><h4 className="text-8xl ">
+              <br /><span className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-8xl">
                 Without Code
-              </h4>
+              </span>
             </span>
             <br />
             <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-fuchsia-500 text-transparent bg-clip-text inline-block animate-slide-in-right relative animate-neon-glow">
               Without Code
-              <span className="absolute -right-2 -top-2 flex h-3 w-3">
+              <span className="absolute -right-1 sm:-right-2 -top-1 sm:-top-2 flex h-2 w-2 sm:h-3 sm:w-3">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-cyan-500"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 sm:h-3 sm:w-3 bg-cyan-500"></span>
               </span>
             </span>
           </h1>
 
           {/* Subtitle - Enhanced with Animation */}
-          <p className="text-xl md:text-2xl text-slate-400 mb-12 max-w-3xl mx-auto leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+          <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-slate-400 mb-8 sm:mb-12 max-w-3xl mx-auto leading-relaxed animate-fade-in-up px-4" style={{ animationDelay: '0.2s' }}>
             <span className="hover:text-slate-300 transition-colors">Drag and drop smart contract components.</span>{" "}
             <span className="hover:text-slate-300 transition-colors">Generate Solidity code automatically.</span>{" "}
             <span className="hover:text-slate-300 transition-colors">Deploy to Celo in minutes.</span>
@@ -254,42 +318,42 @@ export default function Home() {
           </p>
 
           {/* CTA Buttons - Enhanced */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 animate-fade-in-up px-4" style={{ animationDelay: '0.4s' }}>
             <Link
               href="/builder"
-              className="group relative px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 shadow-2xl shadow-cyan-500/30 hover:shadow-cyan-500/50 flex items-center gap-3 overflow-hidden"
+              className="group relative w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 shadow-2xl shadow-cyan-500/30 hover:shadow-cyan-500/50 flex items-center justify-center gap-3 overflow-hidden text-sm sm:text-base"
             >
               <span className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500"></span>
               <span className="relative">Start Building Free</span>
-              <ArrowRight size={20} className="relative group-hover:translate-x-1 group-hover:scale-110 transition-all" />
+              <ArrowRight size={18} className="relative group-hover:translate-x-1 group-hover:scale-110 transition-all sm:w-5 sm:h-5" />
             </Link>
             <a
               href="#features"
-              className="group px-8 py-4 bg-slate-800/50 hover:bg-slate-700/50 text-white font-bold rounded-xl transition-all duration-300 border border-slate-700/50 hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/20 hover:-translate-y-1 flex items-center gap-2"
+              className="group w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-slate-800/50 hover:bg-slate-700/50 text-white font-bold rounded-xl transition-all duration-300 border border-slate-700/50 hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/20 hover:-translate-y-1 flex items-center justify-center gap-2 text-sm sm:text-base"
             >
               <span>Explore Features</span>
-              <Clock size={20} className="group-hover:rotate-45 transition-transform" />
+              <Clock size={18} className="group-hover:rotate-45 transition-transform sm:w-5 sm:h-5" />
             </a>
           </div>
 
           {/* Stats - Enhanced with Animated Counters */}
-          <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto mt-20 pt-20 border-t border-slate-800/50">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 max-w-2xl mx-auto mt-12 sm:mt-20 pt-12 sm:pt-20 border-t border-slate-800/50">
             <ScrollReveal delay={600}>
               <div className="text-center group cursor-default hover:transform hover:scale-110 transition-all">
                 <AnimatedCounter end={17} suffix="+" />
-                <div className="text-sm text-slate-500 group-hover:text-cyan-400 transition-colors">Smart Contract Blocks</div>
+                <div className="text-xs sm:text-sm text-slate-500 group-hover:text-cyan-400 transition-colors">Smart Contract Blocks</div>
               </div>
             </ScrollReveal>
             <ScrollReveal delay={700}>
               <div className="text-center group cursor-default hover:transform hover:scale-110 transition-all">
-                <div className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-cyan-500 text-transparent bg-clip-text mb-2">1-Click</div>
-                <div className="text-sm text-slate-500 group-hover:text-blue-400 transition-colors">Deploy to Celo</div>
+                <div className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-blue-400 to-cyan-500 text-transparent bg-clip-text mb-2">1-Click</div>
+                <div className="text-xs sm:text-sm text-slate-500 group-hover:text-blue-400 transition-colors">Deploy to Celo</div>
               </div>
             </ScrollReveal>
             <ScrollReveal delay={800}>
               <div className="text-center group cursor-default hover:transform hover:scale-110 transition-all">
-                <div className="text-4xl font-bold bg-gradient-to-r from-fuchsia-400 to-pink-500 text-transparent bg-clip-text mb-2">Auto</div>
-                <div className="text-sm text-slate-500 group-hover:text-fuchsia-400 transition-colors">Code Generation</div>
+                <div className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-fuchsia-400 to-pink-500 text-transparent bg-clip-text mb-2">Auto</div>
+                <div className="text-xs sm:text-sm text-slate-500 group-hover:text-fuchsia-400 transition-colors">Code Generation</div>
               </div>
             </ScrollReveal>
           </div>
@@ -297,30 +361,30 @@ export default function Home() {
       </section>
 
       {/* Features Section - Enhanced with Scroll Animations */}
-      <section id="features" className="px-6 py-20 relative">
+      <section id="features" className="px-4 sm:px-6 py-12 sm:py-20 relative">
         <div className="max-w-6xl mx-auto">
           <ScrollReveal>
-            <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 hover:scale-105 transition-transform inline-block">
+            <div className="text-center mb-10 sm:mb-16">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-3 sm:mb-4 hover:scale-105 transition-transform inline-block">
                 Why Choose Celo Builder?
               </h2>
-              <p className="text-xl text-slate-400 hover:text-slate-300 transition-colors">
+              <p className="text-base sm:text-xl text-slate-400 hover:text-slate-300 transition-colors px-4">
                 Everything you need to build, deploy, and manage smart contracts
               </p>
             </div>
           </ScrollReveal>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
             {/* Feature Card 1 - Enhanced 3D Effect */}
             <ScrollReveal delay={100}>
-              <div className="group relative p-8 rounded-2xl bg-gradient-to-br from-slate-900/50 to-slate-800/50 border border-slate-800/50 hover:border-cyan-500/50 transition-all duration-300 hover:transform hover:scale-105 hover:-translate-y-2 hover:shadow-2xl hover:shadow-cyan-500/20">
+              <div className="group relative p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-slate-900/50 to-slate-800/50 border border-slate-800/50 hover:border-cyan-500/50 transition-all duration-300 hover:transform hover:scale-105 hover:-translate-y-2 hover:shadow-2xl hover:shadow-cyan-500/20">
                 <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-blue-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 <div className="relative">
-                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all">
-                    <Zap className="w-7 h-7 text-cyan-400 group-hover:animate-pulse" />
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 flex items-center justify-center mb-4 sm:mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all">
+                    <Zap className="w-6 h-6 sm:w-7 sm:h-7 text-cyan-400 group-hover:animate-pulse" />
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-3 group-hover:text-cyan-400 transition-colors">Lightning Fast</h3>
-                  <p className="text-slate-400 leading-relaxed group-hover:text-slate-300 transition-colors">
+                  <h3 className="text-lg sm:text-xl font-bold text-white mb-2 sm:mb-3 group-hover:text-cyan-400 transition-colors">Lightning Fast</h3>
+                  <p className="text-sm sm:text-base text-slate-400 leading-relaxed group-hover:text-slate-300 transition-colors">
                     Build complex dApps in minutes, not weeks. No blockchain expertise needed. Just drag, drop, and deploy.
                   </p>
                 </div>
@@ -329,14 +393,14 @@ export default function Home() {
 
             {/* Feature Card 2 - Enhanced 3D Effect */}
             <ScrollReveal delay={200}>
-              <div className="group relative p-8 rounded-2xl bg-linear-to-br from-slate-900/50 to-slate-800/50 border border-slate-800/50 hover:border-blue-500/50 transition-all duration-300 hover:transform hover:scale-105 hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/20">
+              <div className="group relative p-6 sm:p-8 rounded-2xl bg-linear-to-br from-slate-900/50 to-slate-800/50 border border-slate-800/50 hover:border-blue-500/50 transition-all duration-300 hover:transform hover:scale-105 hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/20">
                 <div className="absolute inset-0 bg-linear-to-br from-blue-500/5 to-cyan-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 <div className="relative">
-                  <div className="w-14 h-14 rounded-xl bg-linear-to-br from-blue-500/20 to-cyan-500/20 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all">
-                    <Code2 className="w-7 h-7 text-blue-400 group-hover:animate-pulse" />
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-linear-to-br from-blue-500/20 to-cyan-500/20 flex items-center justify-center mb-4 sm:mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all">
+                    <Code2 className="w-6 h-6 sm:w-7 sm:h-7 text-blue-400 group-hover:animate-pulse" />
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors">Learn by Doing</h3>
-                  <p className="text-slate-400 leading-relaxed group-hover:text-slate-300 transition-colors">
+                  <h3 className="text-lg sm:text-xl font-bold text-white mb-2 sm:mb-3 group-hover:text-blue-400 transition-colors">Learn by Doing</h3>
+                  <p className="text-sm sm:text-base text-slate-400 leading-relaxed group-hover:text-slate-300 transition-colors">
                     See the generated Solidity code in real-time and learn how smart contracts work under the hood.
                   </p>
                 </div>

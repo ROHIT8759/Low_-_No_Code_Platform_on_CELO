@@ -101,14 +101,15 @@ export function BlockSidebar() {
   }
 
   return (
-    <div className="w-64 bg-card border-r border-border flex flex-col h-full animate-fade-in-up">
-      <div className="p-4 border-b border-border">
-        <h2 className="text-lg font-semibold text-foreground hover:text-primary transition-colors cursor-default">Smart Contract Blocks</h2>
-        <p className="text-xs text-muted mt-1 hover:text-muted-foreground transition-colors">Drag to canvas or click to add</p>
-        <p className="text-xs text-primary mt-1 animate-pulse cursor-default">💡 Combine multiple blocks in one contract</p>
+    <div className="w-full md:w-64 bg-card border-b md:border-b-0 md:border-r border-border flex flex-col md:h-full animate-fade-in-up">
+      <div className="p-3 md:p-4 border-b border-border">
+        <h2 className="text-base md:text-lg font-semibold text-foreground hover:text-primary transition-colors cursor-default">Smart Contract Blocks</h2>
+        <p className="text-[10px] md:text-xs text-muted mt-1 hover:text-muted-foreground transition-colors">Drag to canvas or click to add</p>
+        <p className="text-[10px] md:text-xs text-primary mt-1 animate-pulse cursor-default hidden md:block">💡 Combine multiple blocks in one contract</p>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-3 space-y-2">
+      {/* Mobile: Horizontal scroll, Desktop: Vertical scroll */}
+      <div className="flex md:flex-col gap-2 md:gap-0 overflow-x-auto md:overflow-y-auto md:flex-1 p-2 md:p-3 md:space-y-2">
         {AVAILABLE_BLOCKS.map((block, index) => {
           const category = BLOCK_CATEGORIES[block.type]
           const isBase = category === "base"
@@ -140,7 +141,7 @@ export function BlockSidebar() {
               draggable
               onDragStart={(e) => handleDragStart(e, block)}
               onClick={() => addBlock(block)}
-              className={`group p-3 border rounded-lg hover:border-primary hover:bg-background/80 transition-all cursor-grab active:cursor-grabbing hover:scale-105 hover:shadow-lg animate-fade-in-up ${isBase
+              className={`group flex-shrink-0 md:flex-shrink p-2 md:p-3 border rounded-lg hover:border-primary hover:bg-background/80 transition-all cursor-grab active:cursor-grabbing hover:scale-105 hover:shadow-lg animate-fade-in-up min-w-[140px] md:min-w-0 ${isBase
                 ? "bg-primary/10 border-primary/30 hover:shadow-primary/20"
                 : isSecurity
                   ? "bg-yellow-500/5 border-yellow-500/20 hover:shadow-yellow-500/20"
@@ -152,21 +153,21 @@ export function BlockSidebar() {
                 }`}
               style={{ animationDelay: `${index * 30}ms` }}
             >
-              <div className="flex items-start gap-3">
+              <div className="flex items-start gap-2 md:gap-3">
                 <GripHorizontal
-                  size={16}
-                  className="text-muted mt-0.5 opacity-0 group-hover:opacity-100 transition-all group-hover:scale-110"
+                  size={14}
+                  className="text-muted mt-0.5 opacity-0 group-hover:opacity-100 transition-all group-hover:scale-110 hidden md:block"
                 />
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{block.label}</p>
+                  <div className="flex items-center gap-1 md:gap-2 flex-wrap">
+                    <p className="text-xs md:text-sm font-medium text-foreground group-hover:text-primary transition-colors whitespace-nowrap">{block.label}</p>
                     {badgeText && (
-                      <span className={`text-[10px] px-1.5 py-0.5 ${badgeClass} rounded-full font-medium group-hover:scale-110 transition-transform`}>
+                      <span className={`text-[8px] md:text-[10px] px-1 md:px-1.5 py-0.5 ${badgeClass} rounded-full font-medium group-hover:scale-110 transition-transform`}>
                         {badgeText}
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-muted mt-0.5 group-hover:text-muted-foreground transition-colors">
+                  <p className="text-[10px] md:text-xs text-muted mt-0.5 group-hover:text-muted-foreground transition-colors hidden md:block">
                     {BLOCK_DESCRIPTIONS[block.type] || block.type}
                   </p>
                 </div>
@@ -176,7 +177,7 @@ export function BlockSidebar() {
         })}
       </div>
 
-      <div className="p-4 border-t border-border bg-background/50">
+      <div className="hidden md:block p-4 border-t border-border bg-background/50">
         <div className="space-y-1">
           <p className="text-xs font-medium text-foreground flex items-center gap-1">
             <span className="animate-pulse">📚</span> How to build:

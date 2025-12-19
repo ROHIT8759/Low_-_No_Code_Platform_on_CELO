@@ -1,18 +1,121 @@
 "use client"
 
-import { useRef, useMemo } from "react"
-import { Canvas, useFrame } from "@react-three/fiber"
-import { Float, MeshDistortMaterial, MeshWobbleMaterial, Sphere, Box, Torus, OrbitControls } from "@react-three/drei"
+import { useRef, useMemo, useState } from "react"
+import { Canvas, useFrame, useThree } from "@react-three/fiber"
+import { Float, MeshDistortMaterial, Sphere, Box } from "@react-three/drei"
 import * as THREE from "three"
 
-// Floating blockchain block component
+// Wave particle field - creates the flowing wave effect like SolCircle
+function WaveParticleField({ count = 15000, mousePosition }: { count?: number; mousePosition: { x: number; y: number } }) {
+    const mesh = useRef<THREE.Points>(null)
+    const { viewport } = useThree()
+
+    const { positions, colors, originalPositions } = useMemo(() => {
+        const positions = new Float32Array(count * 3)
+        const originalPositions = new Float32Array(count * 3)
+        const colors = new Float32Array(count * 3)
+
+        for (let i = 0; i < count; i++) {
+            const i3 = i * 3
+            // Create a wide field of particles in a wave pattern
+            const x = (Math.random() - 0.5) * 35
+            const y = (Math.random() - 0.5) * 20
+            const z = (Math.random() - 0.5) * 10 - 5
+
+            positions[i3] = x
+            positions[i3 + 1] = y
+            positions[i3 + 2] = z
+
+            originalPositions[i3] = x
+            originalPositions[i3 + 1] = y
+            originalPositions[i3 + 2] = z
+
+            // Purple/cyan/green color gradient based on position
+            const t = Math.random()
+            if (t < 0.35) {
+                // Cyan
+                colors[i3] = 0.53
+                colors[i3 + 1] = 0.91
+                colors[i3 + 2] = 1.0
+            } else if (t < 0.65) {
+                // Purple/Fuchsia
+                colors[i3] = 0.66
+                colors[i3 + 1] = 0.33
+                colors[i3 + 2] = 0.97
+            } else {
+                // Green (Celo)
+                colors[i3] = 0.21
+                colors[i3 + 1] = 0.82
+                colors[i3 + 2] = 0.5
+            }
+        }
+
+        return { positions, colors, originalPositions }
+    }, [count])
+
+    const geometry = useMemo(() => {
+        const geo = new THREE.BufferGeometry()
+        geo.setAttribute('position', new THREE.BufferAttribute(positions, 3))
+        geo.setAttribute('color', new THREE.BufferAttribute(colors, 3))
+        return geo
+    }, [positions, colors])
+
+    useFrame((state) => {
+        if (!mesh.current) return
+
+        const time = state.clock.elapsedTime
+        const positionArray = mesh.current.geometry.attributes.position.array as Float32Array
+
+        for (let i = 0; i < count; i++) {
+            const i3 = i * 3
+            const x = originalPositions[i3]
+            const originalY = originalPositions[i3 + 1]
+
+            // Create flowing wave effect
+            const wave1 = Math.sin(x * 0.15 + time * 0.6) * 2.5
+            const wave2 = Math.sin(x * 0.1 - time * 0.4) * 2
+            const wave3 = Math.cos(x * 0.2 + time * 0.3) * 1.5
+
+            // Mouse interaction - particles react to mouse position
+            const dx = mousePosition.x * 10 - x
+            const dy = mousePosition.y * 8 - originalY
+            const dist = Math.sqrt(dx * dx + dy * dy)
+            const mouseEffect = Math.max(0, 1 - dist / 8) * 3
+
+            positionArray[i3 + 1] = originalY + wave1 + wave2 + wave3 + mouseEffect
+        }
+
+        mesh.current.geometry.attributes.position.needsUpdate = true
+        mesh.current.rotation.y = Math.sin(time * 0.1) * 0.1
+    })
+
+    return (
+        <points ref={mesh} geometry={geometry}>
+            <pointsMaterial
+                size={0.04}
+                vertexColors
+                transparent
+                opacity={0.85}
+                sizeAttenuation
+                blending={THREE.AdditiveBlending}
+            />
+        </points>
+    )
+}
+
+// Floating blockchain block component with hover effect
 function BlockchainBlock({ position, color, delay = 0 }: { position: [number, number, number]; color: string; delay?: number }) {
     const meshRef = useRef<THREE.Mesh>(null)
+    const [hovered, setHovered] = useState(false)
 
     useFrame((state) => {
         if (meshRef.current) {
             meshRef.current.rotation.x = Math.sin(state.clock.elapsedTime + delay) * 0.3
             meshRef.current.rotation.y = Math.cos(state.clock.elapsedTime + delay) * 0.3
+
+            // Smooth hover scale effect
+            const targetScale = hovered ? 1.4 : 1
+            meshRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.1)
         }
     })
 
@@ -23,197 +126,117 @@ function BlockchainBlock({ position, color, delay = 0 }: { position: [number, nu
             floatIntensity={1}
             floatingRange={[-0.2, 0.2]}
         >
-            <Box ref={meshRef} args={[1, 1, 1]} position={position}>
+            <Box
+                ref={meshRef}
+                args={[0.7, 0.7, 0.7]}
+                position={position}
+                onPointerOver={() => setHovered(true)}
+                onPointerOut={() => setHovered(false)}
+            >
                 <meshStandardMaterial
                     color={color}
-                    metalness={0.8}
-                    roughness={0.2}
+                    metalness={0.9}
+                    roughness={0.1}
                     emissive={color}
-                    emissiveIntensity={0.3}
+                    emissiveIntensity={hovered ? 1 : 0.3}
                 />
             </Box>
         </Float>
     )
 }
 
-// Glowing orb component representing transactions
+// Glowing orb component with hover effect
 function GlowingOrb({ position, color, scale = 1 }: { position: [number, number, number]; color: string; scale?: number }) {
     const meshRef = useRef<THREE.Mesh>(null)
+    const [hovered, setHovered] = useState(false)
 
     useFrame((state) => {
         if (meshRef.current) {
-            meshRef.current.scale.setScalar(scale + Math.sin(state.clock.elapsedTime * 2) * 0.1)
+            const baseScale = scale + Math.sin(state.clock.elapsedTime * 2) * 0.1
+            const hoverMultiplier = hovered ? 1.6 : 1
+            meshRef.current.scale.lerp(
+                new THREE.Vector3(baseScale * hoverMultiplier, baseScale * hoverMultiplier, baseScale * hoverMultiplier),
+                0.1
+            )
         }
     })
 
     return (
         <Float speed={3} rotationIntensity={0.2} floatIntensity={2}>
-            <Sphere ref={meshRef} args={[0.3, 32, 32]} position={position}>
+            <Sphere
+                ref={meshRef}
+                args={[0.2, 32, 32]}
+                position={position}
+                onPointerOver={() => setHovered(true)}
+                onPointerOut={() => setHovered(false)}
+            >
                 <MeshDistortMaterial
                     color={color}
                     attach="material"
-                    distort={0.4}
-                    speed={2}
+                    distort={hovered ? 0.6 : 0.4}
+                    speed={hovered ? 4 : 2}
                     roughness={0}
                     metalness={1}
                     emissive={color}
-                    emissiveIntensity={0.5}
+                    emissiveIntensity={hovered ? 1.2 : 0.5}
                 />
             </Sphere>
         </Float>
     )
 }
 
-// Central spinning torus
-function CentralTorus() {
-    const meshRef = useRef<THREE.Mesh>(null)
-
-    useFrame((state) => {
-        if (meshRef.current) {
-            meshRef.current.rotation.x = state.clock.elapsedTime * 0.2
-            meshRef.current.rotation.y = state.clock.elapsedTime * 0.3
-        }
-    })
-
-    return (
-        <Torus ref={meshRef} args={[2, 0.4, 16, 100]} position={[0, 0, 0]}>
-            <MeshWobbleMaterial
-                attach="material"
-                color="#86E8FF"
-                factor={0.2}
-                speed={2}
-                metalness={0.9}
-                roughness={0.1}
-            />
-        </Torus>
-    )
-}
-
-// Particle system for floating dots
-function Particles({ count = 100 }: { count?: number }) {
-    const mesh = useRef<THREE.Points>(null)
-
-    const particles = useMemo(() => {
-        const temp = []
-        for (let i = 0; i < count; i++) {
-            const x = (Math.random() - 0.5) * 20
-            const y = (Math.random() - 0.5) * 20
-            const z = (Math.random() - 0.5) * 20
-            temp.push(x, y, z)
-        }
-        return new Float32Array(temp)
-    }, [count])
-
-    const geometry = useMemo(() => {
-        const geo = new THREE.BufferGeometry()
-        geo.setAttribute('position', new THREE.BufferAttribute(particles, 3))
-        return geo
-    }, [particles])
-
-    useFrame((state) => {
-        if (mesh.current) {
-            mesh.current.rotation.y = state.clock.elapsedTime * 0.02
-            mesh.current.rotation.x = state.clock.elapsedTime * 0.01
-        }
-    })
-
-    return (
-        <points ref={mesh} geometry={geometry}>
-            <pointsMaterial
-                size={0.05}
-                color="#86E8FF"
-                transparent
-                opacity={0.6}
-                sizeAttenuation
-            />
-        </points>
-    )
-}
-
-// Connection lines between blocks
-function ConnectionLine({ start, end, color }: { start: [number, number, number]; end: [number, number, number]; color: string }) {
-    const points = useMemo(() => {
-        return [
-            new THREE.Vector3(...start),
-            new THREE.Vector3(...end)
-        ]
-    }, [start, end])
-
-    const lineGeometry = useMemo(() => {
-        const geo = new THREE.BufferGeometry().setFromPoints(points)
-        return geo
-    }, [points])
-
-    const lineMaterial = useMemo(() => {
-        return new THREE.LineBasicMaterial({
-            color: color,
-            transparent: true,
-            opacity: 0.5
-        })
-    }, [color])
-
-    return (
-        <primitive object={new THREE.Line(lineGeometry, lineMaterial)} />
-    )
-}
-
 // Main 3D scene
-function Scene() {
+function Scene({ mousePosition }: { mousePosition: { x: number; y: number } }) {
     return (
         <>
             {/* Lighting */}
-            <ambientLight intensity={0.3} />
-            <pointLight position={[10, 10, 10]} intensity={1} color="#86E8FF" />
-            <pointLight position={[-10, -10, -10]} intensity={0.5} color="#e879f9" />
-            <spotLight position={[0, 10, 0]} angle={0.5} penumbra={1} intensity={1} color="#5cd5ff" />
+            <ambientLight intensity={0.15} />
+            <pointLight position={[10, 10, 10]} intensity={1.5} color="#86E8FF" />
+            <pointLight position={[-10, -10, -10]} intensity={1} color="#a855f7" />
+            <pointLight position={[0, 5, 5]} intensity={0.8} color="#35D07F" />
+            <spotLight position={[0, 15, 0]} angle={0.5} penumbra={1} intensity={2} color="#e879f9" />
 
-            {/* Central element */}
-            <CentralTorus />
+            {/* Wave particle field - main visual effect */}
+            <WaveParticleField count={10000} mousePosition={mousePosition} />
 
-            {/* Blockchain blocks - Celo colors */}
-            <BlockchainBlock position={[-3, 2, 0]} color="#FCFF52" delay={0} />
-            <BlockchainBlock position={[3, -1, 1]} color="#35D07F" delay={1} />
-            <BlockchainBlock position={[-2, -2, -1]} color="#5EA33B" delay={2} />
-            <BlockchainBlock position={[2, 2, -2]} color="#86E8FF" delay={3} />
-            <BlockchainBlock position={[0, 3, 2]} color="#e879f9" delay={4} />
+            {/* Floating blocks - Celo colors */}
+            <BlockchainBlock position={[-5, 2, -3]} color="#FCFF52" delay={0} />
+            <BlockchainBlock position={[5, -1, -2]} color="#35D07F" delay={1} />
+            <BlockchainBlock position={[-4, -2, -4]} color="#86E8FF" delay={2} />
+            <BlockchainBlock position={[4, 2.5, -3]} color="#a855f7" delay={3} />
 
             {/* Glowing orbs */}
-            <GlowingOrb position={[-4, 0, 2]} color="#86E8FF" scale={0.8} />
-            <GlowingOrb position={[4, 1, -1]} color="#e879f9" scale={1} />
-            <GlowingOrb position={[0, -3, 1]} color="#35D07F" scale={0.6} />
-
-            {/* Connection lines */}
-            <ConnectionLine start={[-3, 2, 0]} end={[3, -1, 1]} color="#86E8FF" />
-            <ConnectionLine start={[3, -1, 1]} end={[-2, -2, -1]} color="#35D07F" />
-            <ConnectionLine start={[-2, -2, -1]} end={[2, 2, -2]} color="#e879f9" />
-            <ConnectionLine start={[2, 2, -2]} end={[0, 3, 2]} color="#FCFF52" />
-
-            {/* Particle system */}
-            <Particles count={200} />
-
-            {/* Allow subtle camera movement on hover */}
-            <OrbitControls
-                enableZoom={false}
-                enablePan={false}
-                autoRotate
-                autoRotateSpeed={0.5}
-                maxPolarAngle={Math.PI / 2}
-                minPolarAngle={Math.PI / 3}
-            />
+            <GlowingOrb position={[-6, 1, -1]} color="#86E8FF" scale={0.8} />
+            <GlowingOrb position={[6, 0, -2]} color="#e879f9" scale={1} />
+            <GlowingOrb position={[0, -4, -1]} color="#35D07F" scale={0.7} />
+            <GlowingOrb position={[-3, 4, -2]} color="#FCFF52" scale={0.6} />
+            <GlowingOrb position={[3, -3, 0]} color="#a855f7" scale={0.9} />
         </>
     )
 }
 
-// Exported component
+// Exported component with mouse tracking
 export default function Hero3DScene() {
+    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+
+    const handleMouseMove = (event: React.MouseEvent) => {
+        setMousePosition({
+            x: (event.clientX / window.innerWidth) * 2 - 1,
+            y: -(event.clientY / window.innerHeight) * 2 + 1
+        })
+    }
+
     return (
-        <div className="absolute inset-0 z-0">
+        <div
+            className="absolute inset-0 z-0 cursor-pointer"
+            onMouseMove={handleMouseMove}
+        >
             <Canvas
-                camera={{ position: [0, 0, 10], fov: 60 }}
+                camera={{ position: [0, 0, 14], fov: 55 }}
                 gl={{ antialias: true, alpha: true }}
                 style={{ background: 'transparent' }}
             >
-                <Scene />
+                <Scene mousePosition={mousePosition} />
             </Canvas>
         </div>
     )

@@ -393,4 +393,404 @@
       transform: scale(1);
     }
   }
+
+  /* Magnetic hover effect */
+  .hover-magnetic {
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .hover-magnetic:hover {
+    transform: scale(1.05) translateY(-5px);
+  }
+
+  /* Glow border effect */
+  .hover-glow-border {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hover-glow-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 2px;
+    background: linear-gradient(135deg, #86E8FF, #a855f7, #35D07F, #86E8FF);
+    background-size: 300% 300%;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .hover-glow-border:hover::before {
+    opacity: 1;
+    animation: gradient-rotate 3s linear infinite;
+  }
+
+  @keyframes gradient-rotate {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* Shimmer effect */
+  .hover-shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hover-shimmer::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+  }
+
+  .hover-shimmer:hover::after {
+    left: 100%;
+  }
+
+  /* Lift shadow effect */
+  .hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(134, 232, 255, 0.15), 0 10px 20px rgba(168, 85, 247, 0.1);
+  }
+
+  /* Pulse glow effect */
+  .hover-pulse-glow {
+    transition: box-shadow 0.3s ease;
+  }
+
+  .hover-pulse-glow:hover {
+    box-shadow: 0 0 20px rgba(134, 232, 255, 0.4), 0 0 40px rgba(134, 232, 255, 0.2), 0 0 60px rgba(168, 85, 247, 0.1);
+    animation: pulse-glow-anim 1.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse-glow-anim {
+    0%, 100% {
+      box-shadow: 0 0 20px rgba(134, 232, 255, 0.4), 0 0 40px rgba(134, 232, 255, 0.2);
+    }
+    50% {
+      box-shadow: 0 0 30px rgba(134, 232, 255, 0.6), 0 0 60px rgba(134, 232, 255, 0.3);
+    }
+  }
+
+  /* Text gradient hover */
+  .hover-text-gradient {
+    background: linear-gradient(90deg, #fff, #fff);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    transition: background 0.3s ease;
+  }
+
+  .hover-text-gradient:hover {
+    background: linear-gradient(90deg, #86E8FF, #a855f7, #35D07F);
+    background-clip: text;
+    -webkit-background-clip: text;
+    animation: gradient-shift 2s linear infinite;
+    background-size: 200% auto;
+  }
+
+  @keyframes gradient-shift {
+    to { background-position: 200% center; }
+  }
+
+  /* 3D tilt effect */
+  .hover-tilt {
+    transition: transform 0.3s ease;
+    transform-style: preserve-3d;
+  }
+
+  .hover-tilt:hover {
+    transform: perspective(1000px) rotateX(5deg) rotateY(-5deg) scale(1.02);
+  }
+
+  /* Icon spin on hover */
+  .hover-icon-spin:hover svg {
+    animation: icon-spin 0.6s ease-in-out;
+  }
+
+  @keyframes icon-spin {
+    0% { transform: rotate(0deg); }
+    50% { transform: rotate(180deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  /* Underline slide effect */
+  .hover-underline {
+    position: relative;
+  }
+
+  .hover-underline::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #86E8FF, #a855f7);
+    transition: width 0.3s ease;
+  }
+
+  .hover-underline:hover::after {
+    width: 100%;
+  }
+
+  /* Card float effect */
+  .hover-float {
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+  }
+
+  .hover-float:hover {
+    transform: translateY(-12px) scale(1.02);
+    box-shadow: 0 25px 50px -12px rgba(134, 232, 255, 0.25);
+  }
+
+  /* Ripple effect */
+  .hover-ripple {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hover-ripple::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(134, 232, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+  }
+
+  .hover-ripple:hover::before {
+    width: 300%;
+    height: 300%;
+  }
+
+  /* ===== SCROLL EFFECTS ===== */
+  
+  /* Smooth scroll behavior */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Scroll-triggered fade in up */
+  .scroll-fade-up {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .scroll-fade-up.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Scroll-triggered fade in from left */
+  .scroll-fade-left {
+    opacity: 0;
+    transform: translateX(-60px);
+    transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .scroll-fade-left.visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  /* Scroll-triggered fade in from right */
+  .scroll-fade-right {
+    opacity: 0;
+    transform: translateX(60px);
+    transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .scroll-fade-right.visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  /* Scroll-triggered scale in */
+  .scroll-scale {
+    opacity: 0;
+    transform: scale(0.8);
+    transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .scroll-scale.visible {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  /* Scroll-triggered rotate in */
+  .scroll-rotate {
+    opacity: 0;
+    transform: rotate(-10deg) scale(0.9);
+    transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .scroll-rotate.visible {
+    opacity: 1;
+    transform: rotate(0) scale(1);
+  }
+
+  /* Scroll-triggered blur in */
+  .scroll-blur {
+    opacity: 0;
+    filter: blur(10px);
+    transform: translateY(20px);
+    transition: opacity 0.8s ease, filter 0.8s ease, transform 0.8s ease;
+  }
+
+  .scroll-blur.visible {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+
+  /* Scroll-triggered flip in */
+  .scroll-flip {
+    opacity: 0;
+    transform: perspective(1000px) rotateX(-30deg);
+    transform-origin: top center;
+    transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .scroll-flip.visible {
+    opacity: 1;
+    transform: perspective(1000px) rotateX(0);
+  }
+
+  /* Scroll-triggered bounce in */
+  .scroll-bounce {
+    opacity: 0;
+    transform: translateY(60px);
+    transition: opacity 0.5s ease, transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .scroll-bounce.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Scroll-triggered slide up with stagger support */
+  .scroll-stagger > * {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .scroll-stagger.visible > *:nth-child(1) { transition-delay: 0ms; opacity: 1; transform: translateY(0); }
+  .scroll-stagger.visible > *:nth-child(2) { transition-delay: 100ms; opacity: 1; transform: translateY(0); }
+  .scroll-stagger.visible > *:nth-child(3) { transition-delay: 200ms; opacity: 1; transform: translateY(0); }
+  .scroll-stagger.visible > *:nth-child(4) { transition-delay: 300ms; opacity: 1; transform: translateY(0); }
+  .scroll-stagger.visible > *:nth-child(5) { transition-delay: 400ms; opacity: 1; transform: translateY(0); }
+  .scroll-stagger.visible > *:nth-child(6) { transition-delay: 500ms; opacity: 1; transform: translateY(0); }
+
+  /* Parallax scroll effect (use with JS) */
+  .scroll-parallax {
+    will-change: transform;
+    transition: transform 0.1s linear;
+  }
+
+  /* Scroll progress indicator */
+  .scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0%;
+    height: 3px;
+    background: linear-gradient(90deg, #86E8FF, #a855f7, #e879f9);
+    z-index: 9999;
+    transition: width 0.1s linear;
+  }
+
+  /* Text reveal on scroll */
+  .scroll-text-reveal {
+    background: linear-gradient(90deg, #86E8FF 50%, transparent 50%);
+    background-size: 200% 100%;
+    background-position: 100% 0;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    transition: background-position 1s ease;
+  }
+
+  .scroll-text-reveal.visible {
+    background-position: 0 0;
+  }
+
+  /* Glowing line on scroll */
+  .scroll-glow-line {
+    position: relative;
+  }
+
+  .scroll-glow-line::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #86E8FF, #a855f7, #86E8FF, transparent);
+    transition: width 0.8s ease, left 0.8s ease;
+    box-shadow: 0 0 10px #86E8FF, 0 0 20px #a855f7;
+  }
+
+  .scroll-glow-line.visible::after {
+    width: 100%;
+    left: 0;
+  }
+
+  /* Counter animation on scroll */
+  .scroll-counter {
+    opacity: 0;
+    transform: scale(0.5);
+    transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .scroll-counter.visible {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  /* 3D card tilt on scroll */
+  .scroll-3d-card {
+    opacity: 0;
+    transform: perspective(1000px) rotateY(-15deg) rotateX(10deg) translateZ(-50px);
+    transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .scroll-3d-card.visible {
+    opacity: 1;
+    transform: perspective(1000px) rotateY(0) rotateX(0) translateZ(0);
+  }
+
+  /* Wave text animation on scroll */
+  .scroll-wave-text span {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .scroll-wave-text.visible span {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

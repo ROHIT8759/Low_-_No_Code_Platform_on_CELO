@@ -90,7 +90,7 @@ export const metadata: Metadata = {
   category: "technology",
   classification: "Web3 Development Tools",
   verification: {
-    google: "google-site-verification=YOUR_VERIFICATION_CODE",
+    google: "google38dae9c721beb4cc",
     yandex: "yandex-verification=YOUR_VERIFICATION_CODE",
     yahoo: "yahoo-site-verification=YOUR_VERIFICATION_CODE",
     other: {

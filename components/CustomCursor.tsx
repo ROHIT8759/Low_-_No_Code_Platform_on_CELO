@@ -18,13 +18,18 @@ export default function CustomCursor() {
             cursorY.set(e.clientY)
         }
 
-        const updatePointerType = () => {
-            const target = document.elementFromPoint(cursorX.get(), cursorY.get())
-            setIsPointer(
-                window.getComputedStyle(target as Element).cursor === "pointer" ||
-                target?.tagName === "A" ||
-                target?.tagName === "BUTTON"
-            )
+        const updatePointerType = (e: MouseEvent) => {
+            const target = e.target as HTMLElement;
+            if (target && target instanceof HTMLElement) {
+                const computedStyle = window.getComputedStyle(target);
+                setIsPointer(
+                    computedStyle.cursor === "pointer" ||
+                    target.tagName === "A" ||
+                    target.tagName === "BUTTON" ||
+                    target.closest('a') !== null ||
+                    target.closest('button') !== null
+                )
+            }
         }
 
         window.addEventListener("mousemove", moveCursor)

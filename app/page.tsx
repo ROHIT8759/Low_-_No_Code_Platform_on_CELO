@@ -99,12 +99,12 @@ export default function Home() {
   }, [])
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 overflow-hidden">
+    <main className="min-h-screen bg-transparent overflow-hidden relative">
       {/* Scroll Progress Bar */}
       <ScrollProgress />
 
       {/* Navigation - Enhanced with Animations */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-lg border-b border-slate-800/50 animate-fade-in-down">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-black/30 backdrop-blur-xl border-b border-white/5 animate-fade-in-down supports-[backdrop-filter]:bg-black/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between">
             {/* Logo - Enhanced 3D Effect */}
@@ -248,15 +248,14 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* Hero Section - Enhanced with 3D Scene & Parallax */}
       <section className="relative px-4 sm:px-6 pt-24 sm:pt-32 pb-12 sm:pb-20 min-h-screen flex items-center overflow-hidden">
         {/* 3D Scene Background */}
         <Suspense fallback={<Scene3DLoader />}>
           <Hero3DScene />
         </Suspense>
 
-        {/* Gradient Overlay for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/80 via-slate-950/60 to-slate-950/90 z-[1]"></div>
+        {/* Gradient Overlay for text readability - More subtle now */}
+        <div className="absolute inset-0 bg-transparent z-[1]"></div>
 
         {/* Animated Background Elements with Parallax */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none z-[2]">
@@ -329,23 +328,23 @@ export default function Home() {
           </div>
 
           {/* Stats - Enhanced with Animated Counters */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 max-w-2xl mx-auto mt-12 sm:mt-20 pt-12 sm:pt-20 border-t border-slate-800/50">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 max-w-2xl mx-auto mt-12 sm:mt-20 pt-12 sm:pt-20 border-t border-white/10">
             <ScrollReveal delay={600}>
-              <div className="text-center group cursor-default hover:transform hover:scale-110 transition-all p-4 rounded-xl hover:bg-slate-800/30 backdrop-blur-sm hover-tilt">
+              <div className="text-center group cursor-default hover:transform hover:scale-110 transition-all p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 hover:border-cyan-500/30 hover-tilt shadow-lg hover:shadow-cyan-500/20">
                 <AnimatedCounter end={17} suffix="+" />
-                <div className="text-xs sm:text-sm text-slate-500 group-hover:text-cyan-400 transition-colors">Smart Contract Blocks</div>
+                <div className="text-xs sm:text-sm text-slate-400 group-hover:text-cyan-300 transition-colors uppercase tracking-wider font-semibold">Smart Contract Blocks</div>
               </div>
             </ScrollReveal>
             <ScrollReveal delay={700}>
-              <div className="text-center group cursor-default hover:transform hover:scale-110 transition-all p-4 rounded-xl hover:bg-slate-800/30 backdrop-blur-sm hover-tilt">
+              <div className="text-center group cursor-default hover:transform hover:scale-110 transition-all p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 hover:border-blue-500/30 hover-tilt shadow-lg hover:shadow-blue-500/20">
                 <div className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-blue-400 to-cyan-500 text-transparent bg-clip-text mb-2">1-Click</div>
-                <div className="text-xs sm:text-sm text-slate-500 group-hover:text-blue-400 transition-colors">Deploy to Celo</div>
+                <div className="text-xs sm:text-sm text-slate-400 group-hover:text-blue-300 transition-colors uppercase tracking-wider font-semibold">Deploy to Celo</div>
               </div>
             </ScrollReveal>
             <ScrollReveal delay={800}>
-              <div className="text-center group cursor-default hover:transform hover:scale-110 transition-all p-4 rounded-xl hover:bg-slate-800/30 backdrop-blur-sm hover-tilt">
+              <div className="text-center group cursor-default hover:transform hover:scale-110 transition-all p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 hover:border-fuchsia-500/30 hover-tilt shadow-lg hover:shadow-fuchsia-500/20">
                 <div className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-fuchsia-400 to-pink-500 text-transparent bg-clip-text mb-2">Auto</div>
-                <div className="text-xs sm:text-sm text-slate-500 group-hover:text-fuchsia-400 transition-colors">Code Generation</div>
+                <div className="text-xs sm:text-sm text-slate-400 group-hover:text-fuchsia-300 transition-colors uppercase tracking-wider font-semibold">Code Generation</div>
               </div>
             </ScrollReveal>
           </div>
@@ -620,9 +619,9 @@ export default function Home() {
       <SectionDivider />
 
       {/* Footer */}
-      <footer className="relative border-t border-slate-800/50 py-12 px-6 overflow-hidden">
+      <footer className="relative border-t border-white/5 py-12 px-6 overflow-hidden bg-black/40 backdrop-blur-xl">
         {/* Animated Background */}
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 to-transparent"></div>
+        <div className="absolute inset-0 bg-transparent"></div>
 
         <ScrollReveal>
           <div className="max-w-7xl mx-auto relative z-10">

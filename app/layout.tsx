@@ -118,6 +118,11 @@ export const viewport: Viewport = {
   maximumScale: 5,
 }
 
+import ThreeBackground from "@/components/ThreeBackground"
+import CustomCursor from "@/components/CustomCursor"
+
+// ... (keep existing code)
+
 export default function RootLayout({
   children,
 }: {
@@ -191,6 +196,8 @@ export default function RootLayout({
         />
       </head>
       <body className={`${geistSans.className} bg-background text-foreground`}>
+        <CustomCursor />
+        <ThreeBackground />
         {children}
         <Analytics />
         <SpeedInsights />

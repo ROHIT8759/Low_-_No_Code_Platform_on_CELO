@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og"
 
 export const runtime = "edge"
-export const alt = "Celo Builder - No-Code Smart Contract Builder"
+export const alt = "Block Builder - No-Code Smart Contract Builder"
 export const size = {
     width: 1200,
     height: 630,
@@ -87,7 +87,7 @@ export default async function Image() {
                         marginBottom: 16,
                     }}
                 >
-                    Celo Builder
+                    Block Builder
                 </div>
 
                 {/* Subtitle */}

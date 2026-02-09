@@ -1,6 +1,6 @@
 {
-  "name": "Celo Builder",
-  "short_name": "CeloBuilder",
+  "name": "Block Builder",
+  "short_name": "BlockBuilder",
   "description": "Build and deploy smart contracts on Celo blockchain without writing code",
   "start_url": "/",
   "display": "standalone",
@@ -15,7 +15,11 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["developer tools", "productivity", "utilities"],
+  "categories": [
+    "developer tools",
+    "productivity",
+    "utilities"
+  ],
   "lang": "en-US",
   "dir": "ltr"
 }

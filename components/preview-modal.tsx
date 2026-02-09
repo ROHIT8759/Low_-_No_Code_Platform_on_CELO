@@ -481,7 +481,7 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
 
             <!-- Footer -->
             <div class="mt-6 text-center text-slate-500 text-sm">
-              Built with Celo No-Code Builder 🚀
+              Built with Block Builder 🚀
             </div>
           </div>
         </div>

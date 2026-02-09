@@ -162,7 +162,7 @@ export function Navbar() {
             </div>
           </div>
           <div className="hidden xs:block">
-            <h1 className="text-sm sm:text-lg font-bold text-foreground group-hover:text-primary transition-colors">Celo Builder</h1>
+            <h1 className="text-sm sm:text-lg font-bold text-foreground group-hover:text-primary transition-colors">Block Builder</h1>
             <p className="text-[10px] sm:text-xs text-muted group-hover:text-muted-foreground transition-colors truncate max-w-[100px] sm:max-w-none">{currentProject?.name || "New Project"}</p>
           </div>
         </div>

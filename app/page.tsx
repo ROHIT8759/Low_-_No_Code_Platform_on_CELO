@@ -448,7 +448,7 @@ export default function Home() {
           <ScrollReveal variant="blur">
             <div className="text-center mb-10 sm:mb-16">
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-3 sm:mb-4 hover:scale-105 transition-transform inline-block">
-                Why Choose Celo Builder?
+                Why Choose Block Builder?
               </h2>
               <p className="text-base sm:text-xl text-slate-400 hover:text-slate-300 transition-colors px-4">
                 Everything you need to build, deploy, and manage smart contracts

@@ -1,13 +1,13 @@
 <div align="center">
   
   <!-- Use banner for full-width display or logo for centered display -->
-  <img src="./public/assets/banner.svg" alt="Celo Builder Banner" width="100%"/>
+  <img src="./public/assets/banner.svg" alt="Block Builder Banner" width="100%"/>
   
   <!-- Alternative: Use logo instead
-  <img src="./public/assets/logo.svg" alt="Celo Builder Logo" width="500"/>
+  <img src="./public/assets/logo.svg" alt="Block Builder Logo" width="500"/>
   -->
   
-  # 🚀 Celo Builder
+  # 🚀 Block Builder
   
   ### *Generate production-ready Next.js frontends from smart contract ABIs in seconds*
   
@@ -41,7 +41,7 @@
 
 **[Click here to watch the full demo video →](https://youtu.be/-GR1HKnp26Q)**
 
-See Celo Builder in action! This video demonstrates:
+See Block Builder in action! This video demonstrates:
 
 - ✨ Building smart contracts with the visual builder
 - 🚀 Deploying contracts to Celo network
@@ -59,7 +59,7 @@ See Celo Builder in action! This video demonstrates:
 
 _Beautiful, modern landing page with interactive animations_
 
-<img src="./public/Landing page.png" alt="Celo Builder Landing Page" width="100%"/>
+<img src="./public/Landing page.png" alt="Block Builder Landing Page" width="100%"/>
 
 ---
 
@@ -67,7 +67,7 @@ _Beautiful, modern landing page with interactive animations_
 
 _Visual drag-and-drop interface for building smart contracts_
 
-<img src="./public/Bulder page.png" alt="Celo Builder Interface" width="100%"/>
+<img src="./public/Bulder page.png" alt="Block Builder Interface" width="100%"/>
 
 ---
 
@@ -83,7 +83,7 @@ _Manage deployed contracts and generate frontends_
 
 ## �📖 About
 
-**Celo Builder** is an intelligent no-code/low-code platform that automatically generates fully-functional Next.js dApps from your smart contract ABIs. Deploy a contract, paste the ABI, and get a production-ready frontend with wallet integration, transaction handling, and beautiful UI.
+**Block Builder** is an intelligent no-code/low-code platform that automatically generates fully-functional Next.js dApps from your smart contract ABIs. Deploy a contract, paste the ABI, and get a production-ready frontend with wallet integration, transaction handling, and beautiful UI.
 
 ### 🎯 What's Included
 
@@ -95,9 +95,9 @@ _Manage deployed contracts and generate frontends_
 | 📊 **Block Explorer**     | Celoscan API integration for tx verification          |
 | 🎭 **ABI-Aware UI**       | Automatically detects and renders available functions |
 
-### 📊 Why Use Celo Builder?
+### 📊 Why Use Block Builder?
 
-| Traditional Approach        | With Celo Builder          |
+| Traditional Approach        | With Block Builder          |
 | --------------------------- | -------------------------- |
 | ⏰ Days of coding           | ⚡ Minutes to generate     |
 | 🔧 Manual ABI parsing       | 🤖 Automatic detection     |

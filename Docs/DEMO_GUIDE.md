@@ -136,7 +136,7 @@ Visit: http://localhost:3000
 
 ### 9. **Feature Cards - 3D Hover**
 
-**Where:** "Why Choose Celo Builder?" section
+**Where:** "Why Choose Block Builder?" section
 
 **Try hovering each card:**
 

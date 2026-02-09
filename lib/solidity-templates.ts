@@ -1,21 +1,21 @@
 /**
- * Optimized Solidity Templates for Celo No-Code Builder
+ * Optimized Solidity Templates for Block Builder
  * These templates are standalone (no external imports) and compile with solc
  */
 
 export interface ContractConfig {
-  name: string
-  symbol: string
-  initialSupply?: string
-  baseUri?: string
-  stablecoin?: string
-  stakingToken?: string
-  rewardToken?: string
-  governanceToken?: string
+    name: string
+    symbol: string
+    initialSupply?: string
+    baseUri?: string
+    stablecoin?: string
+    stakingToken?: string
+    rewardToken?: string
+    governanceToken?: string
 }
 
 export const OPTIMIZED_TEMPLATES = {
-  erc20: (config: ContractConfig) => `// SPDX-License-Identifier: MIT
+    erc20: (config: ContractConfig) => `// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
 /**
@@ -104,7 +104,7 @@ contract ${config.name.replace(/\s+/g, "")} {
     }
 }`,
 
-  nft: (config: ContractConfig) => `// SPDX-License-Identifier: MIT
+    nft: (config: ContractConfig) => `// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
 /**
@@ -217,7 +217,7 @@ contract ${config.name.replace(/\s+/g, "")} {
     }
 }`,
 
-  staking: (config: ContractConfig) => `// SPDX-License-Identifier: MIT
+    staking: (config: ContractConfig) => `// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
 /**
@@ -330,7 +330,7 @@ contract SimpleStaking {
     }
 }`,
 
-  payment: (config: ContractConfig) => `// SPDX-License-Identifier: MIT
+    payment: (config: ContractConfig) => `// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
 /**
@@ -405,7 +405,7 @@ contract SimplePayment {
     }
 }`,
 
-  governance: (config: ContractConfig) => `// SPDX-License-Identifier: MIT
+    governance: (config: ContractConfig) => `// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
 /**
@@ -528,9 +528,9 @@ contract SimpleGovernance {
  * Helper function to get template by type
  */
 export function getTemplate(type: string, config: ContractConfig): string {
-  const templateFn = OPTIMIZED_TEMPLATES[type as keyof typeof OPTIMIZED_TEMPLATES]
-  if (!templateFn) {
-    throw new Error(`Template not found for type: ${type}`)
-  }
-  return templateFn(config)
+    const templateFn = OPTIMIZED_TEMPLATES[type as keyof typeof OPTIMIZED_TEMPLATES]
+    if (!templateFn) {
+        throw new Error(`Template not found for type: ${type}`)
+    }
+    return templateFn(config)
 }

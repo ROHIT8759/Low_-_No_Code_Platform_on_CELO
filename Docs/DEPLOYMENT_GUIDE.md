@@ -281,7 +281,7 @@ When deployment works, you'll see:
 
 ## 🚀 Ready to Deploy!
 
-Your Celo No-Code Builder now has **REAL** contract deployment capabilities:
+Your Block Builder now has **REAL** contract deployment capabilities:
 
 - ✅ Backend compilation working
 - ✅ Standalone ERC20 template (no external dependencies)

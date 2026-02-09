@@ -9,7 +9,7 @@ const geistSans = Geist({ subsets: ["latin"] })
 const geistMono = Geist_Mono({ subsets: ["latin"] })
 
 const siteUrl = "https://celobuilder.vercel.app"
-const siteName = "Celo Builder"
+const siteName = "Block Builder"
 const siteDescription = "Build and deploy smart contracts on Celo blockchain without writing code. Visual drag-and-drop builder for ERC20 tokens, NFTs, DeFi, and more. Generate production-ready Next.js frontends instantly."
 
 export const metadata: Metadata = {
@@ -41,9 +41,9 @@ export const metadata: Metadata = {
     "visual builder",
     "drag and drop",
   ],
-  authors: [{ name: "Celo Builder Team", url: siteUrl }],
-  creator: "Celo Builder",
-  publisher: "Celo Builder",
+  authors: [{ name: "Block Builder Team", url: siteUrl }],
+  creator: "Block Builder",
+  publisher: "Block Builder",
   robots: {
     index: true,
     follow: true,
@@ -73,7 +73,7 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Celo Builder - Visual Smart Contract Builder",
+        alt: "Block Builder - Visual Smart Contract Builder",
       },
     ],
   },
@@ -131,7 +131,7 @@ export default function RootLayout({
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    name: "Celo Builder",
+    name: "Block Builder",
     description: "Build and deploy smart contracts on Celo blockchain without writing code",
     url: "https://celobuilder.vercel.app",
     applicationCategory: "DeveloperApplication",
@@ -143,7 +143,7 @@ export default function RootLayout({
     },
     creator: {
       "@type": "Organization",
-      name: "Celo Builder Team",
+      name: "Block Builder Team",
     },
     featureList: [
       "Visual drag-and-drop smart contract builder",

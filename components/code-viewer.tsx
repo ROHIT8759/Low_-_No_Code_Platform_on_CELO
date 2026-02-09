@@ -53,39 +53,41 @@ export function CodeViewer() {
 
   return (
     <div className="w-96 bg-card border-l border-border flex flex-col h-full animate-fade-in-up">
-      <div className="p-4 border-b border-border">
-        <h2 className="text-lg font-semibold text-foreground mb-3 hover:text-primary transition-colors cursor-default">Generated Code</h2>
-        <div className="flex gap-1 bg-background p-1 rounded-lg">
-          <button
-            onClick={() => setActiveTab("solidity")}
-            className={`flex-1 flex items-center justify-center gap-1 px-2 py-1.5 rounded text-xs font-medium transition-all hover:scale-105 ${activeTab === "solidity"
-              ? "bg-primary text-background shadow-lg shadow-primary/30"
-              : "text-muted hover:text-foreground hover:bg-border/50"
-              }`}
-          >
-            <Code2 size={14} className={activeTab === "solidity" ? "animate-pulse" : ""} />
-            Solidity
-          </button>
-          <button
-            onClick={() => setActiveTab("frontend")}
-            className={`flex-1 flex items-center justify-center gap-1 px-2 py-1.5 rounded text-xs font-medium transition-all hover:scale-105 ${activeTab === "frontend"
-              ? "bg-primary text-background shadow-lg shadow-primary/30"
-              : "text-muted hover:text-foreground hover:bg-border/50"
-              }`}
-          >
-            <Eye size={14} className={activeTab === "frontend" ? "animate-pulse" : ""} />
-            Frontend
-          </button>
+      <div className="p-4 border-b border-border bg-background/50 backdrop-blur-sm">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-foreground hover:text-primary transition-colors cursor-default">Generated Code</h2>
+          <div className="flex gap-1 bg-muted/20 p-1 rounded-full border border-border/50">
+            <button
+              onClick={() => setActiveTab("solidity")}
+              className={`flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-300 ${activeTab === "solidity"
+                ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25 scale-105"
+                : "text-muted hover:text-foreground hover:bg-background/50"
+                }`}
+            >
+              <Code2 size={14} className={activeTab === "solidity" ? "animate-pulse" : ""} />
+              Solidity
+            </button>
+            <button
+              onClick={() => setActiveTab("frontend")}
+              className={`flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-300 ${activeTab === "frontend"
+                ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25 scale-105"
+                : "text-muted hover:text-foreground hover:bg-background/50"
+                }`}
+            >
+              <Eye size={14} className={activeTab === "frontend" ? "animate-pulse" : ""} />
+              Frontend
+            </button>
+          </div>
         </div>
       </div>
 
       <div className="flex-1 overflow-auto p-4 flex flex-col">
-        <div className="relative flex-1 flex flex-col mb-3 animate-fade-in-up">
-          <div className="absolute top-0 right-0 text-xs text-muted/50 px-2 py-1 bg-background rounded-bl border-l border-b border-border">
+        <div className="relative flex-1 flex flex-col mb-4 animate-fade-in-up group">
+          <div className="absolute top-3 right-3 text-[10px] font-mono text-muted/50 px-2 py-1 bg-black/40 rounded border border-white/5 backdrop-blur-sm z-10 transition-opacity opacity-50 group-hover:opacity-100">
             {currentCode.split("\n").length} lines
           </div>
-          <pre className="text-xs text-muted-foreground bg-background p-3 rounded border border-border overflow-x-auto flex-1 font-mono hover:border-primary/50 transition-colors">
-            <code>{currentCode}</code>
+          <pre className="text-xs text-muted-foreground bg-black/40 p-4 rounded-xl border border-white/5 overflow-x-auto flex-1 font-mono hover:border-primary/20 transition-all shadow-inner relative">
+            <code className="relative z-0">{currentCode}</code>
           </pre>
         </div>
 

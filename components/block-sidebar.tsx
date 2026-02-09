@@ -141,35 +141,33 @@ export function BlockSidebar() {
               draggable
               onDragStart={(e) => handleDragStart(e, block)}
               onClick={() => addBlock(block)}
-              className={`group flex-shrink-0 md:flex-shrink p-2 md:p-3 border rounded-lg hover:border-primary hover:bg-background/80 transition-all cursor-grab active:cursor-grabbing hover:scale-105 hover:shadow-lg animate-fade-in-up min-w-[140px] md:min-w-0 ${isBase
-                ? "bg-primary/10 border-primary/30 hover:shadow-primary/20"
+              className={`group w-full p-5 rounded-lg border transition-all cursor-grab active:cursor-grabbing hover:scale-[1.01] hover:shadow-md animate-fade-in-up relative overflow-hidden ${isBase
+                ? "bg-gradient-to-br from-primary/10 to-transparent border-primary/20 hover:border-primary/50 hover:shadow-primary/10"
                 : isSecurity
-                  ? "bg-yellow-500/5 border-yellow-500/20 hover:shadow-yellow-500/20"
+                  ? "bg-gradient-to-br from-yellow-500/10 to-transparent border-yellow-500/20 hover:border-yellow-500/50 hover:shadow-yellow-500/10"
                   : isNFT
-                    ? "bg-purple-500/5 border-purple-500/20 hover:shadow-purple-500/20"
+                    ? "bg-gradient-to-br from-purple-500/10 to-transparent border-purple-500/20 hover:border-purple-500/50 hover:shadow-purple-500/10"
                     : isAdvanced
-                      ? "bg-blue-500/5 border-blue-500/20 hover:shadow-blue-500/20"
-                      : "bg-background border-border"
+                      ? "bg-gradient-to-br from-blue-500/10 to-transparent border-blue-500/20 hover:border-blue-500/50 hover:shadow-blue-500/10"
+                      : "bg-card border-border hover:border-primary/30"
                 }`}
               style={{ animationDelay: `${index * 30}ms` }}
             >
-              <div className="flex items-start gap-2 md:gap-3">
+              <div className={`absolute inset-0 bg-gradient-to-r ${isBase ? "from-primary/5" : isSecurity ? "from-yellow-500/5" : isNFT ? "from-purple-500/5" : isAdvanced ? "from-blue-500/5" : "from-white/5"
+                } to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+
+              <div className="flex items-center gap-2 relative z-10">
                 <GripHorizontal
-                  size={14}
-                  className="text-muted mt-0.5 opacity-0 group-hover:opacity-100 transition-all group-hover:scale-110 hidden md:block"
+                  size={12}
+                  className="text-muted opacity-50 group-hover:opacity-100 transition-all group-hover:scale-110 hidden md:block flex-shrink-0"
                 />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1 md:gap-2 flex-wrap">
-                    <p className="text-xs md:text-sm font-medium text-foreground group-hover:text-primary transition-colors whitespace-nowrap">{block.label}</p>
-                    {badgeText && (
-                      <span className={`text-[8px] md:text-[10px] px-1 md:px-1.5 py-0.5 ${badgeClass} rounded-full font-medium group-hover:scale-110 transition-transform`}>
-                        {badgeText}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-[10px] md:text-xs text-muted mt-0.5 group-hover:text-muted-foreground transition-colors hidden md:block">
-                    {BLOCK_DESCRIPTIONS[block.type] || block.type}
-                  </p>
+                <div className="flex items-center gap-1.5 flex-wrap flex-1 min-w-0">
+                  <p className="text-xs font-semibold text-foreground group-hover:text-primary transition-colors leading-none">{block.label}</p>
+                  {badgeText && (
+                    <span className={`text-[8px] px-1.5 py-0.5 ${badgeClass} rounded-full font-bold tracking-wide group-hover:scale-105 transition-transform border border-current/10 whitespace-nowrap leading-none`}>
+                      {badgeText}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>

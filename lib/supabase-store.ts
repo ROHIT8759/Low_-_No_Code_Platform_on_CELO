@@ -97,11 +97,11 @@ export const useSupabaseStore = create<SupabaseStore>()(
         set({ isSyncing: true })
         try {
           const projects = await getUserProjects(user.id)
-          
+
           // Update the main store with synced projects
           const { useBuilderStore } = await import("./store")
           const store = useBuilderStore.getState()
-          
+
           // Convert Supabase projects to local format
           const localProjects = projects.map((p) => ({
             id: p.id,
@@ -119,7 +119,8 @@ export const useSupabaseStore = create<SupabaseStore>()(
           // This is a simple implementation - you may want more sophisticated merging
           store.projects = localProjects
         } catch (error) {
-          console.error("Failed to sync projects:", error)
+          // Silently ignore Supabase errors (backend not configured yet)
+          // console.error("Failed to sync projects:", error)
         } finally {
           set({ isSyncing: false })
         }
@@ -160,7 +161,8 @@ export const useSupabaseStore = create<SupabaseStore>()(
             console.warn("⚠️ Project save to cloud returned null (check Supabase configuration)")
           }
         } catch (error: any) {
-          console.error("❌ Failed to save project to cloud:", error?.message || error)
+          // Silently ignore Supabase errors (backend not configured yet)
+          // console.error("❌ Failed to save project to cloud:", error?.message || error)
         }
       },
 

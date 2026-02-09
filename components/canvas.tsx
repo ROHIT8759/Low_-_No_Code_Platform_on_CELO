@@ -50,16 +50,22 @@ export function Canvas() {
           <div
             onDragOver={handleDragOver}
             onDrop={handleDrop}
-            className="flex items-center justify-center h-48 sm:h-64 md:h-96 border-2 border-dashed border-border rounded-lg hover:border-primary/50 transition-all hover:bg-primary/5 hover:scale-[1.01] sm:hover:scale-[1.02] animate-fade-in-up"
+            className="flex items-center justify-center h-[500px] border-2 border-dashed border-border/50 rounded-2xl hover:border-primary/50 transition-all hover:bg-primary/5 group relative overflow-hidden animate-fade-in-up"
           >
-            <div className="text-center px-4">
-              <div className="mb-3 sm:mb-4 flex justify-center">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 border-4 border-dashed border-primary/30 rounded-full flex items-center justify-center animate-pulse">
-                  <span className="text-2xl sm:text-3xl">📦</span>
+            <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.05] pointer-events-none" />
+            <div className="text-center px-4 relative z-10">
+              <div className="mb-6 flex justify-center">
+                <div className="w-20 h-20 bg-gradient-to-br from-primary/20 to-primary/5 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-500 shadow-xl shadow-primary/10 border border-primary/20">
+                  <span className="text-4xl animate-bounce-subtle">📦</span>
                 </div>
               </div>
-              <p className="text-muted mb-1 sm:mb-2 text-sm sm:text-lg font-medium">Drag blocks here to start building</p>
-              <p className="text-[10px] sm:text-xs text-muted/60">Your canvas is empty - add blocks from the sidebar</p>
+              <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">Start Building</h3>
+              <p className="text-muted text-base max-w-xs mx-auto mb-8">Drag components from the sidebar to assemble your smart contract.</p>
+
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-border/50 border border-border/50 text-xs text-muted-foreground">
+                <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                Waiting for input...
+              </div>
             </div>
           </div>
         ) : (
@@ -68,12 +74,16 @@ export function Canvas() {
               <div
                 key={block.id}
                 onClick={() => selectBlock(block)}
-                className={`p-3 sm:p-4 rounded-lg border-2 transition-all cursor-pointer group animate-fade-in-up ${selectedBlock?.id === block.id
-                  ? "border-primary bg-primary/10 shadow-xl shadow-primary/30 scale-[1.01] sm:scale-[1.02]"
-                  : "border-border bg-card hover:border-primary/50 hover:bg-card/80 hover:scale-[1.005] sm:hover:scale-[1.01] hover:shadow-lg"
+                className={`p-4 rounded-xl border transition-all cursor-pointer group animate-fade-in-up relative overflow-hidden backdrop-blur-sm ${selectedBlock?.id === block.id
+                  ? "border-primary bg-primary/10 shadow-2xl shadow-primary/20 scale-[1.02] ring-1 ring-primary/50"
+                  : "border-white/10 bg-white/5 hover:border-primary/30 hover:bg-white/10 hover:scale-[1.01] hover:shadow-xl"
                   }`}
                 style={{ animationDelay: `${index * 50}ms` }}
               >
+                {/* Connection Line Visual */}
+                {index < blocks.length - 1 && (
+                  <div className="absolute left-6 bottom-0 w-0.5 h-4 bg-border/50 translate-y-full z-0" />
+                )}
                 <div className="flex items-center justify-between">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">

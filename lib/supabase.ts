@@ -4,15 +4,15 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 
 // Validate Supabase credentials
-const isSupabaseConfigured = 
-  supabaseUrl && 
-  supabaseAnonKey && 
+const isSupabaseConfigured =
+  supabaseUrl &&
+  supabaseAnonKey &&
   supabaseUrl !== 'your_supabase_url_here' &&
   supabaseAnonKey !== 'your_supabase_anon_key_here' &&
   (supabaseUrl.startsWith('http://') || supabaseUrl.startsWith('https://'))
 
 // Create Supabase client only if properly configured
-export const supabase = isSupabaseConfigured 
+export const supabase = isSupabaseConfigured
   ? createClient(supabaseUrl, supabaseAnonKey)
   : null
 
@@ -189,7 +189,8 @@ export async function getUserByWallet(walletAddress: string) {
     .single()
 
   if (error && error.code !== 'PGRST116') {
-    console.error('Error fetching user:', error)
+    // Silently ignore - backend not configured yet
+    // console.error('Error fetching user:', error)
     return null
   }
 
@@ -212,7 +213,8 @@ export async function createUser(walletAddress: string, username?: string) {
     .single()
 
   if (error) {
-    console.error('Error creating user:', error)
+    // Silently ignore - backend not configured yet
+    // console.error('Error creating user:', error)
     return null
   }
 
@@ -221,7 +223,7 @@ export async function createUser(walletAddress: string, username?: string) {
 
 export async function getOrCreateUser(walletAddress: string) {
   let user = await getUserByWallet(walletAddress)
-  
+
   if (!user) {
     user = await createUser(walletAddress)
   }
@@ -312,7 +314,8 @@ export async function upsertProject(projectId: string, userId: string, project: 
     .single()
 
   if (error) {
-    console.error('Error upserting project:', error.message || error)
+    // Silently ignore - backend not configured yet
+    // console.error('Error upserting project:', error.message || error)
     return null
   }
 
@@ -332,7 +335,8 @@ export async function getUserProjects(userId: string) {
     .order('updated_at', { ascending: false })
 
   if (error) {
-    console.error('Error fetching projects:', error)
+    // Silently ignore - backend not configured yet
+    // console.error('Error fetching projects:', error)
     return []
   }
 

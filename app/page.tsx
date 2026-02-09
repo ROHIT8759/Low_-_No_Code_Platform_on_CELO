@@ -7,19 +7,15 @@ import FaucetInfo from "../components/faucet-info"
 import SectionDivider from "../components/section-divider"
 import { ScrollReveal, ScrollProgress } from "../components/scroll-reveal"
 
-// Lazy load 3D scene for better performance
-const Hero3DScene = lazy(() => import("../components/hero-3d-scene"))
+// Dynamic import for Starfield to avoid SSR issues with canvas
+import NetworkBackground from "../components/network-background"
+import GrainOverlay from "../components/grain-overlay"
 import TiltCard from "../components/TiltCard"
+const Hero3DObject = dynamic(() => import("../components/hero-3d-object"), { ssr: false })
 import ShineButton from "../components/ShineButton"
+import dynamic from "next/dynamic"
 
-// Loading fallback for 3D scene
-function Scene3DLoader() {
-  return (
-    <div className="absolute inset-0 z-0 flex items-center justify-center">
-      <div className="w-32 h-32 border-4 border-cyan-400/30 border-t-cyan-400 rounded-full animate-spin"></div>
-    </div>
-  )
-}
+// Loading fallback for 3D scene - Removed as Starfield is lightweight
 
 // Optimized Animated Counter Component with memo
 const AnimatedCounter = memo(function AnimatedCounter({ end, duration = 2000, suffix = "" }: { end: number; duration?: number; suffix?: string }) {
@@ -249,16 +245,16 @@ export default function Home() {
       </nav>
 
       <section className="relative px-4 sm:px-6 pt-24 sm:pt-32 pb-12 sm:pb-20 min-h-screen flex items-center overflow-hidden">
-        {/* 3D Scene Background */}
-        <Suspense fallback={<Scene3DLoader />}>
-          <Hero3DScene />
-        </Suspense>
+        {/* Interactive Network Background */}
+        <NetworkBackground />
+        <GrainOverlay />
 
         {/* Gradient Overlay for text readability - More subtle now */}
         <div className="absolute inset-0 bg-transparent z-[1]"></div>
 
         {/* Animated Background Elements with Parallax */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none z-[2]">
+          <Hero3DObject />
           <div
             className="absolute top-20 left-10 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl animate-pulse"
             style={{ transform: `translate(${mousePosition.x * 0.5}px, ${mousePosition.y * 0.5}px)` }}
@@ -284,11 +280,11 @@ export default function Home() {
 
 
           {/* Main Heading - Enhanced Typography Animation */}
+          <br /><br />
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-4 sm:mb-6 leading-tight animate-fade-in-up">
             <span className="bg-gradient-to-r from-white via-slate-200 to-slate-400 text-transparent bg-clip-text inline-block animate-slide-in-left">
               Build Smart Contracts
             </span>
-            <br />
             <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-fuchsia-500 text-transparent bg-clip-text inline-block animate-slide-in-right relative animate-neon-glow">
               Without Writing Code
               <span className="absolute -right-1 sm:-right-2 -top-1 sm:-top-2 flex h-2 w-2 sm:h-3 sm:w-3">
@@ -726,6 +722,6 @@ export default function Home() {
           </div>
         </ScrollReveal>
       </footer>
-    </main>
+    </main >
   )
 }

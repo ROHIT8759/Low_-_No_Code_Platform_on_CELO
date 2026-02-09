@@ -57,6 +57,16 @@ export default function TiltCard({ children, className = "" }: TiltCardProps) {
             }}
             className={`relative transition-all duration-200 ease-out ${className}`}
         >
+            {/* Glossy Top Edge Highlight */}
+            <div
+                className="absolute -top-[1px] left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+                style={{ zIndex: 10 }}
+            />
+            {/* Glossy Overlay Gradient */}
+            <div
+                className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl"
+                style={{ zIndex: 1 }}
+            />
             {children}
         </motion.div>
     )

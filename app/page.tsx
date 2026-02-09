@@ -115,7 +115,7 @@ export default function Home() {
                   <span className="text-white font-bold text-lg sm:text-xl">C</span>
                 </div>
               </div>
-              <span className="font-bold text-lg sm:text-xl text-white tracking-tight group-hover:text-cyan-400 transition-colors">CELO BUILDER</span>
+              <span className="font-bold text-lg sm:text-xl text-white tracking-tight group-hover:text-cyan-400 transition-colors">Block Builder</span>
             </Link>
 
             {/* Center Navigation Links - Enhanced */}
@@ -281,12 +281,7 @@ export default function Home() {
 
         <div className="max-w-6xl mx-auto text-center relative z-10">
           {/* Animated Badge with Pulse */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-500/10 to-fuchsia-500/10 border border-cyan-500/20 rounded-full mb-8 animate-fade-in-up hover:scale-105 transition-transform cursor-default backdrop-blur-sm">
-            <span className="w-2 h-2 bg-cyan-400 rounded-full animate-ping"></span>
-            <span className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse absolute"></span>
-            <span className="text-sm text-cyan-400 font-medium">Powered by Celo Blockchain</span>
-            <Sparkles className="w-4 h-4 text-fuchsia-400 animate-pulse" />
-          </div>
+
 
           {/* Main Heading - Enhanced Typography Animation */}
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-4 sm:mb-6 leading-tight animate-fade-in-up">
@@ -635,7 +630,7 @@ export default function Home() {
                       <span className="text-white font-bold text-xl">C</span>
                     </div>
                   </div>
-                  <span className="font-bold text-xl text-white">CELO BUILDER</span>
+                  <span className="font-bold text-xl text-white">Block Builder</span>
                 </div>
                 <p className="text-slate-400 mb-4 max-w-md">
                   Build, deploy, and manage smart contracts on Celo without writing a single line of code.
@@ -721,7 +716,7 @@ export default function Home() {
             {/* Bottom Bar */}
             <div className="pt-8 border-t border-slate-800/50 flex flex-col md:flex-row items-center justify-between gap-4">
               <p className="text-slate-400 text-sm">
-                Â© 2025 CELO Builder. Built with â¤ï¸ for the Celo Community.
+                Â© 2025 Block Builder. Built with â¤ï¸ for the Celo Community.
               </p>
               <div className="flex items-center gap-2 text-slate-400 text-sm">
                 <span>Powered by</span>

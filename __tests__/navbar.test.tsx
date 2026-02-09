@@ -25,7 +25,7 @@ describe('Navbar Component', () => {
 
     test('renders navbar with title', () => {
         render(<Navbar />)
-        expect(screen.getByText('CELO Builder')).toBeInTheDocument()
+        expect(screen.getByText('Block Builder')).toBeInTheDocument()
     })
 
     test('shows connect wallet button when wallet not connected', () => {

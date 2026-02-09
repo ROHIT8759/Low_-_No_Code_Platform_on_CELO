@@ -29,7 +29,7 @@ To display your photo in the "About the Developer" section:
 ```tsx
 <img
   src="/developer-photo.jpg"
-  alt="Rohit Kumar Kundu - CELO Builder Developer"
+  alt="Rohit Kumar Kundu - Block Builder Developer"
   className="w-48 h-48 mx-auto mb-6 rounded-full object-cover border-4 border-cyan-500/50 shadow-2xl group-hover:scale-110 transition-transform"
 />
 ```

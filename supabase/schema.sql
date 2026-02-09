@@ -1,4 +1,4 @@
--- CELO Builder Database Schema for Supabase
+-- Block Builder Database Schema for Supabase
 
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";

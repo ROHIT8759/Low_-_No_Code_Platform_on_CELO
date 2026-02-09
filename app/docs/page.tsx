@@ -17,7 +17,7 @@ export default function DocsPage() {
             >
               <ArrowLeft className="w-5 h-5 text-slate-400 group-hover:text-cyan-400 transition-colors" />
               <span className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                CELO BUILDER
+                Block Builder
               </span>
             </Link>
 
@@ -47,7 +47,7 @@ export default function DocsPage() {
 
             <h1 className="text-5xl md:text-6xl font-bold mb-6">
               <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-fuchsia-500 bg-clip-text text-transparent">
-                Getting Started with CELO Builder
+                Getting Started with Block Builder
               </span>
             </h1>
 
@@ -65,7 +65,7 @@ export default function DocsPage() {
           <ScrollReveal>
             <div className="text-center mb-16">
               <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                How to Use CELO Builder
+                How to Use Block Builder
               </h2>
               <p className="text-slate-400 text-lg max-w-2xl mx-auto">
                 Follow these simple steps to create and deploy your smart contract
@@ -177,7 +177,7 @@ export default function DocsPage() {
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-10" />
                     <img
                       src="/Bulder page.png"
-                      alt="CELO Builder Interface"
+                      alt="Block Builder Interface"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   </div>
@@ -413,7 +413,7 @@ export default function DocsPage() {
               <div className="relative">
                 <p className="text-xl text-slate-300 italic leading-relaxed text-center max-w-4xl mx-auto">
                   "My goal is to enable every developer, regardless of their frontend expertise,
-                  to launch complete dApps on Celo. CELO Builder is just the beginning of making
+                  to launch complete dApps on Celo. Block Builder is just the beginning of making
                   Web3 development as easy as Web2."
                 </p>
                 <p className="text-cyan-400 font-bold text-center mt-6">
@@ -468,7 +468,7 @@ export default function DocsPage() {
       <footer className="border-t border-slate-800/50 py-8 mt-20">
         <div className="max-w-7xl mx-auto px-6 text-center">
           <p className="text-slate-400">
-            © 2025 CELO Builder. Built with ❤️ for the Celo Community
+            © 2025 Block Builder. Built with ❤️ for the Celo Community
           </p>
         </div>
       </footer>

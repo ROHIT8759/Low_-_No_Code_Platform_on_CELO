@@ -25,7 +25,7 @@
   
   <!-- Text -->
   <text x="130" y="50" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#1e293b">
-    CELO Builder
+    Block Builder
   </text>
   <text x="130" y="75" font-family="Arial, sans-serif" font-size="14" fill="#64748b">
     No-Code Smart Contract Frontend Generator

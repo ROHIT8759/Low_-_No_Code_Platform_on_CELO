@@ -1,4 +1,4 @@
-# 🚀 CELO Builder - Updated & Ready!
+# 🚀 Block Builder - Updated & Ready!
 
 ## ✅ Everything Updated - All Systems Go!
 

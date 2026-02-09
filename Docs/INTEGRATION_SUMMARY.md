@@ -1,4 +1,4 @@
-# CELO Builder - AI & Cloud Integration Summary
+# Block Builder - AI & Cloud Integration Summary
 
 ## ✨ What's Been Added
 

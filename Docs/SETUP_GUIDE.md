@@ -1,4 +1,4 @@
-# CELO Builder Setup Guide
+# Block Builder Setup Guide
 
 ## 🎯 New Features Added
 

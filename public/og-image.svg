@@ -64,7 +64,7 @@
   
   <!-- Main title -->
   <text x="600" y="370" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="72" font-weight="800" fill="url(#textGradient)">
-    Celo Builder
+    Block Builder
   </text>
   
   <!-- Subtitle -->

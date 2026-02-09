@@ -198,7 +198,7 @@ Visit: http://localhost:3000
 - Hover: Scales 110%
 - Rotates 6 degrees
 - Green glow halo intensifies
-- "CELO BUILDER" text turns green
+- "Block Builder" text turns green
 - Smooth 300ms transition
 
 ---

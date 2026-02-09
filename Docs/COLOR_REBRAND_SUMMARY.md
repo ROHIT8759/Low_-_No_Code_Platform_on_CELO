@@ -1,4 +1,4 @@
-# 🎨 CELO Builder - Vibrant Neon Color Rebrand
+# 🎨 Block Builder - Vibrant Neon Color Rebrand
 
 ## Overview
 

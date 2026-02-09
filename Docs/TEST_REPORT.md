@@ -1,4 +1,4 @@
-# CELO Builder - Test Suite Summary
+# Block Builder - Test Suite Summary
 
 ## Test Execution Date
 December 16, 2025
@@ -118,7 +118,7 @@ Failed Tests:
 **Status**: ❌ 0/4 PASSED (0%)
 
 Failed Tests:
-- ❌ Renders navbar with title (missing "CELO Builder" text query)
+- ❌ Renders navbar with title (missing "Block Builder" text query)
 - ❌ Shows connect wallet button when not connected (store mock issue)
 - ❌ Shows wallet address when connected (blocks.length undefined)
 - ❌ Renders navigation items (blocks.length undefined)

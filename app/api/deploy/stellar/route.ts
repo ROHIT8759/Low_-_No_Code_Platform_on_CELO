@@ -1,32 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { DeploymentService } from '@/lib/services/deployment';
 
-/**
- * POST /api/deploy/stellar
- * 
- * Deploy compiled Stellar/Soroban contracts to Stellar networks
- * 
- * Request body:
- * {
- *   artifactId: string
- *   network: 'testnet' | 'mainnet'
- *   sourceAccount: string
- * }
- * 
- * Response:
- * {
- *   success: true
- *   network: string
- *   envelopeXDR: string
- * }
- */
 export async function POST(request: NextRequest) {
   try {
-    // Parse request body
     const body = await request.json();
     const { artifactId, network, sourceAccount } = body;
-
-    // Validate required fields
     if (!artifactId || typeof artifactId !== 'string') {
       return NextResponse.json(
         {
@@ -56,8 +34,6 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-
-    // Validate network is supported
     const supportedNetworks = ['testnet', 'mainnet'];
     if (!supportedNetworks.includes(network)) {
       return NextResponse.json(
@@ -69,18 +45,12 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-
-    // Create deployment service instance
     const deploymentService = new DeploymentService();
-
-    // Call deployStellar to prepare deployment transaction
     const result = await deploymentService.deployStellar({
       artifactId,
       network: network as 'testnet' | 'mainnet',
       sourceAccount,
     });
-
-    // Check if deployment preparation was successful
     if (!result.success) {
       return NextResponse.json(
         {
@@ -91,8 +61,6 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-
-    // Return envelope XDR for client-side signing with Freighter
     return NextResponse.json(
       {
         success: true,
@@ -114,12 +82,6 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
-/**
- * GET /api/deploy/stellar
- * 
- * Returns API information
- */
 export async function GET() {
   return NextResponse.json(
     {

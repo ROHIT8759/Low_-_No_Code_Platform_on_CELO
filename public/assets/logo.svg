@@ -1,0 +1,36 @@
+<svg width="400" height="120" viewBox="0 0 400 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background gradient circle -->
+  <defs>
+    <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FCFF52;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#35D07F;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#35D07F;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#22C55E;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Logo icon -->
+  <circle cx="60" cy="60" r="45" fill="url(#gradient1)"/>
+  
+  <!-- Code brackets -->
+  <path d="M 40 40 L 30 60 L 40 80" stroke="white" stroke-width="4" stroke-linecap="round" fill="none"/>
+  <path d="M 80 40 L 90 60 L 80 80" stroke="white" stroke-width="4" stroke-linecap="round" fill="none"/>
+  
+  <!-- Center dot/connection -->
+  <circle cx="60" cy="60" r="6" fill="white"/>
+  <circle cx="45" cy="60" r="3" fill="white"/>
+  <circle cx="75" cy="60" r="3" fill="white"/>
+  
+  <!-- Text -->
+  <text x="130" y="50" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#1e293b">
+    Block Builder
+  </text>
+  <text x="130" y="75" font-family="Arial, sans-serif" font-size="14" fill="#64748b">
+    No-Code Smart Contract Frontend Generator
+  </text>
+  
+  <!-- Decorative elements -->
+  <rect x="130" y="85" width="60" height="3" fill="url(#gradient2)" rx="1.5"/>
+</svg>

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="celoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FCFF52;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#35D07F;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#5EA33B;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="blockGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle with Celo colors -->
+  <circle cx="32" cy="32" r="30" fill="url(#celoGrad)" />
+  
+  <!-- Inner dark circle -->
+  <circle cx="32" cy="32" r="24" fill="#1a1a2e" />
+  
+  <!-- Building blocks representing no-code -->
+  <!-- Top block -->
+  <rect x="20" y="16" width="12" height="10" rx="2" fill="#FCFF52" />
+  <!-- Middle block -->
+  <rect x="32" y="22" width="12" height="10" rx="2" fill="#35D07F" />
+  <!-- Bottom block -->
+  <rect x="20" y="32" width="12" height="10" rx="2" fill="#5EA33B" />
+  <!-- Code block -->
+  <rect x="32" y="38" width="12" height="10" rx="2" fill="url(#blockGrad)" />
+  
+  <!-- Connection lines -->
+  <line x1="26" y1="26" x2="32" y2="27" stroke="#fff" stroke-width="1.5" stroke-linecap="round" />
+  <line x1="26" y1="37" x2="32" y2="43" stroke="#fff" stroke-width="1.5" stroke-linecap="round" />
+  <line x1="38" y1="32" x2="38" y2="38" stroke="#fff" stroke-width="1.5" stroke-linecap="round" />
+  
+  <!-- Code symbols on purple block -->
+  <text x="34" y="46" font-family="monospace" font-size="6" fill="#fff">&lt;/&gt;</text>
+</svg>

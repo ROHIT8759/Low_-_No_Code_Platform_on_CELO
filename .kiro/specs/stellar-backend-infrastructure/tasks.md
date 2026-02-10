@@ -303,7 +303,7 @@ Each task builds on previous work, with property-based tests integrated througho
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 10. Implement security features
-  - [ ] 10.1 Implement rate limiting middleware
+  - [-] 10.1 Implement rate limiting middleware
     - Install `express-rate-limit` or implement custom rate limiter
     - Create `lib/middleware/rate-limit.ts`
     - Configure 100 requests per minute per IP address
@@ -314,7 +314,7 @@ Each task builds on previous work, with property-based tests integrated througho
     - **Property 20: Rate Limiting Enforces Request Limits**
     - **Validates: Requirements 7.2**
   
-  - [ ] 10.3 Implement input sanitization
+  - [-] 10.3 Implement input sanitization
     - Create `lib/security/sanitize.ts` with sanitization functions
     - Implement string sanitization to prevent injection attacks
     - Add validation for contract code, ABI data, and function parameters
@@ -324,7 +324,7 @@ Each task builds on previous work, with property-based tests integrated througho
     - **Property 21: Input Sanitization Prevents Injection Attacks**
     - **Validates: Requirements 7.3, 7.6**
   
-  - [ ] 10.5 Implement static analysis for vulnerabilities
+  - [-] 10.5 Implement static analysis for vulnerabilities
     - Create `lib/security/static-analysis.ts`
     - Detect reentrancy patterns
     - Detect unchecked external calls
@@ -336,7 +336,7 @@ Each task builds on previous work, with property-based tests integrated througho
     - **Property 22: Static Analysis Detects Common Vulnerabilities**
     - **Validates: Requirements 7.4**
   
-  - [ ] 10.7 Implement CORS configuration
+  - [-] 10.7 Implement CORS configuration
     - Create `lib/middleware/cors.ts`
     - Configure allowed origins from environment variables
     - Add CORS headers to all API responses

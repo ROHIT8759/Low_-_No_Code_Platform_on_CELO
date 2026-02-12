@@ -6,84 +6,194 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  
-  
+  /* ============================================
+     INFRASTRUCTURE-GRADE DESIGN TOKEN SYSTEM
+     ============================================ */
 
-  
-  --background: #0B0F14;
-  --foreground: #F0F2F5;
+  /* --------------------------------------------
+     SURFACE HIERARCHY (4-level system)
+     Requirements: 2.1, 3.1-3.7
+     -------------------------------------------- */
+  --surface-0: #0B0F14;  /* Base background */
+  --surface-1: #11151A;  /* Primary containers */
+  --surface-2: #1A1F26;  /* Elevated elements */
+  --surface-3: #222730;  /* Highest elevation */
 
-  
-  --card: #11151A;
-  --card-foreground: #F0F2F5;
+  /* --------------------------------------------
+     BORDER SYSTEM (opacity-based hierarchy)
+     Requirements: 4.1-4.6
+     -------------------------------------------- */
+  --border-outer: rgba(255, 255, 255, 0.06);       /* 6% - Primary containers */
+  --border-outer-strong: rgba(255, 255, 255, 0.08); /* 8% - Emphasized borders */
+  --border-inner: rgba(255, 255, 255, 0.04);       /* 4% - Card elements */
+  --border-accent: rgba(59, 130, 246, 0.5);        /* 2px accent strips */
+  --border-accent-emerald: rgba(16, 185, 129, 0.5);
+  --border-accent-purple: rgba(139, 92, 246, 0.5);
 
-  --popover: #11151A;
-  --popover-foreground: #F0F2F5;
+  /* Border widths */
+  --border-width-thin: 1px;
+  --border-width-accent: 2px;
 
-  
-  --primary: #3B82F6;
+  /* Border radius (constrained to infrastructure-grade)
+     Requirements: 6.1, 8.2, 13.6 */
+  --radius-sm: 8px;   /* Small components */
+  --radius-md: 12px;  /* Standard components */
+  --radius-lg: 14px;  /* Large components (maximum) */
+
+  /* --------------------------------------------
+     TYPOGRAPHY SYSTEM
+     Requirements: 5.1-5.7
+     -------------------------------------------- */
+  /* Hero level */
+  --font-size-hero: 3rem;           /* 48px */
+  --font-weight-hero: 600;
+  --letter-spacing-hero: -0.02em;
+  --line-height-hero: 1.15;
+
+  /* Section headers */
+  --font-size-h2: 2rem;             /* 32px */
+  --font-weight-h2: 600;
+  --letter-spacing-h2: -0.01em;
+  --line-height-h2: 1.2;
+
+  --font-size-h3: 1.5rem;           /* 24px */
+  --font-weight-h3: 500;
+  --letter-spacing-h3: 0;
+  --line-height-h3: 1.3;
+
+  /* Body text */
+  --font-size-body: 1rem;           /* 16px */
+  --font-weight-body: 400;
+  --letter-spacing-body: 0;
+  --line-height-body: 1.6;
+
+  /* Technical labels */
+  --font-size-label: 0.875rem;      /* 14px */
+  --font-weight-label: 500;
+  --letter-spacing-label: 0;
+  --line-height-label: 1.4;
+
+  /* Micro labels */
+  --font-size-micro: 0.625rem;      /* 10px */
+  --font-weight-micro: 500;
+  --letter-spacing-micro: 0.05em;
+  --line-height-micro: 1.2;
+
+  /* --------------------------------------------
+     TEXT COLORS (opacity-based hierarchy)
+     Requirements: 5.3, 18.1
+     -------------------------------------------- */
+  --text-primary: rgba(255, 255, 255, 0.95);    /* 95% - Primary text */
+  --text-secondary: rgba(255, 255, 255, 0.85);  /* 85% - Body text */
+  --text-tertiary: rgba(255, 255, 255, 0.60);   /* 60% - Supporting text */
+  --text-muted: rgba(255, 255, 255, 0.40);      /* 40% - Disabled/muted */
+
+  /* --------------------------------------------
+     SPACING SYSTEM (density-optimized)
+     Requirements: 3.3, 17.2, 19.1-19.4
+     -------------------------------------------- */
+  --spacing-xs: 0.25rem;   /* 4px */
+  --spacing-sm: 0.5rem;    /* 8px */
+  --spacing-md: 0.75rem;   /* 12px */
+  --spacing-lg: 1rem;      /* 16px */
+  --spacing-xl: 1.5rem;    /* 24px */
+  --spacing-2xl: 2rem;     /* 32px */
+  --spacing-3xl: 3rem;     /* 48px */
+  --spacing-4xl: 4rem;     /* 64px */
+
+  /* --------------------------------------------
+     MOTION SYSTEM (deterministic)
+     Requirements: 12.1-12.7
+     -------------------------------------------- */
+  --duration-fast: 140ms;
+  --duration-normal: 180ms;
+  --duration-slow: 200ms;
+
+  --easing-standard: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --transform-slide-up: translateY(12px);
+  --transform-subtle: translateY(2px);
+
+  /* --------------------------------------------
+     ACCENT COLORS
+     Requirements: 4.3, 4.5
+     -------------------------------------------- */
+  --accent-blue: #3B82F6;
+  --accent-emerald: #10B981;
+  --accent-purple: #8B5CF6;
+  --accent-zinc: #71717A;
+
+  /* --------------------------------------------
+     LEGACY COMPATIBILITY TOKENS
+     (Mapped to new system for backward compatibility)
+     -------------------------------------------- */
+  --background: var(--surface-0);
+  --foreground: var(--text-primary);
+
+  --card: var(--surface-1);
+  --card-foreground: var(--text-primary);
+
+  --popover: var(--surface-1);
+  --popover-foreground: var(--text-primary);
+
+  --primary: var(--accent-blue);
   --primary-foreground: #FFFFFF;
 
-  --secondary: #1A1F26;
-  --secondary-foreground: #F0F2F5;
+  --secondary: var(--surface-2);
+  --secondary-foreground: var(--text-primary);
 
-  --muted: #1A1F26;
-  --muted-foreground: #8B949E;
-  
+  --muted: var(--surface-2);
+  --muted-foreground: var(--text-tertiary);
 
-  --accent: #222730;
-  --accent-foreground: #F0F2F5;
+  --accent: var(--surface-3);
+  --accent-foreground: var(--text-primary);
 
   --destructive: #7F1D1D;
-  --destructive-foreground: #F0F2F5;
+  --destructive-foreground: var(--text-primary);
 
-  
-  --border: #222730;
-  --input: #1A1F26;
-  --ring: #3B82F6;
+  --border: var(--border-outer);
+  --input: var(--surface-2);
+  --ring: var(--accent-blue);
 
-  --radius: 0.5rem;
+  --radius: var(--radius-md);
 
-  
-  --chart-1: #3B82F6;
-  
+  --chart-1: var(--accent-blue);
   --chart-2: #60A5FA;
   --chart-3: #93C5FD;
   --chart-4: #1E40AF;
   --chart-5: #1E3A8A;
 
   --sidebar-background: #090C10;
-  
-  --sidebar-foreground: #F0F2F5;
-  --sidebar-primary: #3B82F6;
+  --sidebar-foreground: var(--text-primary);
+  --sidebar-primary: var(--accent-blue);
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #1A1F26;
-  --sidebar-accent-foreground: #F0F2F5;
-  --sidebar-border: #222730;
-  --sidebar-ring: #3B82F6;
+  --sidebar-accent: var(--surface-2);
+  --sidebar-accent-foreground: var(--text-primary);
+  --sidebar-border: var(--border-outer);
+  --sidebar-ring: var(--accent-blue);
 }
 
 .dark {
-  
-  --background: #0B0F14;
-  --foreground: #F0F2F5;
-  --card: #11151A;
-  --card-foreground: #F0F2F5;
-  --popover: #11151A;
-  --popover-foreground: #F0F2F5;
-  --primary: #3B82F6;
+  /* Dark mode uses same infrastructure-grade tokens */
+  --background: var(--surface-0);
+  --foreground: var(--text-primary);
+  --card: var(--surface-1);
+  --card-foreground: var(--text-primary);
+  --popover: var(--surface-1);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--accent-blue);
   --primary-foreground: #FFFFFF;
-  --secondary: #1A1F26;
-  --secondary-foreground: #F0F2F5;
-  --muted: #1A1F26;
-  --muted-foreground: #8B949E;
-  --accent: #222730;
-  --accent-foreground: #F0F2F5;
+  --secondary: var(--surface-2);
+  --secondary-foreground: var(--text-primary);
+  --muted: var(--surface-2);
+  --muted-foreground: var(--text-tertiary);
+  --accent: var(--surface-3);
+  --accent-foreground: var(--text-primary);
   --destructive: #7F1D1D;
-  --destructive-foreground: #F0F2F5;
-  --border: #222730;
-  --input: #1A1F26;
-  --ring: #3B82F6;
+  --destructive-foreground: var(--text-primary);
+  --border: var(--border-outer);
+  --input: var(--surface-2);
+  --ring: var(--accent-blue);
 }
 
 @theme inline {
@@ -130,13 +240,16 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  
-  
-  --animate-accordion-down: accordion-down 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  --animate-accordion-up: accordion-up 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  --animate-fade-in: fade-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  --animate-slide-up: slide-up 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  --animate-slide-in-right: slide-in-right 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  /* ============================================
+     ANIMATION SYSTEM (Infrastructure-grade motion)
+     Requirements: 12.1-12.7
+     ============================================ */
+  --animate-accordion-down: accordion-down var(--duration-normal) var(--easing-standard);
+  --animate-accordion-up: accordion-up var(--duration-normal) var(--easing-standard);
+  --animate-fade-in: fade-in var(--duration-normal) var(--easing-standard) forwards;
+  --animate-slide-up: slide-up var(--duration-normal) var(--easing-standard) forwards;
+  --animate-slide-in-right: slide-in-right var(--duration-normal) var(--easing-standard) forwards;
+  --animate-reveal: reveal var(--duration-normal) var(--easing-standard) forwards;
 
   @keyframes accordion-down {
     from {
@@ -191,6 +304,18 @@
       opacity: 1;
     }
   }
+
+  @keyframes reveal {
+    from {
+      transform: var(--transform-slide-up);
+      opacity: 0;
+    }
+
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
 }
 
 @layer base {
@@ -207,32 +332,151 @@
 }
 
 @layer utilities {
+  /* ============================================
+     INFRASTRUCTURE-GRADE UTILITY CLASSES
+     ============================================ */
 
-  
+  /* Surface system utilities */
+  .surface-0 {
+    @apply bg-[var(--surface-0)];
+  }
+
+  .surface-1 {
+    @apply bg-[var(--surface-1)];
+  }
+
+  .surface-2 {
+    @apply bg-[var(--surface-2)];
+  }
+
+  .surface-3 {
+    @apply bg-[var(--surface-3)];
+  }
+
+  /* Surface with borders (matte finish) */
   .surface-matte {
-    @apply bg-[#11151A] border border-[#222730] shadow-sm;
+    background-color: var(--surface-1);
+    border: var(--border-width-thin) solid var(--border-outer);
   }
 
-  
+  /* Elevated surface with stronger border */
   .surface-elevated {
-    @apply bg-[#1A1F26] border border-[#2A303C] shadow-md transition-colors duration-160 ease-out;
+    background-color: var(--surface-2);
+    border: var(--border-width-thin) solid var(--border-outer-strong);
+    transition: background-color var(--duration-normal) var(--easing-standard);
   }
 
-  
+  /* Accent strip utilities */
+  .accent-strip-top {
+    border-top: var(--border-width-accent) solid var(--border-accent);
+  }
+
+  .accent-strip-left {
+    border-left: var(--border-width-accent) solid var(--border-accent);
+  }
+
+  .accent-strip-emerald {
+    border-color: var(--border-accent-emerald);
+  }
+
+  .accent-strip-purple {
+    border-color: var(--border-accent-purple);
+  }
+
+  /* Infrastructure grid background */
   .bg-infrastructure-grid {
     background-size: 40px 40px;
-    background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-image: linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
     mask-image: radial-gradient(ellipse at center, transparent 20%, black 100%);
-    
   }
 
-  
+  /* Typography utilities */
+  .text-hero {
+    font-size: var(--font-size-hero);
+    font-weight: var(--font-weight-hero);
+    letter-spacing: var(--letter-spacing-hero);
+    line-height: var(--line-height-hero);
+    color: var(--text-primary);
+  }
+
+  .text-h2 {
+    font-size: var(--font-size-h2);
+    font-weight: var(--font-weight-h2);
+    letter-spacing: var(--letter-spacing-h2);
+    line-height: var(--line-height-h2);
+    color: var(--text-primary);
+  }
+
+  .text-h3 {
+    font-size: var(--font-size-h3);
+    font-weight: var(--font-weight-h3);
+    letter-spacing: var(--letter-spacing-h3);
+    line-height: var(--line-height-h3);
+    color: var(--text-primary);
+  }
+
+  .text-body {
+    font-size: var(--font-size-body);
+    font-weight: var(--font-weight-body);
+    letter-spacing: var(--letter-spacing-body);
+    line-height: var(--line-height-body);
+    color: var(--text-secondary);
+  }
+
+  .text-label {
+    font-size: var(--font-size-label);
+    font-weight: var(--font-weight-label);
+    letter-spacing: var(--letter-spacing-label);
+    line-height: var(--line-height-label);
+    color: var(--text-secondary);
+  }
+
+  /* Technical micro-label (monospace, uppercase) */
   .text-tech {
-    @apply font-mono text-[10px] tracking-widest text-[#8B949E] uppercase;
+    font-family: var(--font-mono);
+    font-size: var(--font-size-micro);
+    font-weight: var(--font-weight-micro);
+    letter-spacing: var(--letter-spacing-micro);
+    line-height: var(--line-height-micro);
+    color: var(--text-tertiary);
+    text-transform: uppercase;
   }
 
-  
+  /* Motion utilities */
+  .transition-infrastructure {
+    transition-duration: var(--duration-normal);
+    transition-timing-function: var(--easing-standard);
+  }
+
+  .transition-fast {
+    transition-duration: var(--duration-fast);
+    transition-timing-function: var(--easing-standard);
+  }
+
+  .transition-slow {
+    transition-duration: var(--duration-slow);
+    transition-timing-function: var(--easing-standard);
+  }
+
+  /* Hover effects (subtle, deterministic) */
+  .hover-lift {
+    @apply transition-infrastructure;
+  }
+
+  .hover-lift:hover {
+    transform: var(--transform-subtle);
+  }
+
+  .hover-surface {
+    @apply transition-infrastructure;
+  }
+
+  .hover-surface:hover {
+    background-color: var(--surface-2);
+  }
+
+  /* Scrollbar utilities */
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }

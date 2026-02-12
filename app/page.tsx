@@ -78,24 +78,42 @@ export default function Home() {
     <main className="min-h-screen bg-[#0B0F14] text-zinc-300 antialiased overflow-hidden selection:bg-indigo-500/30 selection:text-indigo-200">
 
       {/* 1. LAYERED BACKGROUND SYSTEM */}
-      {/* Grid only visible in hero + bento zone then fades out */}
-      {/* 1. LAYERED BACKGROUND SYSTEM */}
+      {/* Micro noise texture at 1-2% opacity with radial vignette */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-        <Silk
-          speed={5}
-          scale={1}
-          color="#1A1F26" // Tilted slightly lighter to ensure visibility against the #0B0F14 bg
-          noiseIntensity={1.5} // Increased noise for texture
-          rotation={0}
+        {/* Silk component for subtle noise texture (1-2% opacity) */}
+        <div className="absolute inset-0 opacity-[0.015]">
+          <Silk
+            speed={5}
+            scale={1}
+            color="#FFFFFF"
+            noiseIntensity={1.0}
+            rotation={0}
+          />
+        </div>
+        
+        {/* Radial vignette overlay */}
+        <div 
+          className="absolute inset-0" 
+          style={{
+            background: 'radial-gradient(ellipse at center, transparent 20%, rgba(0,0,0,0.3) 100%)'
+          }}
         />
-        {/* We keep a subtle gradient overlay to ensure text readability if the silk is too busy */}
-        <div className="absolute inset-0 bg-linear-to-b from-transparent via-[#0B0F14]/50 to-[#0B0F14]" />
       </div>
 
       <Navbar />
 
       {/* 2. ADVANCED HERO */}
       <section className="relative pt-32 pb-16 px-6 max-w-7xl mx-auto z-10 grid lg:grid-cols-12 gap-16 items-center">
+        {/* Conditional grid overlay for hero zone (2-3% opacity) */}
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundSize: '40px 40px',
+            backgroundImage: 'linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px)',
+            opacity: 0.025
+          }}
+        />
+        
         {/* Left: Content */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -172,7 +190,17 @@ export default function Home() {
 
       {/* 4. UPGRADED BENTO GRID */}
       <section className="relative pb-24 px-6 max-w-7xl mx-auto z-10">
-        <div className="mb-12">
+        {/* Conditional grid overlay for bento zone (2-3% opacity) */}
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundSize: '40px 40px',
+            backgroundImage: 'linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px)',
+            opacity: 0.025
+          }}
+        />
+        
+        <div className="mb-12 relative z-10">
           <h2 className="text-2xl font-semibold text-white mb-2">Core Infrastructure</h2>
           <p className="text-zinc-500 max-w-xl">Primitives designed for high-assurance financial applications.</p>
         </div>

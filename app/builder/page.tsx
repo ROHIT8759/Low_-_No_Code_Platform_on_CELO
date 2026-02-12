@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { useBuilderStore } from "@/lib/store"
 import { useSupabaseStore } from "@/lib/supabase-store"
 import { Navbar } from "@/components/navbar"
+import { BuilderNavbar } from "@/components/builder-navbar"
 import { BlockSidebar } from "@/components/block-sidebar"
 import { Canvas } from "@/components/canvas"
 import { CodeViewer } from "@/components/code-viewer"
@@ -16,7 +17,6 @@ export default function BuilderPage() {
   const syncProjects = useSupabaseStore((state) => state.syncProjects)
   const [hasInitialized, setHasInitialized] = useState(false)
 
-  // Initialize project on first load
   useEffect(() => {
     if (!hasInitialized && projects.length === 0) {
       createProject("My First dApp")
@@ -43,7 +43,7 @@ export default function BuilderPage() {
 
       {/* Structural Layout */}
       <div className="relative z-10 flex flex-col h-full">
-        <Navbar />
+        <BuilderNavbar />
         <div className="flex flex-1 overflow-hidden flex-col md:flex-row border-t border-[#222730]">
           {/* Mobile: Horizontal scrollable blocks, Desktop: Sidebar */}
           <div className="md:hidden">

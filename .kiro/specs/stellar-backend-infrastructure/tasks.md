@@ -192,7 +192,7 @@ Each task builds on previous work, with property-based tests integrated througho
     - **Property 8: Failed Deployments Return Error Information**
     - **Validates: Requirements 2.6**
 
-- [-] 6. Checkpoint - Verify compilation and deployment
+- [x] 6. Checkpoint - Verify compilation and deployment
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 7. Implement contract simulation
@@ -210,7 +210,7 @@ Each task builds on previous work, with property-based tests integrated througho
     - Add network configuration (testnet and mainnet RPC URLs)
     - _Requirements: 3.2, 3.4, 4.3_
   
-  - [~] 7.3 Write property test for simulation results
+  - [x] 7.3 Write property test for simulation results
     - **Property 12: Simulation Returns Execution Results and Gas Estimates**
     - **Validates: Requirements 4.4, 4.6**
   
@@ -227,11 +227,11 @@ Each task builds on previous work, with property-based tests integrated througho
     - Return execution results, gas estimates, and state changes
     - _Requirements: 4.1, 4.4, 4.5, 4.6, 4.7_
   
-  - [~] 7.6 Write property test for simulation error handling
+  - [x] 7.6 Write property test for simulation error handling
     - **Property 13: Failed Simulations Return Revert Reasons**
     - **Validates: Requirements 4.5**
   
-  - [~] 7.7 Write property test for simulation with variable account states
+  - [x] 7.7 Write property test for simulation with variable account states
     - **Property 14: Simulation Supports Variable Account States**
     - **Validates: Requirements 4.7**
 

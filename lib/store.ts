@@ -61,7 +61,7 @@ export interface DeployedContract {
 export interface Project {
   id: string
   name: string
-  networkType: "evm" | "stellar"
+  networkType: "stellar"
   blocks: Block[]
   generatedCode?: {
     solidity?: string
@@ -78,12 +78,12 @@ interface BuilderStore {
   blocks: Block[]
   selectedBlock: Block | null
   walletAddress: string | null
-  walletType: "metamask" | "freighter" | null
+  walletType: "freighter" | null
   walletChainId: number | null
-  network: "celo" | "stellar"
+  network: "stellar"
   deployedContracts: DeployedContract[]
 
-  createProject: (name: string, networkType?: "evm" | "stellar") => void
+  createProject: (name: string, networkType?: "stellar") => void
   loadProject: (id: string) => void
   deleteProject: (id: string) => void
   renameProject: (id: string, name: string) => void
@@ -96,9 +96,9 @@ interface BuilderStore {
   clearAll: () => void
   importProject: (projectData: Project) => void
   setWalletAddress: (address: string | null) => void
-  setWalletType: (type: "metamask" | "freighter" | null) => void
+  setWalletType: (type: "freighter" | null) => void
   setWalletChainId: (chainId: number | null) => void
-  setNetwork: (network: "celo" | "stellar") => void
+  setNetwork: (network: "stellar") => void
   addDeployedContract: (contract: DeployedContract) => void
   updateDeployedContract: (id: string, updates: Partial<DeployedContract>) => void
   deleteDeployedContract: (id: string) => void
@@ -115,10 +115,10 @@ export const useBuilderStore = create<BuilderStore>()(
       walletAddress: null,
       walletType: null,
       walletChainId: null,
-      network: "celo",
+      network: "stellar",
       deployedContracts: [],
 
-      createProject: (name: string, networkType: "evm" | "stellar" = "evm") => {
+      createProject: (name: string, networkType: "stellar" = "stellar") => {
         const newProject: Project = {
           id: generateUUID(),
           name,
@@ -279,9 +279,9 @@ export const useBuilderStore = create<BuilderStore>()(
       },
 
       setWalletAddress: (address: string | null) => set({ walletAddress: address }),
-      setWalletType: (type: "metamask" | "freighter" | null) => set({ walletType: type }),
+      setWalletType: (type: "freighter" | null) => set({ walletType: type }),
       setWalletChainId: (chainId: number | null) => set({ walletChainId: chainId }),
-      setNetwork: (network: "celo" | "stellar") => set({ network }),
+      setNetwork: (network: "stellar") => set({ network }),
 
       addDeployedContract: (contract: DeployedContract) => {
         set((state) => {

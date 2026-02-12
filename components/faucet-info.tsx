@@ -27,16 +27,16 @@ export default function FaucetInfo() {
 
               <div>
                 <h2 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-2 group-hover:from-cyan-300 group-hover:to-blue-400 transition-all duration-300">
-                  Celo Faucet
+                  Stellar Faucet
                 </h2>
                 <p className="text-slate-400 group-hover:text-slate-300 transition-colors">
-                  Get test CELO for deploying and testing on Sepolia.
+                  Get test XLM for deploying and testing on Stellar Testnet.
                 </p>
               </div>
             </div>
 
             <Link
-              href="https://faucet.celo.org/celo-sepolia"
+              href="https://testnet.stellarfaucet.org/"
               target="_blank"
               rel="noopener noreferrer"
               className="group/btn relative px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 flex items-center gap-2 overflow-hidden"
@@ -63,7 +63,7 @@ export default function FaucetInfo() {
                   What is the Faucet?
                 </h3>
                 <p className="text-slate-400 leading-relaxed group-hover/card:text-slate-300 transition-colors">
-                  The Celo faucet dispenses a small amount of test CELO so you can deploy contracts and test transactions on the Sepolia testnet.
+                  The Stellar faucet dispenses test XLM so you can deploy contracts and test transactions on the Stellar Testnet.
                 </p>
               </div>
             </div>
@@ -81,7 +81,7 @@ export default function FaucetInfo() {
                   Rate Limits
                 </h3>
                 <p className="text-slate-400 leading-relaxed group-hover/card:text-slate-300 transition-colors">
-                  Faucets typically enforce limits per wallet or IP. If you hit limits, wait or try another address. Check the faucet page for current rules.
+                  Faucets typically enforce limits per wallet. If you hit limits, wait or try another address. Check the faucet page for current rules.
                 </p>
               </div>
             </div>
@@ -99,7 +99,7 @@ export default function FaucetInfo() {
                   How to Claim
                 </h3>
                 <p className="text-slate-400 leading-relaxed group-hover/card:text-slate-300 transition-colors">
-                  Click the button below to open the official Celo faucet. Follow the on-screen instructions to request CELO for your wallet address.
+                  Click the button below to open the official Stellar faucet. Follow the on-screen instructions to request XLM for your wallet address.
                 </p>
               </div>
             </div>
@@ -108,14 +108,14 @@ export default function FaucetInfo() {
           {}
           <div className="relative text-center">
             <Link
-              href="https://faucet.celo.org/celo-sepolia"
+              href="https://testnet.stellarfaucet.org/"
               target="_blank"
               rel="noopener noreferrer"
               className="group/cta relative inline-flex items-center gap-3 px-10 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 shadow-2xl shadow-cyan-500/30 hover:shadow-cyan-500/50 overflow-hidden"
             >
               <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-200%] group-hover/cta:translate-x-[200%] transition-transform duration-700"></span>
               <Droplet className="relative w-5 h-5 group-hover/cta:animate-bounce" />
-              <span className="relative">Claim Your Free Test CELO</span>
+              <span className="relative">Claim Your Free Test XLM</span>
               <ArrowRight size={20} className="relative group-hover/cta:translate-x-1 group-hover/cta:scale-110 transition-all" />
             </Link>
 

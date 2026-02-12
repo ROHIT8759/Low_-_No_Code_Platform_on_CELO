@@ -1,10 +1,9 @@
-import { ethers } from 'ethers';
 import { cache, CacheKeys, CacheTTL } from '../cache';
 import { createHash } from 'crypto';
 import { STELLAR_NETWORK_CONFIG } from './deployment';
 
 export interface SimulationRequest {
-  contractType: 'evm' | 'stellar';
+  contractType: 'stellar';
   contractAddress?: string;
   contractCode?: string;
   functionName: string;
@@ -14,17 +13,6 @@ export interface SimulationRequest {
     address: string;
     balance?: string;
   };
-}
-
-export interface EVMSimulationResult {
-  success: boolean;
-  result?: any;
-  gasEstimate?: number;
-  stateChanges?: StateChange[];
-  logs?: Log[];
-  revertReason?: string;
-  error?: string;
-  details?: string;
 }
 
 export interface StellarSimulationResult {
@@ -51,13 +39,12 @@ export interface Log {
   data: string;
 }
 
-export type SimulationResult = EVMSimulationResult | StellarSimulationResult;
+export type SimulationResult = StellarSimulationResult;
 
 export class SimulationService {
   
   async simulate(request: SimulationRequest): Promise<SimulationResult> {
     try {
-      
       const validation = this.validateRequest(request);
       if (!validation.valid) {
         return {
@@ -67,25 +54,16 @@ export class SimulationService {
         };
       }
 
-      
       const cacheKey = this.generateCacheKey(request);
 
-      
       const cached = await cache.get<SimulationResult>(cacheKey);
       if (cached) {
         console.log('[SimulationService] Returning cached simulation result');
         return cached;
       }
 
-      
-      let result: SimulationResult;
-      if (request.contractType === 'evm') {
-        result = await this.simulateEVM(request);
-      } else {
-        result = await this.simulateStellar(request);
-      }
+      const result = await this.simulateStellar(request);
 
-      
       if (result.success) {
         await cache.set(cacheKey, result, CacheTTL.SIMULATION);
       }
@@ -101,131 +79,8 @@ export class SimulationService {
     }
   }
 
-  
-  async simulateEVM(request: SimulationRequest): Promise<EVMSimulationResult> {
-    try {
-      
-      const rpcUrl = this.getEVMRpcUrl(request.network);
-      if (!rpcUrl) {
-        return {
-          success: false,
-          error: 'Invalid network',
-          details: `Unknown EVM network: ${request.network}`,
-        };
-      }
-
-      
-      const provider = new ethers.JsonRpcProvider(rpcUrl);
-
-      
-      if (request.contractCode) {
-        return await this.simulateEVMWithCode(
-          request.contractCode,
-          request.functionName,
-          request.args,
-          provider,
-          request.accountState
-        );
-      }
-
-      
-      if (request.contractAddress) {
-        return await this.simulateEVMWithAddress(
-          request.contractAddress,
-          request.functionName,
-          request.args,
-          provider,
-          request.accountState
-        );
-      }
-
-      return {
-        success: false,
-        error: 'Missing contract information',
-        details: 'Either contractCode or contractAddress must be provided',
-      };
-    } catch (error: any) {
-      console.error('[SimulationService] EVM simulation error:', error);
-      return {
-        success: false,
-        error: 'EVM simulation failed',
-        details: error.message,
-        revertReason: this.extractRevertReason(error),
-      };
-    }
-  }
-
-  
-  private async simulateEVMWithCode(
-    contractCode: string,
-    functionName: string,
-    args: any[],
-    provider: ethers.JsonRpcProvider,
-    accountState?: { address: string; balance?: string }
-  ): Promise<EVMSimulationResult> {
-    try {
-      
-      
-      
-      
-      const deploymentGas = await provider.estimateGas({
-        data: contractCode,
-      });
-
-      
-      
-      return {
-        success: true,
-        result: null,
-        gasEstimate: Number(deploymentGas),
-        stateChanges: [],
-        logs: [],
-      };
-    } catch (error: any) {
-      console.error('[SimulationService] EVM code simulation error:', error);
-      throw error;
-    }
-  }
-
-  
-  private async simulateEVMWithAddress(
-    contractAddress: string,
-    functionName: string,
-    args: any[],
-    provider: ethers.JsonRpcProvider,
-    accountState?: { address: string; balance?: string }
-  ): Promise<EVMSimulationResult> {
-    try {
-      
-      
-      const abi = this.createMinimalABI(functionName, args);
-      
-      
-      const contract = new ethers.Contract(contractAddress, abi, provider);
-
-      
-      const gasEstimate = await contract[functionName].estimateGas(...args);
-
-      
-      const result = await contract[functionName].staticCall(...args);
-
-      return {
-        success: true,
-        result: this.formatEVMResult(result),
-        gasEstimate: Number(gasEstimate),
-        stateChanges: [], 
-        logs: [],
-      };
-    } catch (error: any) {
-      console.error('[SimulationService] EVM address simulation error:', error);
-      throw error;
-    }
-  }
-
-  
   async simulateStellar(request: SimulationRequest): Promise<StellarSimulationResult> {
     try {
-      
       const network = this.parseStellarNetwork(request.network);
       if (!network) {
         return {
@@ -237,7 +92,6 @@ export class SimulationService {
 
       const sorobanRpcUrl = STELLAR_NETWORK_CONFIG[network].sorobanRpcUrl;
 
-      
       if (!request.contractAddress) {
         return {
           success: false,
@@ -246,7 +100,6 @@ export class SimulationService {
         };
       }
 
-      
       const simulationResult = await this.callSorobanRPC(
         sorobanRpcUrl,
         request.contractAddress,
@@ -267,7 +120,6 @@ export class SimulationService {
     }
   }
 
-  
   private async callSorobanRPC(
     rpcUrl: string,
     contractAddress: string,
@@ -276,7 +128,6 @@ export class SimulationService {
     accountState?: { address: string; balance?: string }
   ): Promise<StellarSimulationResult> {
     try {
-      
       const rpcRequest = {
         jsonrpc: '2.0',
         id: 1,
@@ -291,7 +142,6 @@ export class SimulationService {
         },
       };
 
-      
       const response = await fetch(rpcUrl, {
         method: 'POST',
         headers: {
@@ -306,7 +156,6 @@ export class SimulationService {
 
       const data = await response.json();
 
-      
       if (data.error) {
         return {
           success: false,
@@ -315,7 +164,6 @@ export class SimulationService {
         };
       }
 
-      
       return this.parseSorobanSimulationResult(data.result);
     } catch (error: any) {
       console.error('[SimulationService] Soroban RPC call error:', error);
@@ -323,15 +171,12 @@ export class SimulationService {
     }
   }
 
-  
   private buildSorobanTransaction(
     contractAddress: string,
     functionName: string,
     args: any[],
     accountState?: { address: string; balance?: string }
   ): any {
-    
-    
     return {
       contractId: contractAddress,
       function: functionName,
@@ -340,9 +185,7 @@ export class SimulationService {
     };
   }
 
-  
   private encodeSorobanArgs(args: any[]): any[] {
-    
     return args.map(arg => {
       if (typeof arg === 'number') {
         return { type: 'u64', value: arg.toString() };
@@ -358,10 +201,8 @@ export class SimulationService {
     });
   }
 
-  
   private parseSorobanSimulationResult(result: any): StellarSimulationResult {
     try {
-      
       if (!result || result.error) {
         return {
           success: false,
@@ -370,16 +211,12 @@ export class SimulationService {
         };
       }
 
-      
       const gasEstimate = result.cost?.cpuInsns || 0;
 
-      
       const returnValue = result.results?.[0]?.xdr || result.returnValue;
 
-      
       const stateChanges = this.extractSorobanStateChanges(result);
 
-      
       const logs = this.extractSorobanLogs(result);
 
       return {
@@ -399,7 +236,6 @@ export class SimulationService {
     }
   }
 
-  
   private extractSorobanStateChanges(result: any): StateChange[] {
     const stateChanges: StateChange[] = [];
 
@@ -421,7 +257,6 @@ export class SimulationService {
     return stateChanges;
   }
 
-  
   private extractSorobanLogs(result: any): Log[] {
     const logs: Log[] = [];
 
@@ -442,20 +277,6 @@ export class SimulationService {
     return logs;
   }
 
-  
-  private getEVMRpcUrl(network: string): string | null {
-    
-    const networkMap: Record<string, string> = {
-      'CELO_MAINNET': process.env.CELO_RPC_URL || 'https://forno.celo.org',
-      'CELO_ALFAJORES': process.env.CELO_ALFAJORES_RPC_URL || 'https://alfajores-forno.celo-testnet.org',
-      'celo': process.env.CELO_RPC_URL || 'https://forno.celo.org',
-      'celo-testnet': process.env.CELO_ALFAJORES_RPC_URL || 'https://alfajores-forno.celo-testnet.org',
-    };
-
-    return networkMap[network] || null;
-  }
-
-  
   private parseStellarNetwork(network: string): 'testnet' | 'mainnet' | null {
     const normalized = network.toLowerCase();
     
@@ -468,84 +289,6 @@ export class SimulationService {
     return null;
   }
 
-  
-  private createMinimalABI(functionName: string, args: any[]): any[] {
-    
-    const inputs = args.map((arg, index) => {
-      let type = 'bytes';
-      
-      if (typeof arg === 'number' || typeof arg === 'bigint') {
-        type = 'uint256';
-      } else if (typeof arg === 'string' && arg.startsWith('0x') && arg.length === 42) {
-        type = 'address';
-      } else if (typeof arg === 'string') {
-        type = 'string';
-      } else if (typeof arg === 'boolean') {
-        type = 'bool';
-      }
-
-      return {
-        name: `param${index}`,
-        type,
-      };
-    });
-
-    return [
-      {
-        name: functionName,
-        type: 'function',
-        inputs,
-        outputs: [],
-        stateMutability: 'view',
-      },
-    ];
-  }
-
-  
-  private formatEVMResult(result: any): any {
-    if (result === null || result === undefined) {
-      return null;
-    }
-
-    
-    if (typeof result === 'bigint') {
-      return result.toString();
-    }
-
-    
-    if (Array.isArray(result)) {
-      return result.map(item => this.formatEVMResult(item));
-    }
-
-    
-    if (typeof result === 'object') {
-      const formatted: any = {};
-      for (const key in result) {
-        formatted[key] = this.formatEVMResult(result[key]);
-      }
-      return formatted;
-    }
-
-    return result;
-  }
-
-  
-  private extractRevertReason(error: any): string | undefined {
-    if (error.reason) {
-      return error.reason;
-    }
-
-    if (error.message && error.message.includes('revert')) {
-      const match = error.message.match(/revert (.+)/);
-      if (match) {
-        return match[1];
-      }
-    }
-
-    return undefined;
-  }
-
-  
   private extractStellarError(error: any): string | undefined {
     if (error.response?.data?.error) {
       return error.response.data.error;
@@ -558,14 +301,13 @@ export class SimulationService {
     return undefined;
   }
 
-  
   private validateRequest(request: SimulationRequest): { valid: boolean; error?: string } {
     if (!request.contractType) {
       return { valid: false, error: 'Contract type is required' };
     }
 
-    if (!['evm', 'stellar'].includes(request.contractType)) {
-      return { valid: false, error: 'Contract type must be "evm" or "stellar"' };
+    if (request.contractType !== 'stellar') {
+      return { valid: false, error: 'Contract type must be "stellar"' };
     }
 
     if (!request.functionName) {
@@ -587,7 +329,6 @@ export class SimulationService {
     return { valid: true };
   }
 
-  
   private generateCacheKey(request: SimulationRequest): string {
     const hash = createHash('sha256')
       .update(JSON.stringify({

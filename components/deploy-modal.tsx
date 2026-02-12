@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from "react"
 import { X, Loader, CheckCircle, AlertCircle, Wallet, Eye } from "lucide-react"
-import { generateSolidityCode } from "@/lib/code-generator"
 import { useBuilderStore } from "@/lib/store"
 import { useSupabaseStore } from "@/lib/supabase-store"
-import { CELO_NETWORKS, getExplorerUrl } from "@/lib/celo-config"
-import { ethers } from "ethers"
+import { useWallet } from "@/lib/useWallet"
+import { deploymentService, STELLAR_NETWORK_CONFIG } from "@/lib/services/deployment"
 import { ContractPreviewModal } from "./contract-preview-modal"
 import { saveDeployedContract } from "@/lib/supabase"
+import * as StellarSdk from "@stellar/stellar-sdk"
 
 interface DeployModalProps {
   isOpen: boolean
@@ -17,10 +17,19 @@ interface DeployModalProps {
 
 type DeployStep = "connect" | "configure" | "deploying" | "success" | "error"
 
-declare global {
-  interface Window {
-    ethereum?: any
-  }
+const STELLAR_NETWORKS = {
+  testnet: {
+    name: "Stellar Testnet",
+    networkPassphrase: "Test SDF Network ; September 2015",
+    horizonUrl: "https://horizon-testnet.stellar.org",
+    explorerUrl: "https://stellar.expert/explorer/testnet",
+  },
+  mainnet: {
+    name: "Stellar Mainnet",
+    networkPassphrase: "Public Global Stellar Network ; September 2015",
+    horizonUrl: "https://horizon.stellar.org",
+    explorerUrl: "https://stellar.expert/explorer/public",
+  },
 }
 
 export function DeployModal({ isOpen, onClose }: DeployModalProps) {
@@ -28,35 +37,39 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
   const addDeployedContract = useBuilderStore((state) => state.addDeployedContract)
   const currentUser = useSupabaseStore((state) => state.user)
   const syncDeployedContracts = useSupabaseStore((state) => state.syncDeployedContracts)
+  
+  const { 
+    walletAddress, 
+    network: walletNetwork, 
+    isConnecting, 
+    isConnected, 
+    isFreighterAvailable,
+    connect, 
+    disconnect, 
+    switchNetwork,
+    signTransaction 
+  } = useWallet()
+
   const [step, setStep] = useState<DeployStep>("connect")
-  const [network, setNetwork] = useState<"sepolia" | "mainnet">("sepolia")
+  const [network, setNetwork] = useState<"testnet" | "mainnet">("testnet")
   const [contractName, setContractName] = useState("GeneratedToken")
   const [tokenName, setTokenName] = useState("My Token")
   const [tokenSymbol, setTokenSymbol] = useState("MTK")
   const [initialSupply, setInitialSupply] = useState("1000000")
   const [loading, setLoading] = useState(false)
   const [txHash, setTxHash] = useState<string | null>(null)
-  const [contractAddress, setContractAddress] = useState<string | null>(null)
+  const [contractId, setContractId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [walletAddress, setWalletAddress] = useState<string | null>(null)
-  const [provider, setProvider] = useState<ethers.BrowserProvider | null>(null)
-  const [currentChainId, setCurrentChainId] = useState<number | null>(null)
   const [showPreview, setShowPreview] = useState(false)
   const [deployedContractData, setDeployedContractData] = useState<any>(null)
 
   useEffect(() => {
     if (!isOpen) return
 
-    
-    checkWalletConnection()
-
-    
-    if (window.ethereum) {
-      window.ethereum.on("accountsChanged", handleAccountsChanged)
-      window.ethereum.on("chainChanged", handleChainChanged)
+    if (isConnected) {
+      setStep("configure")
     }
 
-    
     const handleEscKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         onClose()
@@ -66,167 +79,52 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
     document.addEventListener("keydown", handleEscKey)
 
     return () => {
-      if (window.ethereum) {
-        window.ethereum.removeListener("accountsChanged", handleAccountsChanged)
-        window.ethereum.removeListener("chainChanged", handleChainChanged)
-      }
       document.removeEventListener("keydown", handleEscKey)
     }
-  }, [isOpen, onClose])
+  }, [isOpen, onClose, isConnected])
 
-  const checkWalletConnection = async () => {
-    try {
-      if (window.ethereum) {
-        const provider = new ethers.BrowserProvider(window.ethereum)
-        const accounts = await provider.listAccounts()
-
-        if (accounts.length > 0) {
-          const signer = await provider.getSigner()
-          const address = await signer.getAddress()
-          setWalletAddress(address)
-          setProvider(provider)
-
-          
-          const network = await provider.getNetwork()
-          setCurrentChainId(Number(network.chainId))
-
-          setStep("configure")
-        }
-      }
-    } catch (err) {
-      console.error("Error checking wallet connection:", err)
+  useEffect(() => {
+    if (isConnected && walletNetwork !== network) {
+      setNetwork(walletNetwork)
     }
-  }
-
-  const handleAccountsChanged = (accounts: string[]) => {
-    if (accounts.length === 0) {
-      
-      setWalletAddress(null)
-      setProvider(null)
-      setStep("connect")
-    } else {
-      setWalletAddress(accounts[0])
-    }
-  }
-
-  const handleChainChanged = (chainIdHex: string) => {
-    const chainId = parseInt(chainIdHex, 16)
-    setCurrentChainId(chainId)
-    
-    window.location.reload()
-  }
-
-  const addCeloNetwork = async (networkType: "sepolia" | "mainnet") => {
-    const networkConfig = CELO_NETWORKS[networkType]
-
-    try {
-      await window.ethereum.request({
-        method: "wallet_addEthereumChain",
-        params: [
-          {
-            chainId: `0x${networkConfig.chainId.toString(16)}`,
-            chainName: networkConfig.name,
-            nativeCurrency: {
-              name: "CELO",
-              symbol: "CELO",
-              decimals: 18,
-            },
-            rpcUrls: [networkConfig.rpcUrl],
-            blockExplorerUrls: [networkConfig.explorerUrl],
-          },
-        ],
-      })
-      return true
-    } catch (err) {
-      console.error("Error adding network:", err)
-      throw err
-    }
-  }
-
-  const switchNetwork = async (networkType: "sepolia" | "mainnet") => {
-    const networkConfig = CELO_NETWORKS[networkType]
-
-    try {
-      await window.ethereum.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: `0x${networkConfig.chainId.toString(16)}` }],
-      })
-      setCurrentChainId(networkConfig.chainId)
-      return true
-    } catch (err: any) {
-      
-      if (err.code === 4902) {
-        return await addCeloNetwork(networkType)
-      }
-      throw err
-    }
-  }
+  }, [isConnected, walletNetwork])
 
   const handleConnectWallet = async () => {
     try {
       setLoading(true)
       setError(null)
 
-      
-      if (!window.ethereum) {
-        setError("Please install a Celo-compatible wallet extension to continue")
+      if (!isFreighterAvailable) {
+        setError("Please install Freighter wallet extension to continue")
         return
       }
 
-      
-      const accounts = await window.ethereum.request({
-        method: "eth_requestAccounts",
-      })
-
-      if (accounts.length === 0) {
-        setError("No accounts found. Please unlock your wallet.")
-        return
-      }
-
-      
-      const provider = new ethers.BrowserProvider(window.ethereum)
-      setProvider(provider)
-
-      
-      const signer = await provider.getSigner()
-      const address = await signer.getAddress()
-      setWalletAddress(address)
-
-      
-      const network = await provider.getNetwork()
-      const chainId = Number(network.chainId)
-      setCurrentChainId(chainId)
-
-      
-      const targetChainId = CELO_NETWORKS.sepolia.chainId
-      if (chainId !== targetChainId) {
-        
-        try {
-          await switchNetwork("sepolia")
-        } catch (switchErr) {
-          setError("Please switch to Celo Sepolia Testnet in your wallet")
-          return
-        }
-      }
-
+      await connect()
       setStep("configure")
     } catch (err: any) {
       console.error("Wallet connection error:", err)
-      if (err.code === 4001) {
-        setError("Connection request rejected. Please approve the connection in your wallet.")
-      } else {
-        setError(err.message || "Failed to connect wallet")
-      }
+      setError(err.message || "Failed to connect wallet")
     } finally {
       setLoading(false)
     }
   }
 
   const handleDisconnect = () => {
-    setWalletAddress(null)
-    setProvider(null)
-    setCurrentChainId(null)
+    disconnect()
     setStep("connect")
+  }
+
+  const handleSwitchNetwork = async (targetNetwork: "testnet" | "mainnet") => {
+    try {
+      setLoading(true)
+      await switchNetwork(targetNetwork)
+      setNetwork(targetNetwork)
+      setError(null)
+    } catch (err: any) {
+      setError(`Failed to switch network: ${err.message}`)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleDeploy = async () => {
@@ -235,321 +133,94 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
       setError(null)
       setStep("deploying")
 
-      if (!window.ethereum) {
-        throw new Error("No wallet detected. Please install MetaMask or another Web3 wallet.")
+      if (!walletAddress) {
+        throw new Error("No wallet connected. Please connect your Freighter wallet.")
       }
 
-      
-      const freshProvider = new ethers.BrowserProvider(window.ethereum)
-      const signer = await freshProvider.getSigner()
-      const signerAddress = await signer.getAddress()
-
-      console.log("Deploying from address:", signerAddress)
-
-      
-      const network_info = await freshProvider.getNetwork()
-      const currentChain = Number(network_info.chainId)
-
-      if (currentChain !== CELO_NETWORKS[network].chainId) {
-        throw new Error(`Please switch to ${CELO_NETWORKS[network].name}. Current chain: ${currentChain}`)
-      }
-
-      
-      const balance = await freshProvider.getBalance(signerAddress)
-      console.log("Wallet balance:", ethers.formatEther(balance), "CELO")
-
-      if (balance === BigInt(0)) {
-        throw new Error("Insufficient CELO balance. Please fund your wallet from the Celo Faucet.")
-      }
-
-      
       const baseBlock = blocks.find((b) => b.type === "erc20" || b.type === "nft")
       if (!baseBlock) {
         throw new Error("Please add an ERC20 or NFT contract block first")
       }
 
-      
-      const solidityCode = generateSolidityCode(blocks)
+      const networkConfig = STELLAR_NETWORKS[network]
+      const server = new StellarSdk.Horizon.Server(networkConfig.horizonUrl)
 
+      const account = await server.loadAccount(walletAddress)
       
-      const contractNameMatch = solidityCode.match(/contract\s+(\w+)/)
-      const contractName = contractNameMatch ? contractNameMatch[1] : "MyToken"
-
-      console.log("Step 1: Compiling contract...")
-      console.log("Contract Name:", contractName)
-
-      
-      const compileResponse = await fetch("/api/compile", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          solidityCode,
-          contractName,
-        }),
+      const transaction = new StellarSdk.TransactionBuilder(account, {
+        fee: StellarSdk.BASE_FEE,
+        networkPassphrase: networkConfig.networkPassphrase,
       })
+        .setTimeout(30)
+        .build()
 
-      if (!compileResponse.ok) {
-        const errorData = await compileResponse.json()
-        throw new Error(errorData.details || errorData.error || "Compilation failed")
-      }
-
-      const { abi, bytecode, warnings } = await compileResponse.json()
-
-      if (warnings && warnings.length > 0) {
-        console.warn("Compilation warnings:", warnings)
-      }
-
-      console.log("✅ Compilation successful!")
-      console.log("Bytecode length:", bytecode.length)
-
+      const signedXdr = await signTransaction(transaction.toXDR(), network)
       
-      const factory = new ethers.ContractFactory(abi, bytecode, signer)
+      const signedTransaction = StellarSdk.TransactionBuilder.fromXDR(
+        signedXdr,
+        networkConfig.networkPassphrase
+      ) as StellarSdk.Transaction
 
+      console.log("Submitting Stellar transaction...")
+      const response = await server.submitTransaction(signedTransaction)
       
-      if (baseBlock.type === "erc20") {
-        console.log("Step 2: Deploying ERC20 token...")
-        console.log("Name:", tokenName)
-        console.log("Symbol:", tokenSymbol)
-        console.log("Initial Supply:", initialSupply)
+      console.log("Transaction submitted:", response.hash)
+      setTxHash(response.hash)
 
-        
-        console.log("Estimating gas...")
-        let deployTxData
+      const result = await deploymentService.confirmTransaction(
+        response.hash,
+        `stellar-${network}`
+      )
 
-        try {
-          
-          deployTxData = await factory.getDeployTransaction()
-        } catch {
-          
-          const supply = ethers.parseEther(initialSupply)
-          deployTxData = await factory.getDeployTransaction(tokenName, tokenSymbol, supply)
-        }
-
-        
-        const gasEstimate = await freshProvider.estimateGas({
-          ...deployTxData,
-          from: signerAddress,
-        })
-        console.log("Estimated gas:", gasEstimate.toString())
-
-        
-        const gasLimit = (gasEstimate * BigInt(120)) / BigInt(100)
-        console.log("Gas limit with buffer:", gasLimit.toString())
-
-        
-        const feeData = await freshProvider.getFeeData()
-        console.log("Gas price:", feeData.gasPrice?.toString())
-
-        
-        console.log("Sending deployment transaction...")
-        let contract
-
-        try {
-          contract = await factory.deploy({
-            gasLimit,
-          })
-        } catch (constructorError: any) {
-          console.log("Trying with constructor parameters...", constructorError.message)
-          const supply = ethers.parseEther(initialSupply)
-          contract = await factory.deploy(tokenName, tokenSymbol, supply, {
-            gasLimit,
-          })
-        }
-
-        console.log("Waiting for deployment confirmation...")
-        await contract.waitForDeployment()
-
-        
-        const contractAddress = await contract.getAddress()
-        const deployTx = contract.deploymentTransaction()
-
-        console.log("✅ Contract deployed successfully!")
-        console.log("Contract Address:", contractAddress)
-        console.log("Transaction Hash:", deployTx?.hash)
-
-        
-        setContractAddress(contractAddress)
-        setTxHash(deployTx?.hash || contractAddress)
-
-        
-        localStorage.setItem('deployedContractAddress', contractAddress)
-        localStorage.setItem('deployedContractNetwork', network)
-        localStorage.setItem('deployedContractType', baseBlock.type)
-
-        
-        const networkConfig = CELO_NETWORKS[network]
-        const explorerUrl = `${networkConfig.explorerUrl}/address/${contractAddress}`
-        const deployedContractInfo = {
-          id: Date.now().toString(),
-          contractAddress,
-          contractName,
-          tokenName,
-          tokenSymbol,
-          network,
-          networkName: networkConfig.name,
-          chainId: networkConfig.chainId,
-          deployer: signerAddress,
-          deployedAt: new Date().toISOString(),
-          transactionHash: deployTx?.hash || contractAddress,
-          contractType: baseBlock.type as "erc20" | "nft",
-          abi,
-          solidityCode,
-          blocks: [...blocks],
-          explorerUrl,
-        }
-
-        addDeployedContract(deployedContractInfo)
-
-        
-        if (currentUser?.id) {
-          try {
-            await saveDeployedContract(currentUser.id, {
-              contractAddress,
-              contractName,
-              tokenName,
-              tokenSymbol,
-              network,
-              networkName: networkConfig.name,
-              chainId: networkConfig.chainId,
-              deployer: signerAddress,
-              deployedAt: new Date().toISOString(),
-              transactionHash: deployTx?.hash || contractAddress,
-              contractType: baseBlock.type,
-              abi,
-              solidityCode,
-              blocks,
-              explorerUrl,
-            })
-
-            
-            await syncDeployedContracts()
-            console.log('✅ ERC20 Contract saved to Supabase')
-          } catch (supabaseError) {
-            console.error('Failed to save ERC20 contract to Supabase:', supabaseError)
-            
-          }
-        }
-
-        setStep("success")
-      } else if (baseBlock.type === "nft") {
-        console.log("Step 2: Deploying NFT contract...")
-        console.log("Name:", tokenName)
-        console.log("Symbol:", tokenSymbol)
-
-        
-        console.log("Estimating gas...")
-        const deployTxData = await factory.getDeployTransaction()
-        const gasEstimate = await freshProvider.estimateGas({
-          ...deployTxData,
-          from: signerAddress,
-        })
-        console.log("Estimated gas:", gasEstimate.toString())
-
-        
-        const gasLimit = (gasEstimate * BigInt(120)) / BigInt(100)
-
-        
-        console.log("Sending deployment transaction...")
-        const contract = await factory.deploy({
-          gasLimit,
-        })
-
-        console.log("Waiting for deployment confirmation...")
-        await contract.waitForDeployment()
-
-        
-        const contractAddress = await contract.getAddress()
-        const deployTx = contract.deploymentTransaction()
-
-        console.log("✅ NFT Contract deployed successfully!")
-        console.log("Contract Address:", contractAddress)
-        console.log("Transaction Hash:", deployTx?.hash)
-
-        
-        setContractAddress(contractAddress)
-        setTxHash(deployTx?.hash || contractAddress)
-
-        
-        localStorage.setItem('deployedContractAddress', contractAddress)
-        localStorage.setItem('deployedContractNetwork', network)
-        localStorage.setItem('deployedContractType', baseBlock.type)
-
-        
-        const networkConfig = CELO_NETWORKS[network]
-        const explorerUrl = `${networkConfig.explorerUrl}/address/${contractAddress}`
-        const deployedContractInfo = {
-          id: Date.now().toString(),
-          contractAddress,
-          contractName,
-          tokenName,
-          tokenSymbol,
-          network,
-          networkName: networkConfig.name,
-          chainId: networkConfig.chainId,
-          deployer: signerAddress,
-          deployedAt: new Date().toISOString(),
-          transactionHash: deployTx?.hash || contractAddress,
-          contractType: baseBlock.type as "erc20" | "nft",
-          abi,
-          solidityCode,
-          blocks: [...blocks],
-          explorerUrl,
-        }
-
-        addDeployedContract(deployedContractInfo)
-
-        
-        if (currentUser?.id) {
-          try {
-            await saveDeployedContract(currentUser.id, {
-              contractAddress,
-              contractName,
-              tokenName,
-              tokenSymbol,
-              network,
-              networkName: networkConfig.name,
-              chainId: networkConfig.chainId,
-              deployer: signerAddress,
-              deployedAt: new Date().toISOString(),
-              transactionHash: deployTx?.hash || contractAddress,
-              contractType: baseBlock.type,
-              abi,
-              solidityCode,
-              blocks,
-              explorerUrl,
-            })
-
-            
-            await syncDeployedContracts()
-            console.log('✅ NFT Contract saved to Supabase')
-          } catch (supabaseError) {
-            console.error('Failed to save NFT contract to Supabase:', supabaseError)
-            
-          }
-        }
-
-        setStep("success")
-      } else {
-        throw new Error("Unsupported contract type")
+      if (!result.success) {
+        throw new Error("Transaction failed on network")
       }
+
+      const networkInfo = STELLAR_NETWORKS[network]
+      const explorerUrl = `${networkInfo.explorerUrl}/tx/${response.hash}`
+      
+      const deployedContractInfo = {
+        id: Date.now().toString(),
+        contractAddress: result.contractId || response.hash,
+        contractName,
+        tokenName,
+        tokenSymbol,
+        network,
+        networkType: "stellar" as const,
+        networkName: networkInfo.name,
+        deployer: walletAddress,
+        deployedAt: new Date().toISOString(),
+        transactionHash: response.hash,
+        contractType: baseBlock.type as "erc20" | "nft" | "soroban",
+        blocks: [...blocks],
+        explorerUrl,
+      }
+
+      setContractId(result.contractId || response.hash)
+      addDeployedContract(deployedContractInfo)
+
+      if (currentUser?.id) {
+        try {
+          await saveDeployedContract(currentUser.id, deployedContractInfo)
+          await syncDeployedContracts()
+          console.log("Contract saved to Supabase")
+        } catch (supabaseError) {
+          console.error("Failed to save contract to Supabase:", supabaseError)
+        }
+      }
+
+      setStep("success")
     } catch (err: any) {
       console.error("Deployment error:", err)
 
-      
       let errorMessage = "Deployment failed"
 
-      if (err.code === "ACTION_REJECTED" || err.code === 4001) {
+      if (err.message?.includes("insufficient balance")) {
+        errorMessage = "Insufficient XLM balance. Please fund your wallet from the Stellar Faucet."
+      } else if (err.message?.includes("rejected") || err.message?.includes("cancelled")) {
         errorMessage = "Transaction was rejected by user"
-      } else if (err.message?.includes("insufficient funds")) {
-        errorMessage = "Insufficient CELO balance. Please fund your wallet from the Celo Faucet."
-      } else if (err.message?.includes("nonce")) {
-        errorMessage = "Transaction nonce error. Please reset your MetaMask account or wait for pending transactions."
-      } else if (err.message?.includes("403") || err.message?.includes("RPC endpoint")) {
-        errorMessage = "RPC connection error. Please try again or switch networks in MetaMask."
-      } else if (err.message?.includes("network") || err.message?.includes("chain")) {
-        errorMessage = err.message
       } else if (err.message) {
-        errorMessage = err.message.length > 200 ? err.message.substring(0, 200) + "..." : err.message
+        errorMessage = err.message
       }
 
       setError(errorMessage)
@@ -559,15 +230,12 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
     }
   }
 
-  const solidityCode = generateSolidityCode(blocks)
-
   if (!isOpen) return null
 
   return (
     <div
       className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
       onClick={(e) => {
-        
         if (e.target === e.currentTarget) {
           onClose()
         }
@@ -616,17 +284,17 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
             <div className="space-y-4">
               <div>
                 <h3 className="text-lg font-semibold text-foreground mb-2">Step 1: Connect Wallet</h3>
-                <p className="text-sm text-muted">Connect your wallet to deploy contracts on Celo Mainnet or Testnet</p>
+                <p className="text-sm text-muted">Connect your Freighter wallet to deploy contracts on Stellar</p>
               </div>
 
               <div className="p-4 bg-primary/10 border border-primary/30 rounded-lg">
-                <p className="text-sm font-semibold text-foreground mb-2">Celo Networks Supported:</p>
+                <p className="text-sm font-semibold text-foreground mb-2">Stellar Networks Supported:</p>
                 <ul className="text-sm text-muted space-y-1">
-                  <li>• Celo Mainnet (Production)</li>
-                  <li>• Celo Sepolia Testnet (Testing)</li>
+                  <li>• Stellar Mainnet (Production)</li>
+                  <li>• Stellar Testnet (Development)</li>
                 </ul>
                 <p className="text-xs text-muted mt-3">
-                  Compatible with any Web3 wallet that supports Celo networks
+                  Requires Freighter wallet extension for Stellar
                 </p>
               </div>
 
@@ -641,9 +309,15 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
                     Connecting...
                   </>
                 ) : (
-                  "Connect Wallet"
+                  "Connect Freighter Wallet"
                 )}
               </button>
+
+              {error && (
+                <div className="p-3 bg-destructive/10 border border-destructive/30 rounded-lg">
+                  <p className="text-sm text-destructive">{error}</p>
+                </div>
+              )}
             </div>
           )}
 
@@ -675,11 +349,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
                 <div className="mt-2 flex items-center gap-2">
                   <span className="text-xs text-muted">Network:</span>
                   <span className="text-xs font-semibold text-primary">
-                    {currentChainId === CELO_NETWORKS.sepolia.chainId
-                      ? "Celo Sepolia Testnet"
-                      : currentChainId === CELO_NETWORKS.mainnet.chainId
-                        ? "Celo Mainnet"
-                        : `Chain ID: ${currentChainId}`}
+                    {walletNetwork === "testnet" ? "Stellar Testnet" : "Stellar Mainnet"}
                   </span>
                 </div>
               </div>
@@ -691,42 +361,21 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
                     <select
                       value={network}
                       onChange={async (e) => {
-                        const newNetwork = e.target.value as "sepolia" | "mainnet"
+                        const newNetwork = e.target.value as "testnet" | "mainnet"
                         setNetwork(newNetwork)
-
-                        
-                        const targetChainId = CELO_NETWORKS[newNetwork].chainId
-                        if (currentChainId !== targetChainId) {
-                          try {
-                            setLoading(true)
-                            await switchNetwork(newNetwork)
-                            setError(null)
-                          } catch (err: any) {
-                            setError(`Failed to switch network: ${err.message}`)
-                          } finally {
-                            setLoading(false)
-                          }
+                        if (walletNetwork !== newNetwork) {
+                          await handleSwitchNetwork(newNetwork)
                         }
                       }}
                       className="flex-1 px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:border-primary"
                       title="Select deployment network"
                     >
-                      <option value="sepolia">Celo Sepolia Testnet (Recommended)</option>
-                      <option value="mainnet">Celo Mainnet (Production)</option>
+                      <option value="testnet">Stellar Testnet (Recommended)</option>
+                      <option value="mainnet">Stellar Mainnet (Production)</option>
                     </select>
-                    {currentChainId !== CELO_NETWORKS[network].chainId && (
+                    {walletNetwork !== network && (
                       <button
-                        onClick={async () => {
-                          try {
-                            setLoading(true)
-                            await switchNetwork(network)
-                            setError(null)
-                          } catch (err: any) {
-                            setError(`Failed to switch network: ${err.message}`)
-                          } finally {
-                            setLoading(false)
-                          }
-                        }}
+                        onClick={() => handleSwitchNetwork(network)}
                         disabled={loading}
                         className="px-4 py-2 bg-primary hover:bg-primary-dark text-background rounded-lg font-semibold text-sm disabled:opacity-50 whitespace-nowrap"
                       >
@@ -735,7 +384,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
                     )}
                   </div>
                   <div className="flex items-center gap-2 mt-1">
-                    {currentChainId === CELO_NETWORKS[network].chainId ? (
+                    {walletNetwork === network ? (
                       <span className="text-xs text-green-500 flex items-center gap-1">
                         <CheckCircle size={12} />
                         Connected to correct network
@@ -743,14 +392,14 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
                     ) : (
                       <span className="text-xs text-yellow-500 flex items-center gap-1">
                         <AlertCircle size={12} />
-                        Please switch to {CELO_NETWORKS[network].name}
+                        Please switch to {STELLAR_NETWORKS[network].name}
                       </span>
                     )}
                   </div>
                   <p className="text-xs text-muted mt-1">
-                    {network === "sepolia"
-                      ? "🧪 Celo Sepolia Testnet - Free test tokens, perfect for development"
-                      : "🌐 Celo Mainnet - Production network, requires real CELO tokens"}
+                    {network === "testnet"
+                      ? "🧪 Stellar Testnet - Free test XLM, perfect for development"
+                      : "🌐 Stellar Mainnet - Production network, requires real XLM"}
                   </p>
                 </div>
 
@@ -802,12 +451,6 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
                     placeholder="e.g., 1000000"
                   />
                 </div>
-
-                <div className="p-4 bg-background border border-border rounded-lg">
-                  <p className="text-xs font-mono text-muted-foreground overflow-x-auto">
-                    {solidityCode.split("\n").slice(0, 5).join("\n")}...
-                  </p>
-                </div>
               </div>
 
               <div className="flex gap-3">
@@ -819,7 +462,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
                 </button>
                 <button
                   onClick={handleDeploy}
-                  disabled={loading}
+                  disabled={loading || walletNetwork !== network}
                   className="flex-1 px-6 py-2 bg-primary hover:bg-primary-dark disabled:opacity-50 text-background rounded-lg font-semibold transition-colors"
                 >
                   {loading ? "Deploying..." : "Deploy Contract"}
@@ -848,15 +491,15 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
               <div className="text-center">
                 <h3 className="text-lg font-semibold text-foreground mb-2">Deployment Successful!</h3>
                 <p className="text-sm text-muted mb-4">
-                  Your contract has been deployed to {CELO_NETWORKS[network].name}
+                  Your contract has been deployed to {STELLAR_NETWORKS[network].name}
                 </p>
               </div>
 
               <div className="p-4 bg-background border border-border rounded-lg space-y-3">
-                {contractAddress && (
+                {contractId && (
                   <div>
-                    <p className="text-xs text-muted mb-1">Contract Address</p>
-                    <p className="text-sm font-mono text-foreground break-all">{contractAddress}</p>
+                    <p className="text-xs text-muted mb-1">Contract ID</p>
+                    <p className="text-sm font-mono text-foreground break-all">{contractId}</p>
                   </div>
                 )}
                 <div>
@@ -865,23 +508,22 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
                 </div>
                 <div>
                   <p className="text-xs text-muted mb-1">Network</p>
-                  <p className="text-sm text-foreground">{CELO_NETWORKS[network].name}</p>
+                  <p className="text-sm text-foreground">{STELLAR_NETWORKS[network].name}</p>
                 </div>
               </div>
 
-              {}
               <button
                 onClick={() => {
                   const baseBlock = blocks.find((b) => b.type === "erc20" || b.type === "nft")
                   setDeployedContractData({
-                    contractAddress: contractAddress,
+                    contractAddress: contractId || "",
                     contractName: contractName,
                     tokenName: tokenName,
                     tokenSymbol: tokenSymbol,
                     network: network,
-                    networkName: CELO_NETWORKS[network].name,
+                    networkType: "stellar",
+                    networkName: STELLAR_NETWORKS[network].name,
                     contractType: baseBlock?.type || "erc20",
-                    solidityCode: solidityCode,
                     blocks: [...blocks],
                   })
                   setShowPreview(true)
@@ -894,7 +536,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
 
               <div className="flex gap-3">
                 <button
-                  onClick={() => window.open(getExplorerUrl(txHash, network), "_blank")}
+                  onClick={() => window.open(`${STELLAR_NETWORKS[network].explorerUrl}/tx/${txHash}`, "_blank")}
                   className="flex-1 px-6 py-2 bg-background border border-border hover:bg-border rounded-lg font-semibold transition-colors text-foreground"
                 >
                   View on Explorer

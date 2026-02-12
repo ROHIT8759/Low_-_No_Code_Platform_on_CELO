@@ -144,8 +144,28 @@ export default function HeroVisualization() {
                             </AnimatePresence>
                         </div>
 
-                        {/* Visual Connector Lines */}
-                        <div className="absolute bottom-0 left-0 w-full h-1 bg-linear-to-r from-cyan-500 via-blue-500 to-purple-500 opacity-50" />
+                        {/* Architectural Data Flow (No Blobs) */}
+                        <div className="absolute inset-0 pointer-events-none">
+                            {/* Horizontal Precision Lines */}
+                            <div className="absolute top-1/4 left-0 w-full h-[1px] bg-indigo-500/20" />
+                            <div className="absolute bottom-1/4 left-0 w-full h-[1px] bg-indigo-500/20" />
+
+                            {/* Vertical Precision Lines */}
+                            <div className="absolute top-0 left-1/4 w-[1px] h-full bg-indigo-500/20" />
+                            <div className="absolute top-0 right-1/4 w-[1px] h-full bg-indigo-500/20" />
+
+                            {/* Active Data Packets (Engineered Motion) */}
+                            <motion.div
+                                className="absolute top-1/4 left-0 w-8 h-[2px] bg-indigo-400 box-shadow-glow"
+                                animate={{ left: ["0%", "100%"], opacity: [0, 1, 0] }}
+                                transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                            />
+                            <motion.div
+                                className="absolute top-0 right-1/4 w-[2px] h-8 bg-indigo-400 box-shadow-glow"
+                                animate={{ top: ["0%", "100%"], opacity: [0, 1, 0] }}
+                                transition={{ duration: 4, repeat: Infinity, ease: "linear", delay: 1 }}
+                            />
+                        </div>
                     </div>
                 </motion.div>
 

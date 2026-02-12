@@ -1,15 +1,14 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { GET } from '@/app/api/jobs/[jobId]/route';
 import { NextRequest } from 'next/server';
 
 // Mock dependencies
-vi.mock('@/lib/queue', () => ({
-  getJobStatus: vi.fn(),
+jest.mock('@/lib/queue', () => ({
+  getJobStatus: jest.fn(),
 }));
 
-vi.mock('@/lib/supabase', () => ({
+jest.mock('@/lib/supabase', () => ({
   supabase: {
-    from: vi.fn(),
+    from: jest.fn(),
   },
 }));
 
@@ -18,11 +17,11 @@ import { supabase } from '@/lib/supabase';
 
 describe('Job Status Endpoint', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
+    jest.restoreAllMocks();
   });
 
   it('should return 400 if job ID is missing', async () => {
@@ -43,19 +42,19 @@ describe('Job Status Endpoint', () => {
     const params = { params: { jobId } };
 
     // Mock database returning no record
-    vi.mocked(supabase.from).mockReturnValue({
-      select: vi.fn().mockReturnValue({
-        eq: vi.fn().mockReturnValue({
-          single: vi.fn().mockResolvedValue({
+    (supabase.from as jest.Mock).mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        eq: jest.fn().mockReturnValue({
+          single: jest.fn().mockResolvedValue({
             data: null,
             error: { code: 'PGRST116' }, // Not found error
           }),
         }),
       }),
-    } as any);
+    });
 
     // Mock queue returning unknown status
-    vi.mocked(getJobStatus).mockResolvedValue({
+    (getJobStatus as jest.Mock).mockResolvedValue({
       status: 'unknown',
     });
 
@@ -85,19 +84,19 @@ describe('Job Status Endpoint', () => {
     };
 
     // Mock database returning job record
-    vi.mocked(supabase.from).mockReturnValue({
-      select: vi.fn().mockReturnValue({
-        eq: vi.fn().mockReturnValue({
-          single: vi.fn().mockResolvedValue({
+    (supabase.from as jest.Mock).mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        eq: jest.fn().mockReturnValue({
+          single: jest.fn().mockResolvedValue({
             data: mockJobRecord,
             error: null,
           }),
         }),
       }),
-    } as any);
+    });
 
     // Mock queue status
-    vi.mocked(getJobStatus).mockResolvedValue({
+    (getJobStatus as jest.Mock).mockResolvedValue({
       status: 'waiting',
       progress: 0,
     });
@@ -131,19 +130,19 @@ describe('Job Status Endpoint', () => {
     };
 
     // Mock database returning job record
-    vi.mocked(supabase.from).mockReturnValue({
-      select: vi.fn().mockReturnValue({
-        eq: vi.fn().mockReturnValue({
-          single: vi.fn().mockResolvedValue({
+    (supabase.from as jest.Mock).mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        eq: jest.fn().mockReturnValue({
+          single: jest.fn().mockResolvedValue({
             data: mockJobRecord,
             error: null,
           }),
         }),
       }),
-    } as any);
+    });
 
     // Mock queue status with progress
-    vi.mocked(getJobStatus).mockResolvedValue({
+    (getJobStatus as jest.Mock).mockResolvedValue({
       status: 'active',
       progress: 75,
     });
@@ -185,19 +184,19 @@ describe('Job Status Endpoint', () => {
     };
 
     // Mock database returning job record
-    vi.mocked(supabase.from).mockReturnValue({
-      select: vi.fn().mockReturnValue({
-        eq: vi.fn().mockReturnValue({
-          single: vi.fn().mockResolvedValue({
+    (supabase.from as jest.Mock).mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        eq: jest.fn().mockReturnValue({
+          single: jest.fn().mockResolvedValue({
             data: mockJobRecord,
             error: null,
           }),
         }),
       }),
-    } as any);
+    });
 
     // Mock queue status with result
-    vi.mocked(getJobStatus).mockResolvedValue({
+    (getJobStatus as jest.Mock).mockResolvedValue({
       status: 'completed',
       progress: 100,
       result: mockResult,
@@ -234,19 +233,19 @@ describe('Job Status Endpoint', () => {
     };
 
     // Mock database returning job record
-    vi.mocked(supabase.from).mockReturnValue({
-      select: vi.fn().mockReturnValue({
-        eq: vi.fn().mockReturnValue({
-          single: vi.fn().mockResolvedValue({
+    (supabase.from as jest.Mock).mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        eq: jest.fn().mockReturnValue({
+          single: jest.fn().mockResolvedValue({
             data: mockJobRecord,
             error: null,
           }),
         }),
       }),
-    } as any);
+    });
 
     // Mock queue status
-    vi.mocked(getJobStatus).mockResolvedValue({
+    (getJobStatus as jest.Mock).mockResolvedValue({
       status: 'failed',
       error: 'Additional error details from queue',
     });
@@ -268,19 +267,19 @@ describe('Job Status Endpoint', () => {
     const params = { params: { jobId } };
 
     // Mock database returning no record
-    vi.mocked(supabase.from).mockReturnValue({
-      select: vi.fn().mockReturnValue({
-        eq: vi.fn().mockReturnValue({
-          single: vi.fn().mockResolvedValue({
+    (supabase.from as jest.Mock).mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        eq: jest.fn().mockReturnValue({
+          single: jest.fn().mockResolvedValue({
             data: null,
             error: { code: 'PGRST116' },
           }),
         }),
       }),
-    } as any);
+    });
 
     // Mock queue returning job status (first call for compilation queue)
-    vi.mocked(getJobStatus).mockResolvedValueOnce({
+    (getJobStatus as jest.Mock).mockResolvedValueOnce({
       status: 'active',
       progress: 50,
     });
@@ -302,16 +301,16 @@ describe('Job Status Endpoint', () => {
     const params = { params: { jobId } };
 
     // Mock database returning error
-    vi.mocked(supabase.from).mockReturnValue({
-      select: vi.fn().mockReturnValue({
-        eq: vi.fn().mockReturnValue({
-          single: vi.fn().mockResolvedValue({
+    (supabase.from as jest.Mock).mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        eq: jest.fn().mockReturnValue({
+          single: jest.fn().mockResolvedValue({
             data: null,
             error: { code: 'DB_ERROR', message: 'Database connection failed' },
           }),
         }),
       }),
-    } as any);
+    });
 
     const response = await GET(request, params);
     const data = await response.json();

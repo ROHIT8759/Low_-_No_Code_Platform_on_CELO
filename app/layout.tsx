@@ -119,10 +119,6 @@ export const viewport: Viewport = {
 }
 
 import { NetworkProvider } from "@/lib/multi-chain/network-context"
-import ThreeBackground from "@/components/ThreeBackground"
-import CustomCursor from "@/components/CustomCursor"
-
-// ... (keep existing imports)
 
 export default function RootLayout({
   children,
@@ -130,11 +126,23 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   const jsonLd = {
-    // ... (keep existing jsonLd)
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": siteName,
+    "url": siteUrl,
   }
 
   const breadcrumbJsonLd = {
-    // ... (keep existing breadcrumbJsonLd)
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": siteUrl,
+      },
+    ],
   }
 
   return (
@@ -153,8 +161,6 @@ export default function RootLayout({
       </head>
       <body className={`${geistSans.className} bg-background text-foreground`}>
         <NetworkProvider>
-          <CustomCursor />
-          <ThreeBackground />
           {children}
           <Analytics />
           <SpeedInsights />

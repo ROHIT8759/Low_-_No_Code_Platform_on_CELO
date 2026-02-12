@@ -11,11 +11,48 @@ export function CodeViewer() {
   const blocks = useBuilderStore((state) => state.blocks)
   const currentProject = useBuilderStore((state) => state.currentProject)
   const [copied, setCopied] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<"solidity" | "frontend">("solidity")
+  const [activeTab, setActiveTab] = useState<"code" | "abi" | "metadata">("code")
+  const [codeSubTab, setCodeSubTab] = useState<"solidity" | "frontend">("solidity")
   const [deployOpen, setDeployOpen] = useState(false)
 
   const solidityCode = generateSolidityCode(blocks)
   const frontendCode = generateTypeScriptCode(blocks)
+
+  // Mock ABI data - in real implementation, this would come from compilation
+  const abiData = JSON.stringify({
+    "contract_name": "BlockBuilderContract",
+    "functions": blocks.map((block, idx) => ({
+      "name": `function_${idx}`,
+      "inputs": [],
+      "outputs": []
+    })),
+    "version": "1.0.0"
+  }, null, 2)
+
+  // Mock metadata
+  const metadataContent = JSON.stringify({
+    "compiler": {
+      "name": "soroban-sdk",
+      "version": "20.0.0"
+    },
+    "contract": {
+      "name": currentProject?.name || "Untitled Contract",
+      "functions": blocks.length + 2,
+      "estimated_size": "12.4 KB"
+    },
+    "network": {
+      "target": "Stellar Testnet",
+      "protocol": "Soroban"
+    },
+    "security": {
+      "checks_passed": true,
+      "vulnerabilities": 0
+    },
+    "optimization": {
+      "level": "3",
+      "size_reduction": "42%"
+    }
+  }, null, 2)
 
   const handleCopy = (code: string, type: string) => {
     navigator.clipboard.writeText(code)
@@ -33,8 +70,35 @@ export function CodeViewer() {
     document.body.removeChild(element)
   }
 
-  const currentCode = activeTab === "solidity" ? solidityCode : frontendCode
-  const filename = activeTab === "solidity" ? "contract.rs" : "dapp.tsx"
+  const currentCode = codeSubTab === "solidity" ? solidityCode : frontendCode
+  const filename = codeSubTab === "solidity" ? "contract.rs" : "dapp.tsx"
+
+  // Get content based on active tab
+  const getTabContent = () => {
+    switch (activeTab) {
+      case "code":
+        return currentCode
+      case "abi":
+        return abiData
+      case "metadata":
+        return metadataContent
+      default:
+        return currentCode
+    }
+  }
+
+  const getFilename = () => {
+    switch (activeTab) {
+      case "code":
+        return filename
+      case "abi":
+        return "contract.abi.json"
+      case "metadata":
+        return "metadata.json"
+      default:
+        return filename
+    }
+  }
 
   return (
     <div className="w-full h-full flex flex-col">
@@ -45,21 +109,72 @@ export function CodeViewer() {
             <Code2 className="w-4 h-4 text-primary" />
             Generated Source
           </h2>
-          <div className="flex gap-1 bg-[#1A1F26] p-0.5 rounded border border-white/[0.06]">
+        </div>
+
+        {/* Main Tab Navigation - Code, ABI, Metadata */}
+        <div className="flex gap-1 bg-[#1A1F26] p-0.5 rounded border border-white/[0.06] mb-3">
+          <button
+            onClick={() => setActiveTab("code")}
+            className={cn(
+              "flex-1 px-3 py-1.5 text-[10px] font-medium rounded transition-colors",
+              activeTab === "code" 
+                ? "bg-[#222730] text-white border-t-2 border-t-blue-500/50" 
+                : "text-zinc-500 hover:text-zinc-300"
+            )}
+          >
+            Code
+          </button>
+          <button
+            onClick={() => setActiveTab("abi")}
+            className={cn(
+              "flex-1 px-3 py-1.5 text-[10px] font-medium rounded transition-colors",
+              activeTab === "abi" 
+                ? "bg-[#222730] text-white border-t-2 border-t-blue-500/50" 
+                : "text-zinc-500 hover:text-zinc-300"
+            )}
+          >
+            ABI
+          </button>
+          <button
+            onClick={() => setActiveTab("metadata")}
+            className={cn(
+              "flex-1 px-3 py-1.5 text-[10px] font-medium rounded transition-colors",
+              activeTab === "metadata" 
+                ? "bg-[#222730] text-white border-t-2 border-t-blue-500/50" 
+                : "text-zinc-500 hover:text-zinc-300"
+            )}
+          >
+            Metadata
+          </button>
+        </div>
+
+        {/* Code Sub-tabs (only visible when Code tab is active) */}
+        {activeTab === "code" && (
+          <div className="flex gap-1 bg-[#1A1F26] p-0.5 rounded border border-white/[0.06] mb-3">
             <button
-              onClick={() => setActiveTab("solidity")}
-              className={cn("px-2 py-1 text-[10px] font-medium rounded transition-colors", activeTab === "solidity" ? "bg-[#222730] text-white" : "text-zinc-500 hover:text-zinc-300")}
+              onClick={() => setCodeSubTab("solidity")}
+              className={cn(
+                "flex-1 px-2 py-1 text-[10px] font-medium rounded transition-colors",
+                codeSubTab === "solidity" 
+                  ? "bg-[#222730] text-white" 
+                  : "text-zinc-500 hover:text-zinc-300"
+              )}
             >
               Rust/WASM
             </button>
             <button
-              onClick={() => setActiveTab("frontend")}
-              className={cn("px-2 py-1 text-[10px] font-medium rounded transition-colors", activeTab === "frontend" ? "bg-[#222730] text-white" : "text-zinc-500 hover:text-zinc-300")}
+              onClick={() => setCodeSubTab("frontend")}
+              className={cn(
+                "flex-1 px-2 py-1 text-[10px] font-medium rounded transition-colors",
+                codeSubTab === "frontend" 
+                  ? "bg-[#222730] text-white" 
+                  : "text-zinc-500 hover:text-zinc-300"
+              )}
             >
               Frontend
             </button>
           </div>
-        </div>
+        )}
 
         {/* Metadata grid */}
         <div className="grid grid-cols-2 gap-2">
@@ -107,15 +222,21 @@ export function CodeViewer() {
       {/* Code display */}
       <div className="flex-1 overflow-auto bg-[#0F1419] relative group">
         <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-          <button onClick={() => handleCopy(currentCode, activeTab)} className="p-1.5 bg-[#1A1F26] border border-white/[0.06] rounded text-zinc-400 hover:text-white">
+          <button 
+            onClick={() => handleCopy(getTabContent(), activeTab)} 
+            className="p-1.5 bg-[#1A1F26] border border-white/[0.06] rounded text-zinc-400 hover:text-white"
+          >
             {copied === activeTab ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
           </button>
-          <button onClick={() => handleDownload(currentCode, filename)} className="p-1.5 bg-[#1A1F26] border border-white/[0.06] rounded text-zinc-400 hover:text-white">
+          <button 
+            onClick={() => handleDownload(getTabContent(), getFilename())} 
+            className="p-1.5 bg-[#1A1F26] border border-white/[0.06] rounded text-zinc-400 hover:text-white"
+          >
             <Download className="w-3 h-3" />
           </button>
         </div>
         <pre className="p-4 text-[10px] font-mono leading-relaxed text-zinc-400 tab-4">
-          <code>{currentCode}</code>
+          <code>{getTabContent()}</code>
         </pre>
       </div>
 

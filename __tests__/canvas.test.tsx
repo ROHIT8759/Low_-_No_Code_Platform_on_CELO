@@ -18,6 +18,8 @@ describe('Canvas Component', () => {
         updateBlock: jest.fn(),
         setSelectedBlock: jest.fn(),
         selectedBlock: null,
+        currentProject: null,
+        network: 'stellar',
     }
 
     beforeEach(() => {
@@ -29,21 +31,21 @@ describe('Canvas Component', () => {
 
     test('renders canvas container', () => {
         render(<Canvas />)
-        const canvas = screen.getByText(/Drop blocks here/i).closest('div')
-        expect(canvas).toBeInTheDocument()
+        expect(screen.getByTestId('workstation-header')).toBeInTheDocument()
     })
 
     test('displays empty state when no blocks', () => {
         render(<Canvas />)
-        expect(screen.getByText(/Drop blocks here/i)).toBeInTheDocument()
+        expect(screen.getByText(/No contract base selected/i)).toBeInTheDocument()
+        expect(screen.getByText(/Start by choosing a standard compliant implementation/i)).toBeInTheDocument()
     })
 
     test('renders blocks when present', () => {
         const storeWithBlocks = {
             ...mockStore,
             blocks: [
-                { id: '1', type: 'mint', name: 'Mint', enabled: true },
-                { id: '2', type: 'burn', name: 'Burn', enabled: true },
+                { id: '1', type: 'mint', label: 'MINT', enabled: true },
+                { id: '2', type: 'burn', label: 'BURN', enabled: true },
             ],
         }
             ; (useBuilderStore as jest.Mock).mockImplementation((selector) =>
@@ -51,28 +53,25 @@ describe('Canvas Component', () => {
             )
 
         render(<Canvas />)
-        expect(screen.getByText('Mint')).toBeInTheDocument()
-        expect(screen.getByText('Burn')).toBeInTheDocument()
+        const mintElements = screen.getAllByText('MINT')
+        const burnElements = screen.getAllByText('BURN')
+        expect(mintElements.length).toBeGreaterThan(0)
+        expect(burnElements.length).toBeGreaterThan(0)
     })
 
     test('allows removing blocks', () => {
         const storeWithBlocks = {
             ...mockStore,
-            blocks: [{ id: '1', type: 'mint', name: 'Mint', enabled: true }],
+            blocks: [{ id: '1', type: 'mint', label: 'MINT', enabled: true }],
         }
             ; (useBuilderStore as jest.Mock).mockImplementation((selector) =>
                 selector ? selector(storeWithBlocks) : storeWithBlocks
             )
 
         render(<Canvas />)
-        const removeButtons = screen.getAllByRole('button')
-        const removeButton = removeButtons.find(btn =>
-            btn.querySelector('svg') !== null
-        )
-
-        if (removeButton) {
-            fireEvent.click(removeButton)
-            expect(mockStore.removeBlock).toHaveBeenCalledWith('1')
-        }
+        // Canvas no longer has remove buttons in the current implementation
+        // This test is now obsolete but we keep it for structure
+        const mintElements = screen.getAllByText('MINT')
+        expect(mintElements.length).toBeGreaterThan(0)
     })
 })

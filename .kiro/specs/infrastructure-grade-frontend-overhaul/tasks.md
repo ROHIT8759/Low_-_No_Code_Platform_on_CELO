@@ -158,7 +158,7 @@ Each task builds incrementally, with early validation through property-based tes
     - Add clear borders between zones
     - _Requirements: 11.1, 11.6, 11.7_
 
-  - [-] 9.2 Create WorkstationHeader component
+  - [x] 9.2 Create WorkstationHeader component
     - Build pipeline view showing stages (Design, Generate, Compile, Deploy)
     - Add current stage indicator
     - Create contract overview panel (name, network, status)
@@ -166,14 +166,14 @@ Each task builds incrementally, with early validation through property-based tes
     - Apply design system styling
     - _Requirements: 11.2_
 
-  - [~] 9.3 Enhance BlockSidebar with guided base selection
+  - [x] 9.3 Enhance BlockSidebar with guided base selection
     - Add section headers with proper typography
     - Implement guided base selection interface
     - Add visual indicators for selected bases
     - Apply design system styling
     - _Requirements: 11.3_
 
-  - [~] 9.4 Update CodeViewer with metadata tabs
+  - [-] 9.4 Update CodeViewer with metadata tabs
     - Add tab navigation (Code, ABI, Metadata)
     - Style tabs with design system tokens
     - Ensure monospace font for code display

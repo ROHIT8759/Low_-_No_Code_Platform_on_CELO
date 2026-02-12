@@ -167,13 +167,13 @@ CREATE TABLE IF NOT EXISTS contracts (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Create indexes for contracts
-CREATE INDEX idx_contracts_deployer ON contracts(deployer);
-CREATE INDEX idx_contracts_network ON contracts(network);
-CREATE INDEX idx_contracts_tx_hash ON contracts(tx_hash);
-CREATE INDEX idx_contracts_artifact_id ON contracts(artifact_id);
+-- Create indexes for contracts (Requirement 6.8)
+CREATE INDEX IF NOT EXISTS idx_contracts_deployer ON contracts(deployer);
+CREATE INDEX IF NOT EXISTS idx_contracts_network ON contracts(network);
+CREATE INDEX IF NOT EXISTS idx_contracts_tx_hash ON contracts(tx_hash);
+CREATE INDEX IF NOT EXISTS idx_contracts_artifact_id ON contracts(artifact_id);
 
--- Analytics table
+-- Analytics table (Requirement 6.3)
 CREATE TABLE IF NOT EXISTS analytics (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     project_id UUID REFERENCES projects(id) ON DELETE CASCADE,
@@ -184,10 +184,10 @@ CREATE TABLE IF NOT EXISTS analytics (
 );
 
 -- Create indexes for analytics
-CREATE INDEX idx_analytics_project_id ON analytics(project_id);
-CREATE INDEX idx_analytics_timestamp ON analytics(timestamp);
+CREATE INDEX IF NOT EXISTS idx_analytics_project_id ON analytics(project_id);
+CREATE INDEX IF NOT EXISTS idx_analytics_timestamp ON analytics(timestamp);
 
--- Compilation jobs table
+-- Compilation jobs table (Requirement 6.7)
 CREATE TABLE IF NOT EXISTS compilation_jobs (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     job_id VARCHAR(100) NOT NULL UNIQUE,
@@ -200,9 +200,9 @@ CREATE TABLE IF NOT EXISTS compilation_jobs (
     completed_at TIMESTAMPTZ
 );
 
--- Create indexes for compilation_jobs
-CREATE INDEX idx_compilation_jobs_job_id ON compilation_jobs(job_id);
-CREATE INDEX idx_compilation_jobs_status ON compilation_jobs(status);
+-- Create indexes for compilation_jobs (Requirement 6.8)
+CREATE INDEX IF NOT EXISTS idx_compilation_jobs_job_id ON compilation_jobs(job_id);
+CREATE INDEX IF NOT EXISTS idx_compilation_jobs_status ON compilation_jobs(status);
 
 -- Add foreign key constraint to projects table for contract_id
 -- First check if the column exists, if not add it

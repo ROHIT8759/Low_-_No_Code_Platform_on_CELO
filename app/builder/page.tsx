@@ -37,25 +37,30 @@ export default function BuilderPage() {
 
   return (
     <div className="flex flex-col h-screen bg-[#0B0F14] overflow-hidden relative selection:bg-indigo-500/30 selection:text-indigo-200">
-
-      {}
       <div className="relative z-10 flex flex-col h-full">
         <BuilderNavbar />
-        <div className="flex flex-1 overflow-hidden flex-col md:flex-row border-t border-[#222730]">
-          {}
-          <div className="md:hidden">
-            <BlockSidebar />
-          </div>
-          <div className="hidden md:block h-full">
+        
+        {/* Three-column layout with surface zoning */}
+        <div className="flex flex-1 overflow-hidden border-t border-white/[0.06]">
+          {/* Sidebar Zone - 280px, Surface #090C10 */}
+          <div className="hidden md:block w-[280px] h-full bg-[#090C10] border-r border-white/[0.06]">
             <BlockSidebar />
           </div>
 
-          <Canvas />
+          {/* Canvas Zone - flex-1, Surface #0B0F14 */}
+          <div className="flex-1 h-full bg-[#0B0F14] border-r border-white/[0.06]">
+            <Canvas />
+          </div>
 
-          {}
-          <div className="hidden lg:block h-full">
+          {/* Code Viewer Zone - 400px, Surface #11151A */}
+          <div className="hidden lg:block w-[400px] h-full bg-[#11151A]">
             <CodeViewer />
           </div>
+        </div>
+
+        {/* Mobile: Show sidebar in overlay or stacked layout */}
+        <div className="md:hidden">
+          <BlockSidebar />
         </div>
       </div>
     </div>

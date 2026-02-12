@@ -37,16 +37,15 @@ export function CodeViewer() {
   const filename = activeTab === "solidity" ? "contract.rs" : "dapp.tsx"
 
   return (
-    <div className="w-96 bg-[#090C10] border-l border-[#222730] flex flex-col h-full">
-
-      {}
-      <div className="bg-[#0B0F14] border-b border-[#222730] p-3">
+    <div className="w-full h-full flex flex-col">
+      {/* Header */}
+      <div className="bg-[#0B0F14] border-b border-white/[0.06] p-3">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-sm font-semibold text-zinc-200 flex items-center gap-2">
             <Code2 className="w-4 h-4 text-primary" />
             Generated Source
           </h2>
-          <div className="flex gap-1 bg-[#1A1F26] p-0.5 rounded border border-[#222730]">
+          <div className="flex gap-1 bg-[#1A1F26] p-0.5 rounded border border-white/[0.06]">
             <button
               onClick={() => setActiveTab("solidity")}
               className={cn("px-2 py-1 text-[10px] font-medium rounded transition-colors", activeTab === "solidity" ? "bg-[#222730] text-white" : "text-zinc-500 hover:text-zinc-300")}
@@ -62,16 +61,16 @@ export function CodeViewer() {
           </div>
         </div>
 
-        {}
+        {/* Metadata grid */}
         <div className="grid grid-cols-2 gap-2">
-          <div className="bg-[#11151A] p-2 rounded border border-[#222730]">
+          <div className="bg-[#1A1F26] p-2 rounded border border-white/[0.06]">
             <span className="text-[9px] text-zinc-500 uppercase block mb-1">Network</span>
             <div className="flex items-center gap-1.5">
               <Server className="w-3 h-3 text-zinc-400" />
               <span className="text-[10px] text-zinc-300 font-mono">Stellar Testnet</span>
             </div>
           </div>
-          <div className="bg-[#11151A] p-2 rounded border border-[#222730]">
+          <div className="bg-[#1A1F26] p-2 rounded border border-white/[0.06]">
             <span className="text-[9px] text-zinc-500 uppercase block mb-1">Compiler</span>
             <div className="flex items-center gap-1.5">
               <Cpu className="w-3 h-3 text-zinc-400" />
@@ -81,8 +80,8 @@ export function CodeViewer() {
         </div>
       </div>
 
-      {}
-      <div className="p-3 border-b border-[#222730] bg-[#0B0F14]/50">
+      {/* Contract Overview */}
+      <div className="p-3 border-b border-white/[0.06] bg-[#0B0F14]/50">
         <div className="flex items-center justify-between mb-2">
           <span className="text-[10px] font-mono text-zinc-500 uppercase">Contract Overview</span>
           <span className="text-[10px] font-mono text-emerald-500 flex items-center gap-1">
@@ -105,13 +104,13 @@ export function CodeViewer() {
         </div>
       </div>
 
-      {}
-      <div className="flex-1 overflow-auto bg-[#090C10] relative group">
+      {/* Code display */}
+      <div className="flex-1 overflow-auto bg-[#0F1419] relative group">
         <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-          <button onClick={() => handleCopy(currentCode, activeTab)} className="p-1.5 bg-[#1A1F26] border border-[#222730] rounded text-zinc-400 hover:text-white">
+          <button onClick={() => handleCopy(currentCode, activeTab)} className="p-1.5 bg-[#1A1F26] border border-white/[0.06] rounded text-zinc-400 hover:text-white">
             {copied === activeTab ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
           </button>
-          <button onClick={() => handleDownload(currentCode, filename)} className="p-1.5 bg-[#1A1F26] border border-[#222730] rounded text-zinc-400 hover:text-white">
+          <button onClick={() => handleDownload(currentCode, filename)} className="p-1.5 bg-[#1A1F26] border border-white/[0.06] rounded text-zinc-400 hover:text-white">
             <Download className="w-3 h-3" />
           </button>
         </div>
@@ -120,8 +119,8 @@ export function CodeViewer() {
         </pre>
       </div>
 
-      {}
-      <div className="p-4 border-t border-[#222730] bg-[#0B0F14]">
+      {/* Deploy footer */}
+      <div className="p-4 border-t border-white/[0.06] bg-[#0B0F14]">
         {blocks.length > 0 ? (
           <div className="space-y-3">
             <div className="flex justify-between items-center text-[10px] text-zinc-500">

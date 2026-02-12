@@ -6,6 +6,10 @@ jest.mock('@/lib/store', () => ({
     useBuilderStore: jest.fn(),
 }))
 
+jest.mock('@/components/infrastructure/workstation-header', () => ({
+    WorkstationHeader: () => <div data-testid="workstation-header">Workstation Header</div>,
+}))
+
 describe('Canvas Component', () => {
     const mockStore = {
         blocks: [],

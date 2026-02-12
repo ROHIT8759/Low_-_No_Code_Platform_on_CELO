@@ -12,6 +12,10 @@ import { cn } from "@/lib/utils"
 
 import { BorderBeam } from "@/components/reactbits/BorderBeam"
 import Silk from "@/components/reactbits/Silk"
+import { PipelineStage } from "@/components/infrastructure/pipeline-stage"
+import { PipelineConnector } from "@/components/infrastructure/pipeline-connector"
+import { SecurityFeature } from "@/components/infrastructure/security-feature"
+import { SecurityLayers } from "@/components/infrastructure/security-layers"
 
 const INFRASTRUCTURE_FEATURES = [
   {
@@ -28,6 +32,7 @@ const INFRASTRUCTURE_FEATURES = [
     header: <WasmCompilationVisual />,
     icon: <Cpu className="h-4 w-4 text-zinc-500" />,
     className: "md:col-span-2",
+    accentColor: "emerald" as const,
   },
   {
     title: "State Expiration Handling",
@@ -42,6 +47,7 @@ const INFRASTRUCTURE_FEATURES = [
     header: <StateExpirationVisual />,
     icon: <Database className="h-4 w-4 text-zinc-500" />,
     className: "md:col-span-1",
+    accentColor: "blue" as const,
   },
   {
     title: "Formal Verification",
@@ -56,6 +62,7 @@ const INFRASTRUCTURE_FEATURES = [
     header: <FormalVerificationVisual />,
     icon: <Shield className="h-4 w-4 text-zinc-500" />,
     className: "md:col-span-1",
+    accentColor: "purple" as const,
   },
   {
     title: "Cross-Contract Calls",
@@ -70,6 +77,7 @@ const INFRASTRUCTURE_FEATURES = [
     header: <CrossContractVisual />,
     icon: <Layers className="h-4 w-4 text-zinc-500" />,
     className: "md:col-span-2",
+    accentColor: "zinc" as const,
   },
 ]
 
@@ -103,7 +111,7 @@ export default function Home() {
       <Navbar />
 
       {/* 2. ADVANCED HERO */}
-      <section className="relative pt-32 pb-16 px-6 max-w-7xl mx-auto z-10 grid lg:grid-cols-12 gap-16 items-center">
+      <section className="relative pt-24 pb-12 px-6 max-w-7xl mx-auto z-10 grid lg:grid-cols-12 gap-12 items-center">
         {/* Conditional grid overlay for hero zone (2-3% opacity) */}
         <div 
           className="absolute inset-0 pointer-events-none"
@@ -116,12 +124,12 @@ export default function Home() {
         
         {/* Left: Content */}
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
           className="lg:col-span-5 flex flex-col items-start text-left"
         >
-          <h1 className="text-4xl lg:text-5xl font-semibold text-white tracking-tight mb-4 leading-[1.15]">
+          <h1 className="text-4xl lg:text-5xl font-semibold text-white tracking-tight mb-3 leading-[1.15]">
             Deterministic <br />
             <span className="text-zinc-500">Contract Infrastructure</span>
           </h1>
@@ -130,9 +138,9 @@ export default function Home() {
             For Soroban Deployments
           </p>
 
-          <div className="h-px w-12 bg-zinc-800 my-6" />
+          <div className="h-px w-12 bg-zinc-800 my-5" />
 
-          <p className="text-sm font-mono text-emerald-500/80 uppercase tracking-widest mb-8">
+          <p className="text-sm font-mono text-emerald-500/80 uppercase tracking-widest mb-6">
             Production-grade WASM <span className="text-zinc-700 px-2">·</span> Architecture-first tooling
           </p>
 
@@ -147,7 +155,7 @@ export default function Home() {
               Read Documentation
             </button>
           </div>
-          <div className="mt-4 flex items-center gap-3 text-[10px] text-zinc-500 font-mono">
+          <div className="mt-3 flex items-center gap-3 text-[10px] text-zinc-500 font-mono">
             <span>MAINNET READY</span>
             <span className="w-1 h-1 rounded-full bg-zinc-700" />
             <span>WASM NATIVE</span>
@@ -159,9 +167,9 @@ export default function Home() {
         {/* Right: Product Window */}
         <div className="hidden lg:block lg:col-span-7 relative">
           <motion.div
-            initial={{ opacity: 0, scale: 0.98, y: 20 }}
+            initial={{ opacity: 0, scale: 0.98, y: 12 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.5, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
             className="relative rounded-lg"
           >
             <ProductWindow />
@@ -213,6 +221,7 @@ export default function Home() {
               header={feature.header}
               icon={feature.icon}
               className={feature.className}
+              accentColor={feature.accentColor}
             />
           ))}
         </BentoGrid>
@@ -228,96 +237,51 @@ export default function Home() {
 
           <div className="relative flex flex-col md:flex-row items-start justify-center gap-0 max-w-6xl mx-auto">
 
-            {/* ITEM 1 */}
-            <div className="flex-1 flex flex-col gap-4 relative group z-10">
-              <div className="h-48 p-6 mx-2 rounded-xl border border-zinc-800 bg-[#0F141B] hover:bg-[#11161D] transition-all hover:-translate-y-1 duration-300 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-blue-500/50" />
-                <div className="flex justify-between items-start mb-8">
-                  <span className="text-[10px] font-mono text-zinc-600 border border-zinc-800 px-2 py-1 rounded">ID: 01</span>
-                  <div className="w-8 h-8 rounded flex items-center justify-center bg-blue-500/10 text-blue-500">
-                    <Box className="w-4 h-4" />
-                  </div>
-                </div>
-                <h3 className="text-sm font-semibold text-zinc-200 mb-2">Visual Engine</h3>
-                <p className="text-xs text-zinc-500 leading-relaxed">Drag-and-drop composition with schema enforcement.</p>
-              </div>
-              {/* Micro Stats */}
-              <div className="px-6 flex gap-4 text-[10px] font-mono text-zinc-600 opacity-0 group-hover:opacity-100 transition-opacity transform translate-y-2 group-hover:translate-y-0">
-                <span>CTX: 84ms</span>
-              </div>
-            </div>
+            {/* Stage 1: Visual Engine */}
+            <PipelineStage
+              id="01"
+              title="Visual Engine"
+              description="Drag-and-drop composition with schema enforcement."
+              icon={<Box className="w-4 h-4" />}
+              accentColor="blue"
+              metrics={[{ label: 'CTX', value: '84ms' }]}
+            />
 
-            {/* CONNECTOR 1 */}
-            <div className="hidden md:flex w-12 h-48 items-center justify-center relative -ml-1 -mr-1 z-0">
-              <div className="w-full h-px bg-zinc-800" />
-              <div className="absolute w-2 h-2 rounded-full bg-zinc-800" />
-            </div>
+            <PipelineConnector />
 
-            {/* ITEM 2 */}
-            <div className="flex-1 flex flex-col gap-4 relative group z-10">
-              <div className="h-48 p-6 mx-2 rounded-xl border border-zinc-800 bg-[#0F141B] hover:bg-[#11161D] transition-all hover:-translate-y-1 duration-300 delay-75 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-purple-500/50" />
-                <div className="flex justify-between items-start mb-8">
-                  <span className="text-[10px] font-mono text-zinc-600 border border-zinc-800 px-2 py-1 rounded">ID: 02</span>
-                  <div className="w-8 h-8 rounded flex items-center justify-center bg-purple-500/10 text-purple-500">
-                    <Code2 className="w-4 h-4" />
-                  </div>
-                </div>
-                <h3 className="text-sm font-semibold text-zinc-200 mb-2">Rust Synthesis</h3>
-                <p className="text-xs text-zinc-500 leading-relaxed">AST generation + borrow checker compliance.</p>
-              </div>
-              <div className="px-6 flex gap-4 text-[10px] font-mono text-zinc-600 opacity-0 group-hover:opacity-100 transition-opacity transform translate-y-2 group-hover:translate-y-0 delay-75">
-                <span>GEN: 12ms</span>
-              </div>
-            </div>
+            {/* Stage 2: Rust Synthesis */}
+            <PipelineStage
+              id="02"
+              title="Rust Synthesis"
+              description="AST generation + borrow checker compliance."
+              icon={<Code2 className="w-4 h-4" />}
+              accentColor="purple"
+              metrics={[{ label: 'GEN', value: '12ms' }]}
+            />
 
-            {/* CONNECTOR 2 */}
-            <div className="hidden md:flex w-12 h-48 items-center justify-center relative -ml-1 -mr-1 z-0">
-              <div className="w-full h-px bg-zinc-800" />
-              <div className="absolute w-2 h-2 rounded-full bg-zinc-800" />
-            </div>
+            <PipelineConnector />
 
-            {/* ITEM 3 */}
-            <div className="flex-1 flex flex-col gap-4 relative group z-10">
-              <div className="h-48 p-6 mx-2 rounded-xl border border-zinc-800 bg-[#0F141B] hover:bg-[#11161D] transition-all hover:-translate-y-1 duration-300 delay-100 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-emerald-500/50" />
-                <div className="flex justify-between items-start mb-8">
-                  <span className="text-[10px] font-mono text-zinc-600 border border-zinc-800 px-2 py-1 rounded">ID: 03</span>
-                  <div className="w-8 h-8 rounded flex items-center justify-center bg-emerald-500/10 text-emerald-500">
-                    <Terminal className="w-4 h-4" />
-                  </div>
-                </div>
-                <h3 className="text-sm font-semibold text-zinc-200 mb-2">LLVM Compiler</h3>
-                <p className="text-xs text-zinc-500 leading-relaxed">Optimization pipeline for minimal bytecode size.</p>
-              </div>
-              <div className="px-6 flex gap-4 text-[10px] font-mono text-zinc-600 opacity-0 group-hover:opacity-100 transition-opacity transform translate-y-2 group-hover:translate-y-0 delay-100">
-                <span>OPT: Level 3</span>
-              </div>
-            </div>
+            {/* Stage 3: LLVM Compiler */}
+            <PipelineStage
+              id="03"
+              title="LLVM Compiler"
+              description="Optimization pipeline for minimal bytecode size."
+              icon={<Terminal className="w-4 h-4" />}
+              accentColor="emerald"
+              metrics={[{ label: 'OPT', value: 'Level 3' }]}
+            />
 
-            {/* CONNECTOR 3 */}
-            <div className="hidden md:flex w-12 h-48 items-center justify-center relative -ml-1 -mr-1 z-0">
-              <div className="w-full h-px bg-zinc-800" />
-              <div className="absolute w-2 h-2 rounded-full bg-zinc-800" />
-            </div>
+            <PipelineConnector />
 
-            {/* ITEM 4 */}
-            <div className="flex-1 flex flex-col gap-4 relative group z-10">
-              <div className="h-48 p-6 mx-2 rounded-xl border border-zinc-800 bg-[#0F141B] hover:bg-[#11161D] transition-all hover:-translate-y-1 duration-300 delay-150 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-indigo-500/50" />
-                <div className="flex justify-between items-start mb-8">
-                  <span className="text-[10px] font-mono text-zinc-600 border border-zinc-800 px-2 py-1 rounded">ID: 04</span>
-                  <div className="w-8 h-8 rounded flex items-center justify-center bg-indigo-500/10 text-indigo-500">
-                    <Cpu className="w-4 h-4" />
-                  </div>
-                </div>
-                <h3 className="text-sm font-semibold text-zinc-200 mb-2">WASM Bytecode</h3>
-                <p className="text-xs text-zinc-500 leading-relaxed">Mainnet-ready binary artifact.</p>
-              </div>
-              <div className="px-6 flex gap-4 text-[10px] font-mono text-zinc-600 opacity-0 group-hover:opacity-100 transition-opacity transform translate-y-2 group-hover:translate-y-0 delay-150">
-                <span>SIZE: 14kb</span>
-              </div>
-            </div>
+            {/* Stage 4: WASM Bytecode */}
+            <PipelineStage
+              id="04"
+              title="WASM Bytecode"
+              description="Mainnet-ready binary artifact."
+              icon={<Cpu className="w-4 h-4" />}
+              accentColor="indigo"
+              metrics={[{ label: 'SIZE', value: '14kb' }]}
+            />
 
           </div>
         </div>
@@ -327,106 +291,47 @@ export default function Home() {
       <section className="relative py-32 px-6 border-t border-[#1A1F26] bg-[#090C10]">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
 
-          {/* Left: Strategic Copy */}
+          {/* Left: Copy Column */}
           <div>
+            {/* Active Protection Badge */}
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-900/30 bg-emerald-900/10 mb-6">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               <span className="text-[10px] font-medium text-emerald-500 uppercase tracking-wider">Active Protection</span>
             </div>
+            
+            {/* Heading */}
             <h2 className="text-4xl font-semibold text-white mb-6 tracking-tight">
               Defense in Depth <br />
               <span className="text-zinc-500">Architecture</span>
             </h2>
-            <p className="text-zinc-400 text-base leading-relaxed mb-8 max-w-md">
+            
+            {/* Description */}
+            <p className="text-zinc-400 text-base leading-relaxed mb-8 max-w-md opacity-85">
               We don't just compile; we verify. Every contract undergoes a rigorous multi-stage security pipeline before it ever touches the network.
             </p>
 
+            {/* Security Features */}
             <div className="space-y-6">
-              <div className="flex items-start gap-4">
-                <div className="w-6 h-6 rounded bg-zinc-800 flex items-center justify-center mt-0.5 shrink-0">
-                  <Shield className="w-3 h-3 text-zinc-400" />
-                </div>
-                <div>
-                  <h4 className="text-sm font-medium text-white">Pre-Flight Analysis</h4>
-                  <p className="text-xs text-zinc-500 mt-1">Static analysis scans for common vector vulnerabilities.</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4">
-                <div className="w-6 h-6 rounded bg-zinc-800 flex items-center justify-center mt-0.5 shrink-0">
-                  <FileCheck className="w-3 h-3 text-zinc-400" />
-                </div>
-                <div>
-                  <h4 className="text-sm font-medium text-white">Symbolic Execution</h4>
-                  <p className="text-xs text-zinc-500 mt-1">Mathematical proof of contract logic correctness.</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4">
-                <div className="w-6 h-6 rounded bg-zinc-800 flex items-center justify-center mt-0.5 shrink-0">
-                  <Lock className="w-3 h-3 text-zinc-400" />
-                </div>
-                <div>
-                  <h4 className="text-sm font-medium text-white">Runtime Enclaves</h4>
-                  <p className="text-xs text-zinc-500 mt-1">Isolated execution environments for gas metering.</p>
-                </div>
-              </div>
+              <SecurityFeature
+                icon={<Shield className="w-3 h-3 text-zinc-400" />}
+                title="Pre-Flight Analysis"
+                description="Static analysis scans for common vector vulnerabilities."
+              />
+              <SecurityFeature
+                icon={<FileCheck className="w-3 h-3 text-zinc-400" />}
+                title="Symbolic Execution"
+                description="Mathematical proof of contract logic correctness."
+              />
+              <SecurityFeature
+                icon={<Lock className="w-3 h-3 text-zinc-400" />}
+                title="Runtime Enclaves"
+                description="Isolated execution environments for gas metering."
+              />
             </div>
           </div>
 
-          {}
-          <div className="relative h-[500px] w-full flex items-center justify-center">
-            <div className="relative w-full max-w-md">
-              {}
-              <div className="absolute top-24 left-8 right-8 h-40 bg-[#0F141B] border border-zinc-800 rounded-lg p-6 transform scale-95 opacity-40 z-0"></div>
-
-              {}
-              <div className="absolute top-12 left-4 right-4 h-40 bg-[#0F141B] border border-zinc-800 rounded-lg p-6 shadow-2xl transform scale-100 opacity-70 z-10 flex items-center justify-between">
-                <span className="text-xs font-mono text-zinc-600">LAYER_02</span>
-                <div className="h-1 w-12 bg-purple-500/30 rounded-full" />
-              </div>
-
-              {}
-              <motion.div
-                initial={{ y: 20, opacity: 0 }}
-                whileInView={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.7 }}
-                className="relative h-auto bg-[#0F141B] border border-zinc-700/50 rounded-xl p-8 shadow-2xl z-20"
-              >
-                <div className="flex justify-between items-start mb-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded bg-emerald-500/10 flex items-center justify-center text-emerald-500">
-                      <Shield className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <div className="text-sm font-semibold text-white">Security Report</div>
-                      <div className="text-[10px] text-zinc-500 font-mono">ID: 0x82...9A2</div>
-                    </div>
-                  </div>
-                  <div className="px-2 py-1 rounded bg-emerald-500/10 border border-emerald-500/20 text-[10px] text-emerald-500 font-mono">
-                    PASSED
-                  </div>
-                </div>
-
-                <div className="space-y-3 font-mono text-[10px] text-zinc-400">
-                  <div className="flex justify-between py-2 border-b border-zinc-800">
-                    <span>Re-entrancy Check</span>
-                    <span className="text-emerald-500">SAFE</span>
-                  </div>
-                  <div className="flex justify-between py-2 border-b border-zinc-800">
-                    <span>Overflow Protection</span>
-                    <span className="text-emerald-500">SAFE</span>
-                  </div>
-                  <div className="flex justify-between py-2 border-b border-zinc-800">
-                    <span>Access Control</span>
-                    <span className="text-emerald-500">VERIFIED</span>
-                  </div>
-                  <div className="flex justify-between py-2">
-                    <span>Gas Optimization</span>
-                    <span className="text-blue-500">98/100</span>
-                  </div>
-                </div>
-              </motion.div>
-            </div>
-          </div>
+          {/* Right: Visual Column - Layered Security Cards */}
+          <SecurityLayers />
 
         </div>
       </section>

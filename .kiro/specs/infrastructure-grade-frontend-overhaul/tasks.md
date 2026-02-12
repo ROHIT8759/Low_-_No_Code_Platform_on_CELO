@@ -45,7 +45,7 @@ Each task builds incrementally, with early validation through property-based tes
     - _Requirements: 2.1, 2.2, 2.3, 2.4_
 
 - [ ] 3. Transform Navbar component
-  - [-] 3.1 Refactor Navbar styling and behavior
+  - [x] 3.1 Refactor Navbar styling and behavior
     - Reduce border radius to 12px maximum
     - Remove glow edges and shadow effects
     - Replace gradient CTA with solid blue background (#0055eb)
@@ -65,7 +65,7 @@ Each task builds incrementally, with early validation through property-based tes
     - **Validates: Requirements 6.1, 8.2, 13.6**
 
 - [ ] 4. Upgrade Hero section
-  - [~] 4.1 Refactor Hero section layout and content
+  - [x] 4.1 Refactor Hero section layout and content
     - Add telemetry microbar component to preview area
     - Reduce floating effects (remove excessive translateY)
     - Add structural alignment grid for visual organization
@@ -86,7 +86,7 @@ Each task builds incrementally, with early validation through property-based tes
     - **Validates: Requirements 1.1, 6.3, 13.4**
 
 - [ ] 5. Refine BentoGrid component
-  - [~] 5.1 Update BentoGrid styling and structure
+  - [x] 5.1 Update BentoGrid styling and structure
     - Reduce border radius to 12-14px
     - Add subtle top accent strip (2px, colored by feature)
     - Increase information density (reduce padding)
@@ -107,7 +107,7 @@ Each task builds incrementally, with early validation through property-based tes
     - **Validates: Requirements 1.1, 4.4, 6.2, 8.6, 13.1, 13.2**
 
 - [ ] 6. Transform Build Pipeline section
-  - [~] 6.1 Rebuild Build Pipeline as structured modules
+  - [x] 6.1 Rebuild Build Pipeline as structured modules
     - Create PipelineStage component with ID badge, icon, title, description
     - Add colored top accent strip per stage (blue, purple, emerald, indigo)
     - Add micro telemetry metrics (CTX: 84ms, GEN: 12ms, OPT: Level 3, SIZE: 14kb)
@@ -128,7 +128,7 @@ Each task builds incrementally, with early validation through property-based tes
     - **Validates: Requirements 7.1, 9.2, 20.1, 20.4**
 
 - [ ] 7. Restructure Security section
-  - [~] 7.1 Rebuild Security section with layered structure
+  - [x] 7.1 Rebuild Security section with layered structure
     - Create two-column layout (copy left, visual right)
     - Add "Active Protection" badge with pulse indicator
     - Update heading to "Defense in Depth Architecture"
@@ -145,11 +145,11 @@ Each task builds incrementally, with early validation through property-based tes
     - Test badge and pulse indicator
     - _Requirements: 10.2, 10.3_
 
-- [~] 8. Checkpoint - Ensure all landing page tests pass
+- [x] 8. Checkpoint - Ensure all landing page tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 9. Transform Builder page into Contract Workstation
-  - [~] 9.1 Refactor Builder page layout structure
+  - [x] 9.1 Refactor Builder page layout structure
     - Define three-column layout (sidebar 280px, canvas flex-1, code viewer 400px)
     - Apply surface zoning with distinct backgrounds
     - Update sidebar background to #090C10
@@ -158,7 +158,7 @@ Each task builds incrementally, with early validation through property-based tes
     - Add clear borders between zones
     - _Requirements: 11.1, 11.6, 11.7_
 
-  - [~] 9.2 Create WorkstationHeader component
+  - [-] 9.2 Create WorkstationHeader component
     - Build pipeline view showing stages (Design, Generate, Compile, Deploy)
     - Add current stage indicator
     - Create contract overview panel (name, network, status)

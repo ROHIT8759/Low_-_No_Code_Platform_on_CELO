@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Copy, Terminal, Check, Activity, Shield, Box } from "lucide-react";
+import { TelemetryMicrobar } from "./telemetry-microbar";
 
 export function ProductWindow() {
     return (
@@ -30,6 +31,9 @@ export function ProductWindow() {
                         </div>
                     </div>
                 </div>
+
+                {/* Telemetry Microbar */}
+                <TelemetryMicrobar />
 
                 {}
                 <div className="flex-1 flex overflow-hidden">

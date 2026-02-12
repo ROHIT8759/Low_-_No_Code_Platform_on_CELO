@@ -48,8 +48,8 @@ export function BlockSidebar() {
   }
 
   return (
-    <div className="w-full md:w-72 bg-[#090C10] border-r border-[#222730] flex flex-col h-full">
-      <div className="p-4 border-b border-[#222730] bg-[#0B0F14]">
+    <div className="w-full h-full flex flex-col">
+      <div className="p-4 border-b border-white/[0.06] bg-[#0B0F14]">
         <div className="flex items-center gap-2 mb-1">
           <Box className="w-3.5 h-3.5 text-primary" />
           <h2 className="text-sm font-semibold text-zinc-200 tracking-tight">Contract Modules</h2>
@@ -74,7 +74,7 @@ export function BlockSidebar() {
             </button>
 
             {openCategories[category] && (
-              <div className="space-y-1 pl-2 border-l border-[#222730] ml-3 mt-1">
+              <div className="space-y-1 pl-2 border-l border-white/[0.04] ml-3 mt-1">
                 {blocks.map((block) => (
                   <div
                     key={block.id}
@@ -82,16 +82,16 @@ export function BlockSidebar() {
                     onDragStart={(e) => handleDragStart(e, block)}
                     onClick={() => addBlock(block as any)}
                     className="
-                      group relative w-full p-3 rounded-sm border border-[#1A1F26] bg-[#11151A] 
-                      hover:bg-[#161B22] hover:border-[#30363D] transition-all cursor-grab active:cursor-grabbing
+                      group relative w-full p-3 rounded-sm border border-white/[0.06] bg-[#11151A] 
+                      hover:bg-[#161B22] hover:border-white/[0.08] transition-all cursor-grab active:cursor-grabbing
                     "
                   >
-                    {}
+                    {/* Accent strip */}
                     <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary opacity-0 group-hover:opacity-100 transition-opacity" />
 
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 rounded-[2px] bg-[#1A1F26] flex items-center justify-center border border-[#222730]">
+                        <div className="w-5 h-5 rounded-[2px] bg-[#1A1F26] flex items-center justify-center border border-white/[0.04]">
                           <Layers className="w-3 h-3 text-zinc-500 group-hover:text-zinc-300" />
                         </div>
                         <div>
@@ -102,8 +102,8 @@ export function BlockSidebar() {
                       <GripHorizontal className="w-3 h-3 text-zinc-700 opacity-0 group-hover:opacity-100" />
                     </div>
 
-                    {}
-                    <div className="mt-2 flex items-center justify-between border-t border-[#222730]/50 pt-2">
+                    {/* Metadata line */}
+                    <div className="mt-2 flex items-center justify-between border-t border-white/[0.04] pt-2">
                       <div className="flex items-center gap-1.5">
                         <span className="text-[9px] text-zinc-600 font-mono uppercase">Gas:</span>
                         <span className={`text-[9px] font-mono ${block.gas === 'High' ? 'text-orange-500' : 'text-zinc-500'}`}>

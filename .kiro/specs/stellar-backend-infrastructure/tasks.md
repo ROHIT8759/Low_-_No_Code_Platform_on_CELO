@@ -278,7 +278,7 @@ Each task builds on previous work, with property-based tests integrated througho
     - Provide example function calls
     - _Requirements: 5.6_
   
-  - [-] 8.8 Write property test for comprehensive analysis output
+  - [x] 8.8 Write property test for comprehensive analysis output
     - **Property 16: Contract Analysis Provides Comprehensive Output**
     - **Validates: Requirements 5.3, 5.4, 5.5, 5.6, 5.7**
   
@@ -295,7 +295,7 @@ Each task builds on previous work, with property-based tests integrated througho
     - Return structured JSON with risk scores, gas estimates, UI suggestions, and recommendations
     - _Requirements: 5.1, 5.7_
   
-  - [~] 8.11 Write property test for high-risk remediation
+  - [x] 8.11 Write property test for high-risk remediation
     - **Property 17: High-Risk Patterns Trigger Remediation Recommendations**
     - **Validates: Requirements 5.8**
 
@@ -310,7 +310,7 @@ Each task builds on previous work, with property-based tests integrated througho
     - Return HTTP 429 for exceeded limits
     - _Requirements: 7.2_
   
-  - [~] 10.2 Write property test for rate limiting
+  - [-] 10.2 Write property test for rate limiting
     - **Property 20: Rate Limiting Enforces Request Limits**
     - **Validates: Requirements 7.2**
   

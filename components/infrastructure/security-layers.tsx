@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { Shield } from 'lucide-react';
+import { MOTION_DURATION, MOTION_TRANSFORMS } from '@/lib/motion';
 
 interface SecurityMetric {
   check: string;
@@ -37,9 +38,9 @@ export function SecurityLayers() {
 
         {/* Primary Security Report Card - Front */}
         <motion.div
-          initial={{ y: 20, opacity: 0 }}
+          initial={{ y: MOTION_TRANSFORMS.slideUp, opacity: 0 }}
           whileInView={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: MOTION_DURATION.normal / 1000, ease: [0.16, 1, 0.3, 1] }}
           className="relative h-auto bg-[#11151A] border border-white/[0.06] rounded-xl p-8 z-20"
         >
           {/* Top accent strip */}

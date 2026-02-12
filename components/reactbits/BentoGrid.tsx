@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import React from "react";
+import { createTransitionStyle } from "@/lib/motion";
 
 export const BentoGrid = ({
     className,
@@ -47,7 +48,7 @@ export const BentoGridItem = ({
         <div
             className={cn(
                 // Infrastructure-grade styling with reduced border radius (12px)
-                "row-span-1 rounded-[12px] group/bento transition-infrastructure shadow-none",
+                "row-span-1 rounded-[12px] group/bento",
                 // Subtle top accent strip (2px)
                 "border-t-2",
                 accentStripClass,
@@ -61,6 +62,7 @@ export const BentoGridItem = ({
                 "justify-between flex flex-col space-y-3",
                 className
             )}
+            style={createTransitionStyle(['background-color'], 'normal')}
         >
             {header}
             <div className="flex flex-col">

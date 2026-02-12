@@ -1,4 +1,5 @@
 import React from 'react';
+import { createTransitionStyle, MOTION_DURATION } from '@/lib/motion';
 
 interface PipelineMetric {
   label: string;
@@ -38,7 +39,10 @@ export function PipelineStage({
 }: PipelineStageProps) {
   return (
     <div className="flex-1 flex flex-col gap-4 relative group z-10">
-      <div className="h-48 p-6 mx-2 rounded-xl border border-white/[0.06] bg-[#0F141B] hover:bg-[#11161D] transition-all hover:-translate-y-1 duration-[180ms] ease-[cubic-bezier(0.16,1,0.3,1)] relative overflow-hidden">
+      <div 
+        className="h-48 p-6 mx-2 rounded-xl border border-white/[0.06] bg-[#0F141B] hover:bg-[#11161D] hover:-translate-y-1 relative overflow-hidden"
+        style={createTransitionStyle(['background-color', 'transform'], 'normal')}
+      >
         {/* Colored top accent strip */}
         <div className={`absolute top-0 left-0 w-full h-[2px] ${accentColorMap[accentColor]}`} />
         
@@ -58,7 +62,10 @@ export function PipelineStage({
       </div>
       
       {/* Micro telemetry metrics - revealed on hover */}
-      <div className="px-6 flex gap-4 text-[10px] font-mono text-zinc-600 opacity-0 group-hover:opacity-100 transition-opacity duration-[180ms] ease-[cubic-bezier(0.16,1,0.3,1)]">
+      <div 
+        className="px-6 flex gap-4 text-[10px] font-mono text-zinc-600 opacity-0 group-hover:opacity-100"
+        style={createTransitionStyle(['opacity'], 'normal')}
+      >
         {metrics.map((metric, index) => (
           <span key={index}>
             {metric.label}: {metric.value}

@@ -193,7 +193,7 @@ Each task builds incrementally, with early validation through property-based tes
     - Implement prefers-reduced-motion detection
     - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5, 12.6, 12.7_
 
-  - [-] 10.2 Apply motion system to all components
+  - [x] 10.2 Apply motion system to all components
     - Update Navbar animations
     - Update Hero section reveal animations
     - Update BentoGrid card animations

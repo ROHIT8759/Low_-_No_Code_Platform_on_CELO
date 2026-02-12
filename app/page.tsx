@@ -1,277 +1,226 @@
-﻿"use client";
+﻿"use client"
 
-import Link from "next/link";
-import {
-  ArrowRight,
-  Check,
-  Code2,
-  Terminal,
-  Shield,
-  Zap,
-  Activity,
-  Box,
-  Cpu,
-  Globe,
-  FileCode,
-  Lock
-} from "lucide-react";
-import { useDevice } from "@/lib/use-device";
+import { ProductWindow } from "@/components/infrastructure/product-window"
+import { BentoGrid, BentoGridItem } from "@/components/reactbits/BentoGrid"
+import { SpotlightCard } from "@/components/reactbits/SpotlightCard"
+import { motion } from "framer-motion"
+import { ArrowRight, Shield, Zap, Database, Server, Cpu, Lock, Terminal, Activity, FileCheck, Layers } from "lucide-react"
+import Link from "next/link"
 
-// Components
-import { Navbar } from "@/components/navbar";
-import { ProductWindow } from "@/components/infrastructure/product-window";
-import { ScrollReveal } from "@/components/scroll-reveal";
+const INFRASTRUCTURE_FEATURES = [
+  {
+    title: "Native WASM Compilation",
+    description: "Direct Rust-to-WASM pipeline optimized for Soroban's runtime environment. Ensures minimal bytecode size and maximum execution efficiency.",
+    header: <div className="flex flex-1 w-full h-full min-h-24 rounded-md bg-linear-to-br from-[#1A1F26] to-[#0B0F14] border border-[#222730] relative overflow-hidden group">
+      <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-20" />
+      <div className="absolute bottom-2 right-2 p-2 bg-[#0B0F14] border border-[#222730] rounded shadow-lg">
+        <span className="text-[10px] font-mono text-emerald-500">REL: OPTIMIZED</span>
+      </div>
+      <Terminal className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 text-zinc-600 group-hover:text-primary transition-colors" />
+    </div>,
+    icon: <Cpu className="h-4 w-4 text-zinc-500" />,
+    className: "md:col-span-2",
+  },
+  {
+    title: "State Expiration Handling",
+    description: "Automated ledger entry TTL management preventing state bloat and ensuring sustainable storage economics.",
+    header: <div className="flex flex-1 w-full h-full min-h-24 rounded-md bg-[#11151A] border border-[#222730] p-4 flex flex-col justify-end">
+      <div className="w-full bg-[#1A1F26] h-1.5 rounded-full overflow-hidden">
+        <div className="bg-primary w-3/4 h-full" />
+      </div>
+      <div className="flex justify-between mt-1">
+        <span className="text-[9px] font-mono text-zinc-500">TTL</span>
+        <span className="text-[9px] font-mono text-zinc-300">120,500 ledgers</span>
+      </div>
+    </div>,
+    icon: <Database className="h-4 w-4 text-zinc-500" />,
+    className: "md:col-span-1",
+  },
+  {
+    title: "Formal Verification",
+    description: "Integrated Proptest and symbolic execution for contract logic validation before deployment.",
+    header: <div className="flex flex-1 w-full h-full min-h-24 rounded-md bg-[#11151A] border border-[#222730] flex items-center justify-center">
+      <div className="grid grid-cols-2 gap-2">
+        {[1, 2, 3, 4].map(i => (
+          <div key={i} className="w-8 h-8 rounded-sm bg-[#1A1F26] border border-[#222730] flex items-center justify-center">
+            <FileCheck className="w-3 h-3 text-emerald-500/50" />
+          </div>
+        ))}
+      </div>
+    </div>,
+    icon: <Shield className="h-4 w-4 text-zinc-500" />,
+    className: "md:col-span-1",
+  },
+  {
+    title: "Cross-Contract Calls",
+    description: "Composable architecture allowing seamless invocation between deployed logic modules.",
+    header: <div className="flex flex-1 w-full h-full min-h-24 rounded-md bg-[#11151A] border border-[#222730] relative">
+      <Layers className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 text-zinc-700 opacity-50" />
+      <div className="absolute inset-0 bg-linear-to-t from-[#11151A] to-transparent" />
+    </div>,
+    icon: <Server className="h-4 w-4 text-zinc-500" />,
+    className: "md:col-span-2",
+  },
+]
 
 export default function Home() {
-  const { isMobile } = useDevice();
-
   return (
-    <main className="min-h-screen bg-background text-foreground selection:bg-indigo-500/30 overflow-hidden relative">
+    <main className="min-h-screen bg-[#0B0F14] text-zinc-300 antialiased overflow-hidden selection:bg-indigo-500/30 selection:text-indigo-200">
 
       {/* 1. LAYERED BACKGROUND SYSTEM */}
       <div className="fixed inset-0 z-0 pointer-events-none">
-        {/* Deep Charcoal Base is set in CSS (bg-background) */}
-        {/* Layer 2: Ultra Subtle Grid */}
-        <div className="absolute inset-0 bg-infrastructure-grid opacity-30" />
-        {/* Layer 3: Vignette */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_10%,#0B0F14_100%)] opacity-80" />
+        <div className="absolute inset-0 bg-infrastructure-grid opacity-20" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#0B0F14_100%)] opacity-80" />
       </div>
 
-      <Navbar />
-
-      {/* 2. INFRASTRUCTURE HERO SECTION */}
-      <section className="relative pt-32 pb-24 px-6 max-w-7xl mx-auto z-10 grid lg:grid-cols-12 gap-16 items-center">
-
-        {/* Left: Technical Editorial (5 cols) */}
-        <div className="lg:col-span-6 flex flex-col items-start text-left">
-          <ScrollReveal>
-            {/* Micro Typography Label */}
-            <div className="inline-flex items-center gap-2 mb-6 border-b border-primary/20 pb-2">
-              <span className="flex h-1.5 w-1.5 rounded-full bg-primary"></span>
-              <span className="text-[11px] font-mono text-primary tracking-widest uppercase">
-                Visual Infrastructure // Soroban
-              </span>
-            </div>
-
-            {/* Headline: 600 weight, tight spacing */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight mb-6 leading-[1.1] text-zinc-100">
-              Production-Grade <br />
-              Soroban Deployment.
-            </h1>
-
-            {/* Subtext: 400 weight, 80% opacity */}
-            <p className="text-base sm:text-lg text-zinc-400 max-w-lg mb-8 leading-relaxed font-normal">
-              Notes on deterministic contract generation. <br className="hidden sm:block" />
-              Compile visual logic to optimized WASM without boilerplate.
-              Audit-ready, formal verification standard.
-            </p>
-
-            {/* CTA System */}
-            <div className="flex flex-col sm:flex-row items-start gap-4 w-full">
-              <Link href="/builder" className="w-full sm:w-auto">
-                <button className="h-11 px-8 w-full sm:w-auto bg-primary hover:bg-primary/90 text-white text-sm font-medium transition-all shadow-lg shadow-blue-900/20 flex items-center justify-center gap-2 rounded-md">
-                  Launch Console
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-              </Link>
-              <Link href="/docs" className="w-full sm:w-auto">
-                <button className="h-11 px-8 w-full sm:w-auto border border-zinc-700 hover:border-zinc-500 text-zinc-300 hover:text-white text-sm font-medium transition-all rounded-md flex items-center justify-center gap-2 bg-[#11151A]">
-                  <FileCode className="w-3.5 h-3.5" />
-                  Documentation
-                </button>
-              </Link>
-            </div>
-
-            {/* Trust Indicators */}
-            <div className="mt-10 pt-6 border-t border-zinc-800 w-full flex gap-8">
-              <div className="flex flex-col">
-                <span className="text-zinc-500 text-[10px] uppercase tracking-wider mb-1">Network</span>
-                <span className="text-zinc-300 font-mono text-xs">Stellar Mainnet</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-zinc-500 text-[10px] uppercase tracking-wider mb-1">Compiler</span>
-                <span className="text-zinc-300 font-mono text-xs">Rust/WASM v2</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-zinc-500 text-[10px] uppercase tracking-wider mb-1">Status</span>
-                <span className="text-emerald-500 font-mono text-xs flex items-center gap-1">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                  Online
-                </span>
-              </div>
-            </div>
-
-          </ScrollReveal>
-        </div>
-
-        {/* Right: Framed Product Window (7 cols) */}
-        {!isMobile && (
-          <div className="lg:col-span-6 relative mt-8 lg:mt-0 perspective-1000">
-            {/* No float, static placement with shadow depth */}
-            <div className="relative transform transition-transform duration-500 hover:scale-[1.01]">
-              <ProductWindow />
-            </div>
-          </div>
-        )}
-      </section>
-
-      {/* 3. CORE INFRASTRUCTURE GRID (DENSE) */}
-      <section className="py-24 px-6 relative z-10 border-t border-zinc-900 bg-[#0B0F14]">
-        <div className="max-w-7xl mx-auto">
-
-          <div className="flex flex-col md:flex-row justify-between items-end mb-12 border-b border-zinc-800/50 pb-6">
-            <div>
-              <h2 className="text-xl font-medium text-zinc-100 mb-2">Core Infrastructure</h2>
-              <p className="text-zinc-500 text-sm max-w-md">
-                Modular components for decentralized systems.
-              </p>
-            </div>
-            <div className="hidden md:block text-right">
-              <span className="text-[10px] font-mono text-zinc-600">SYS_V2.0.1</span>
-            </div>
+      {/* 2. INFRASTRUCTURE HERO */}
+      <section className="relative pt-32 pb-20 px-6 max-w-7xl mx-auto z-10 grid lg:grid-cols-12 gap-16 items-center">
+        {/* Left: Content */}
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="lg:col-span-5 flex flex-col items-start text-left"
+        >
+          <div className="inline-flex items-center gap-2 px-2 py-1 rounded border border-[#222730] bg-[#11151A] mb-6">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-wider">System Operational</span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-zinc-900 border border-zinc-800">
-            {/* Card 1 */}
-            <div className="bg-[#0D1117] p-8 group hover:bg-[#11161D] transition-colors relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="w-10 h-10 bg-zinc-900 border border-zinc-800 flex items-center justify-center mb-6 rounded-md group-hover:border-zinc-700 transition-colors">
-                <Box className="w-5 h-5 text-zinc-400 group-hover:text-primary transition-colors" />
-              </div>
-              <h3 className="text-zinc-200 font-medium mb-2">Visual Composition</h3>
-              <p className="text-zinc-500 text-sm leading-relaxed">
-                Drag-and-drop logic flows. Compile directly to bare-metal WASM. No interpretation overhead.
-              </p>
-            </div>
+          <h1 className="text-4xl lg:text-5xl font-semibold text-white tracking-tight mb-6 leading-[1.1]">
+            Deterministic <br />
+            <span className="text-zinc-500">Contract Infrastructure</span>
+          </h1>
 
-            {/* Card 2 */}
-            <div className="bg-[#0D1117] p-8 group hover:bg-[#11161D] transition-colors relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="w-10 h-10 bg-zinc-900 border border-zinc-800 flex items-center justify-center mb-6 rounded-md group-hover:border-zinc-700 transition-colors">
-                <Shield className="w-5 h-5 text-zinc-400 group-hover:text-primary transition-colors" />
-              </div>
-              <h3 className="text-zinc-200 font-medium mb-2">Security Verification</h3>
-              <p className="text-zinc-500 text-sm leading-relaxed">
-                Automated formal verification checks for common attack vectors before compilation.
-              </p>
-            </div>
-
-            {/* Card 3 */}
-            <div className="bg-[#0D1117] p-8 group hover:bg-[#11161D] transition-colors relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="w-10 h-10 bg-zinc-900 border border-zinc-800 flex items-center justify-center mb-6 rounded-md group-hover:border-zinc-700 transition-colors">
-                <Zap className="w-5 h-5 text-zinc-400 group-hover:text-primary transition-colors" />
-              </div>
-              <h3 className="text-zinc-200 font-medium mb-2">Instant Propagation</h3>
-              <p className="text-zinc-500 text-sm leading-relaxed">
-                Direct RPC submission to Soroban Testnet and Mainnet with receipt validation.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 4. BREAK SECTION - DARK STATEMENT */}
-      <section className="py-32 bg-[#050709] border-y border-zinc-900 flex items-center justify-center text-center">
-        <div className="max-w-2xl px-6">
-          <h2 className="text-3xl font-medium text-zinc-100 mb-6 tracking-tight">
-            "This is serious infrastructure tooling."
-          </h2>
-          <p className="text-zinc-500 text-lg font-light leading-relaxed">
-            We removed the abstraction layers. You are building directly on the metal of the Stellar network, with a visual interface that respects the engineering process.
+          <p className="text-sm lg:text-base text-zinc-400 mb-8 leading-relaxed max-w-md">
+            Deploy production-grade Soroban contracts with an architecture-first platform.
+            Native compilation, formal verification, and automated state management included.
           </p>
+
+          <div className="flex items-center gap-4">
+            <Link
+              href="/builder"
+              className="h-10 px-5 bg-primary hover:bg-primary/90 text-white text-xs font-medium rounded flex items-center gap-2 transition-all shadow-lg shadow-blue-900/20"
+            >
+              Initialize Workbench <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+            <button className="h-10 px-5 border border-[#222730] hover:border-zinc-600 bg-transparent text-zinc-300 text-xs font-medium rounded transition-all">
+              View Documentation
+            </button>
+          </div>
+        </motion.div>
+
+        {/* Right: Product Window */}
+        <div className="hidden lg:block lg:col-span-7 relative perspective-1000">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2, ease: "circOut" }}
+            className="relative"
+          >
+            <div className="absolute -inset-1 bg-linear-to-r from-primary/20 to-purple-500/20 rounded-lg blur opacity-20" />
+            <ProductWindow />
+          </motion.div>
         </div>
       </section>
 
-      {/* 5. TECHNICAL ARCHITECTURE */}
-      <section className="py-24 px-6 bg-[#0B0F14]">
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
+      {/* 3. ADVANCED BENTO GRID (RESTORED) */}
+      <section className="relative py-24 px-6 max-w-7xl mx-auto z-10">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="mb-12"
+        >
+          <h2 className="text-xl font-semibold text-white mb-2">Core Architecture</h2>
+          <p className="text-sm text-zinc-500 max-w-xl">
+            Built on the Soroban-Rust stack for maximum performance and security.
+          </p>
+        </motion.div>
 
-          {/* List */}
-          <div>
-            <div className="inline-flex items-center gap-2 mb-6">
-              <span className="text-[11px] font-mono text-zinc-500 uppercase tracking-widest">
-                Architecture // Stack
-              </span>
+        <BentoGrid>
+          {INFRASTRUCTURE_FEATURES.map((feature, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: i * 0.1 }}
+              className={feature.className}
+            >
+              <BentoGridItem
+                title={feature.title}
+                description={feature.description}
+                header={feature.header}
+                icon={feature.icon}
+                className="h-full"
+              />
+            </motion.div>
+          ))}
+        </BentoGrid>
+      </section>
+
+      {/* 4. SECURITY & COMPLIANCE (SPOTLIGHT CARDS) */}
+      <section className="relative py-20 px-6 border-t border-[#1A1F26] bg-[#090C10]">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mb-12 flex items-end justify-between"
+          >
+            <div>
+              <h2 className="text-xl font-semibold text-white mb-2">Security Primitive</h2>
+              <p className="text-sm text-zinc-500">Audit-grade verification pipeline standard.</p>
             </div>
-            <h2 className="text-3xl font-medium text-zinc-100 mb-8">
-              Built for the <span className="text-zinc-500">production environment.</span>
-            </h2>
+            <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-[#11151A] border border-[#222730] rounded-full">
+              <Shield className="w-3 h-3 text-emerald-500" />
+              <span className="text-[10px] font-mono text-zinc-400">SOC2 COMPLIANT MODULES</span>
+            </div>
+          </motion.div>
 
-            <div className="space-y-6">
-              {[
-                { title: "WASM Optimization", desc: "Contracts compile to minimal bytecode size." },
-                { title: "State Expiration", desc: "Auto-handling of ledger entry TTL." },
-                { title: "Cross-Contract Calls", desc: "Composable invocation between deployed logic." },
-                { title: "Event Indexing", desc: "Structured event emission for off-chain indexers." }
-              ].map((item, i) => (
-                <div key={i} className="flex gap-4 group">
-                  <div className="mt-1 w-5 h-5 rounded-full border border-zinc-800 flex items-center justify-center bg-zinc-900 group-hover:border-primary/50 transition-colors">
-                    <div className="w-1.5 h-1.5 bg-zinc-600 rounded-full group-hover:bg-primary transition-colors" />
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              { title: "Static Analysis", desc: "Automated cargo-checks and clippy integration", icon: <Terminal className="w-5 h-5" /> },
+              { title: "Bytecode Verification", desc: "WASM validation for deterministic execution", icon: <FileCheck className="w-5 h-5" /> },
+              { title: "Runtime Protection", desc: "Memory safety guarantees via Rust ownership", icon: <Lock className="w-5 h-5" /> }
+            ].map((item, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+              >
+                <SpotlightCard className="h-40 p-6 flex flex-col justify-between group">
+                  <div className="w-10 h-10 rounded bg-[#1A1F26] border border-[#222730] flex items-center justify-center group-hover:border-zinc-500 transition-colors">
+                    {item.icon}
                   </div>
                   <div>
-                    <h4 className="text-zinc-200 font-medium text-sm">{item.title}</h4>
-                    <p className="text-zinc-500 text-sm mt-1">{item.desc}</p>
+                    <h3 className="text-sm font-semibold text-zinc-200 mb-1">{item.title}</h3>
+                    <p className="text-xs text-zinc-500 leading-relaxed">{item.desc}</p>
                   </div>
-                </div>
-              ))}
-            </div>
+                </SpotlightCard>
+              </motion.div>
+            ))}
           </div>
-
-          {/* Visual Representation */}
-          <div className="relative border border-zinc-800 bg-[#0D1117] rounded-lg p-8 aspect-square flex flex-col justify-between">
-            <div className="absolute top-0 right-0 p-4 font-mono text-[10px] text-zinc-600">
-              ARCH_DIAGRAM_01
-            </div>
-
-            {/* Simplified Diagram */}
-            <div className="flex-1 flex flex-col justify-center items-center gap-4">
-              <div className="w-32 h-12 border border-zinc-700 bg-zinc-800 rounded flex items-center justify-center text-xs text-zinc-300">
-                Visual Input
-              </div>
-              <div className="h-8 w-px bg-zinc-800" />
-              <div className="w-32 h-12 border border-primary/30 bg-primary/10 rounded flex items-center justify-center text-xs text-primary">
-                Compiler L1
-              </div>
-              <div className="h-8 w-px bg-zinc-800" />
-              <div className="w-32 h-12 border border-zinc-700 bg-zinc-900 rounded flex items-center justify-center text-xs text-zinc-300">
-                WASM Output
-              </div>
-            </div>
-
-            <div className="text-center">
-              <p className="text-xs font-mono text-zinc-500 mt-4">Deterministic Compilation Pipeline</p>
-            </div>
-          </div>
-
         </div>
       </section>
 
-      {/* Footer (Minimal) */}
-      <footer className="relative border-t border-zinc-900 py-16 px-6 bg-[#050709]">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-12 text-sm">
-          <div className="md:col-span-2">
-            <span className="font-semibold text-zinc-100 block mb-4">Block Builder</span>
-            <p className="text-zinc-500 max-w-xs font-light">
-              Enterprise-grade visual smart contract development platform for Stellar.
-            </p>
+      {/* 5. FOOTER (INFRASTRUCTURE) */}
+      <footer className="border-t border-[#1A1F26] bg-[#0B0F14] py-12 px-6">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex flex-col items-start">
+            <span className="text-sm font-semibold text-white tracking-tight">STELLAR<span className="text-zinc-600">INFRA</span></span>
+            <span className="text-[10px] text-zinc-600 mt-1">© 2024 Engineering Division</span>
           </div>
-          <div className="space-y-4">
-            <h4 className="font-medium text-zinc-100">Product</h4>
-            <ul className="space-y-2 text-zinc-600">
-              <li><Link href="/builder" className="hover:text-primary transition-colors">Console</Link></li>
-              <li><Link href="/docs" className="hover:text-primary transition-colors">Documentation</Link></li>
-            </ul>
-          </div>
-          <div className="space-y-4">
-            <h4 className="font-medium text-zinc-100">Connect</h4>
-            <div className="flex gap-4 text-zinc-600">
-              <a href="#" className="hover:text-white transition-colors">GitHub</a>
-              <a href="#" className="hover:text-white transition-colors">Discord</a>
-            </div>
+          <div className="flex items-center gap-6">
+            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+            <span className="text-[10px] font-mono text-zinc-500">ALL SYSTEMS OPERATIONAL</span>
           </div>
         </div>
       </footer>
     </main>
-  );
+  )
 }

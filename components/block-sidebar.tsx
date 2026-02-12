@@ -1,189 +1,125 @@
 "use client"
 
 import type React from "react"
-
+import { useState } from "react"
 import { type Block, useBuilderStore } from "@/lib/store"
-import { GripHorizontal } from "lucide-react"
+import { GripHorizontal, ChevronDown, ChevronRight, Box, Shield, Zap, Layers, AlertTriangle } from "lucide-react"
 
-const AVAILABLE_BLOCKS: Omit<Block, 'position' | 'config'>[] = [
-  // Base Contracts (Required - Choose One)
-  { id: "1", type: "erc20", label: "ERC20 Token" },
-  { id: "2", type: "nft", label: "NFT Contract" },
-
-  // Feature Blocks (Optional - Add Multiple)
-  { id: "3", type: "mint", label: "Mint Function" },
-  { id: "4", type: "transfer", label: "Transfer Function" },
-  { id: "5", type: "burn", label: "Burn Function" },
-  { id: "6", type: "stake", label: "Stake Function" },
-  { id: "7", type: "withdraw", label: "Withdraw Function" },
-
-  // Security & Access Control
-  { id: "8", type: "pausable", label: "Pausable" },
-  { id: "9", type: "whitelist", label: "Whitelist" },
-  { id: "10", type: "blacklist", label: "Blacklist" },
-  { id: "11", type: "multisig", label: "Multi-Signature" },
-  { id: "12", type: "timelock", label: "Time Lock" },
-
-  // NFT Specific
-  { id: "13", type: "royalty", label: "NFT Royalties" },
-
-  // Advanced Features
-  { id: "14", type: "airdrop", label: "Airdrop" },
-  { id: "15", type: "voting", label: "Voting System" },
-  { id: "16", type: "snapshot", label: "Snapshot" },
-  { id: "17", type: "permit", label: "Gasless Approval" },
-]
-
-const BLOCK_DESCRIPTIONS: Record<string, string> = {
-  // Base Contracts
-  erc20: "Fungible token base contract",
-  nft: "Non-fungible token (ERC721) base",
-
-  // Basic Features
-  mint: "Create new tokens",
-  transfer: "Move tokens between addresses",
-  burn: "Destroy tokens permanently",
-  stake: "Lock tokens to earn rewards",
-  withdraw: "Extract ETH from contract",
-
-  // Security & Access Control
-  pausable: "Emergency pause/unpause transfers",
-  whitelist: "Restrict access to approved addresses",
-  blacklist: "Block specific addresses",
-  multisig: "Require multiple approvals",
-  timelock: "Delayed execution for security",
-
-  // NFT Specific
-  royalty: "Earn royalties on secondary sales",
-
-  // Advanced Features
-  airdrop: "Distribute tokens to multiple addresses",
-  voting: "Token-based governance voting",
-  snapshot: "Record balances at specific time",
-  permit: "EIP-2612 gasless approvals",
-}
-
-const BLOCK_CATEGORIES: Record<string, string> = {
-  // Base
-  erc20: "base",
-  nft: "base",
-
-  // Features
-  mint: "feature",
-  transfer: "feature",
-  burn: "feature",
-  stake: "feature",
-  withdraw: "feature",
-
-  // Security
-  pausable: "security",
-  whitelist: "security",
-  blacklist: "security",
-  multisig: "security",
-  timelock: "security",
-
-  // NFT
-  royalty: "nft",
-
-  // Advanced
-  airdrop: "advanced",
-  voting: "advanced",
-  snapshot: "advanced",
-  permit: "advanced",
+const BLOCKS_BY_CATEGORY = {
+  "Base Standards": [
+    { id: "1", type: "erc20", label: "ERC20 Standard", gas: "Low", desc: "Fungible Token" },
+    { id: "2", type: "nft", label: "ERC721 Standard", gas: "Med", desc: "Non-Fungible Token" },
+  ],
+  "Token Logic": [
+    { id: "3", type: "mint", label: "Mintable", gas: "Low", desc: "Privileged Minting" },
+    { id: "4", type: "burn", label: "Burnable", gas: "Low", desc: "Token Destruction" },
+    { id: "5", type: "transfer", label: "Transferable", gas: "Low", desc: "Standard Transfer" },
+  ],
+  "Security Modules": [
+    { id: "8", type: "pausable", label: "Pausable", gas: "Low", desc: "Emergency Stop" },
+    { id: "9", type: "whitelist", label: "Whitelist", gas: "Med", desc: "Access Control" },
+    { id: "10", type: "blacklist", label: "Blacklist", gas: "Med", desc: "Malicious Blocking" },
+    { id: "12", type: "timelock", label: "Time Lock", gas: "High", desc: "Delayed Exec" },
+  ],
+  "Governance & Advanced": [
+    { id: "15", type: "voting", label: "Voting", gas: "High", desc: "On-chain Governance" },
+    { id: "16", type: "snapshot", label: "Snapshot", gas: "Med", desc: "Historical State" },
+    { id: "17", type: "permit", label: "Permit", gas: "Low", desc: "Gasless Approvals" },
+    { id: "13", type: "royalty", label: "Royalties", gas: "Low", desc: "EIP-2981" },
+  ]
 }
 
 export function BlockSidebar() {
   const addBlock = useBuilderStore((state) => state.addBlock)
+  const [openCategories, setOpenCategories] = useState<Record<string, boolean>>({
+    "Base Standards": true,
+    "Token Logic": true,
+    "Security Modules": true,
+    "Governance & Advanced": false,
+  })
 
-  const handleDragStart = (e: React.DragEvent, block: Block) => {
+  const toggleCategory = (category: string) => {
+    setOpenCategories(prev => ({ ...prev, [category]: !prev[category] }))
+  }
+
+  const handleDragStart = (e: React.DragEvent, block: any) => {
     e.dataTransfer.effectAllowed = "copy"
     e.dataTransfer.setData("block", JSON.stringify(block))
   }
 
   return (
-    <div className="w-full md:w-64 bg-card border-b md:border-b-0 md:border-r border-border flex flex-col md:h-full animate-fade-in-up">
-      <div className="p-3 md:p-4 border-b border-border">
-        <h2 className="text-base md:text-lg font-semibold text-foreground hover:text-primary transition-colors cursor-default">Smart Contract Blocks</h2>
-        <p className="text-[10px] md:text-xs text-muted mt-1 hover:text-muted-foreground transition-colors">Drag to canvas or click to add</p>
-        <p className="text-[10px] md:text-xs text-primary mt-1 animate-pulse cursor-default hidden md:block">💡 Combine multiple blocks in one contract</p>
-      </div>
-
-      {/* Mobile: Horizontal scroll, Desktop: Vertical scroll */}
-      <div className="flex md:flex-col gap-2 md:gap-0 overflow-x-auto md:overflow-y-auto md:flex-1 p-2 md:p-3 md:space-y-2">
-        {AVAILABLE_BLOCKS.map((block, index) => {
-          const category = BLOCK_CATEGORIES[block.type]
-          const isBase = category === "base"
-          const isSecurity = category === "security"
-          const isNFT = category === "nft"
-          const isAdvanced = category === "advanced"
-
-          // Define badge styling based on category
-          let badgeClass = ""
-          let badgeText = ""
-
-          if (isBase) {
-            badgeClass = "bg-primary/20 text-primary"
-            badgeText = "BASE"
-          } else if (isSecurity) {
-            badgeClass = "bg-yellow-500/20 text-yellow-600"
-            badgeText = "SECURITY"
-          } else if (isNFT) {
-            badgeClass = "bg-purple-500/20 text-purple-600"
-            badgeText = "NFT"
-          } else if (isAdvanced) {
-            badgeClass = "bg-blue-500/20 text-blue-600"
-            badgeText = "ADVANCED"
-          }
-
-          return (
-            <div
-              key={block.id}
-              draggable
-              onDragStart={(e) => handleDragStart(e, block)}
-              onClick={() => addBlock(block)}
-              className={`group w-full p-5 rounded-lg border transition-all cursor-grab active:cursor-grabbing hover:scale-[1.01] hover:shadow-md animate-fade-in-up relative overflow-hidden ${isBase
-                ? "bg-gradient-to-br from-primary/10 to-transparent border-primary/20 hover:border-primary/50 hover:shadow-primary/10"
-                : isSecurity
-                  ? "bg-gradient-to-br from-yellow-500/10 to-transparent border-yellow-500/20 hover:border-yellow-500/50 hover:shadow-yellow-500/10"
-                  : isNFT
-                    ? "bg-gradient-to-br from-purple-500/10 to-transparent border-purple-500/20 hover:border-purple-500/50 hover:shadow-purple-500/10"
-                    : isAdvanced
-                      ? "bg-gradient-to-br from-blue-500/10 to-transparent border-blue-500/20 hover:border-blue-500/50 hover:shadow-blue-500/10"
-                      : "bg-card border-border hover:border-primary/30"
-                }`}
-              style={{ animationDelay: `${index * 30}ms` }}
-            >
-              <div className={`absolute inset-0 bg-gradient-to-r ${isBase ? "from-primary/5" : isSecurity ? "from-yellow-500/5" : isNFT ? "from-purple-500/5" : isAdvanced ? "from-blue-500/5" : "from-white/5"
-                } to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
-
-              <div className="flex items-center gap-2 relative z-10">
-                <GripHorizontal
-                  size={12}
-                  className="text-muted opacity-50 group-hover:opacity-100 transition-all group-hover:scale-110 hidden md:block flex-shrink-0"
-                />
-                <div className="flex items-center gap-1.5 flex-wrap flex-1 min-w-0">
-                  <p className="text-xs font-semibold text-foreground group-hover:text-primary transition-colors leading-none">{block.label}</p>
-                  {badgeText && (
-                    <span className={`text-[8px] px-1.5 py-0.5 ${badgeClass} rounded-full font-bold tracking-wide group-hover:scale-105 transition-transform border border-current/10 whitespace-nowrap leading-none`}>
-                      {badgeText}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-          )
-        })}
-      </div>
-
-      <div className="hidden md:block p-4 border-t border-border bg-background/50">
-        <div className="space-y-1">
-          <p className="text-xs font-medium text-foreground flex items-center gap-1">
-            <span className="animate-pulse">📚</span> How to build:
-          </p>
-          <p className="text-xs text-muted hover:text-muted-foreground transition-colors">1️⃣ Add a BASE contract (ERC20/NFT)</p>
-          <p className="text-xs text-muted hover:text-muted-foreground transition-colors">2️⃣ Add FEATURE blocks to customize</p>
-          <p className="text-xs text-muted hover:text-muted-foreground transition-colors">3️⃣ Generate & deploy your contract!</p>
+    <div className="w-full md:w-72 bg-[#090C10] border-r border-[#222730] flex flex-col h-full">
+      <div className="p-4 border-b border-[#222730] bg-[#0B0F14]">
+        <div className="flex items-center gap-2 mb-1">
+          <Box className="w-3.5 h-3.5 text-primary" />
+          <h2 className="text-sm font-semibold text-zinc-200 tracking-tight">Contract Modules</h2>
         </div>
+        <p className="text-[10px] text-zinc-500 font-mono uppercase tracking-wider">
+          Soroban Architecture
+        </p>
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-3 space-y-1 scrollbar-hide">
+        {Object.entries(BLOCKS_BY_CATEGORY).map(([category, blocks]) => (
+          <div key={category} className="mb-2">
+            <button
+              onClick={() => toggleCategory(category)}
+              className="w-full flex items-center justify-between p-2 text-xs font-medium text-zinc-400 hover:text-zinc-200 transition-colors bg-[#0B0F14]/50 hover:bg-[#1A1F26] rounded-sm mb-1 group"
+            >
+              <div className="flex items-center gap-2">
+                {openCategories[category] ? <ChevronDown className="w-3 h-3 text-zinc-600 group-hover:text-zinc-400" /> : <ChevronRight className="w-3 h-3 text-zinc-600 group-hover:text-zinc-400" />}
+                {category}
+              </div>
+              <span className="text-[9px] text-zinc-700 font-mono">{blocks.length}</span>
+            </button>
+
+            {openCategories[category] && (
+              <div className="space-y-1 pl-2 border-l border-[#222730] ml-3 mt-1">
+                {blocks.map((block) => (
+                  <div
+                    key={block.id}
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, block)}
+                    onClick={() => addBlock(block as any)}
+                    className="
+                      group relative w-full p-3 rounded-sm border border-[#1A1F26] bg-[#11151A] 
+                      hover:bg-[#161B22] hover:border-[#30363D] transition-all cursor-grab active:cursor-grabbing
+                    "
+                  >
+                    {/* Left Accent Bar on Hover */}
+                    <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-5 h-5 rounded-[2px] bg-[#1A1F26] flex items-center justify-center border border-[#222730]">
+                          <Layers className="w-3 h-3 text-zinc-500 group-hover:text-zinc-300" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium text-zinc-300 group-hover:text-primary transition-colors">{block.label}</p>
+                          <p className="text-[10px] text-zinc-600">{block.desc}</p>
+                        </div>
+                      </div>
+                      <GripHorizontal className="w-3 h-3 text-zinc-700 opacity-0 group-hover:opacity-100" />
+                    </div>
+
+                    {/* Metadata Footer */}
+                    <div className="mt-2 flex items-center justify-between border-t border-[#222730]/50 pt-2">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[9px] text-zinc-600 font-mono uppercase">Gas:</span>
+                        <span className={`text-[9px] font-mono ${block.gas === 'High' ? 'text-orange-500' : 'text-zinc-500'}`}>
+                          {block.gas}
+                        </span>
+                      </div>
+                      {category === "Security Modules" && (
+                        <Shield className="w-2.5 h-2.5 text-emerald-500/50" />
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   )

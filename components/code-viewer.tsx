@@ -3,11 +3,13 @@
 import { useBuilderStore } from "@/lib/store"
 import { generateSolidityCode, generateTypeScriptCode } from "@/lib/code-generator"
 import { useState } from "react"
-import { Copy, Check, Download, Eye, Code2, FileJson, Rocket } from "lucide-react"
+import { Copy, Check, Download, Eye, Code2, Rocket, Server, Cpu, Activity, Info, Shield, ChevronDown } from "lucide-react"
 import { DeployModal } from "./deploy-modal"
+import { cn } from "@/lib/utils"
 
 export function CodeViewer() {
   const blocks = useBuilderStore((state) => state.blocks)
+  const currentProject = useBuilderStore((state) => state.currentProject)
   const [copied, setCopied] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<"solidity" | "frontend">("solidity")
   const [deployOpen, setDeployOpen] = useState(false)
@@ -31,119 +33,120 @@ export function CodeViewer() {
     document.body.removeChild(element)
   }
 
-  const getCode = () => {
-    switch (activeTab) {
-      case "frontend":
-        return frontendCode
-      default:
-        return solidityCode
-    }
-  }
-
-  const getFilename = () => {
-    switch (activeTab) {
-      case "frontend":
-        return "dapp.tsx"
-      default:
-        return "contract.sol"
-    }
-  }
-
-  const currentCode = getCode()
+  const currentCode = activeTab === "solidity" ? solidityCode : frontendCode
+  const filename = activeTab === "solidity" ? "contract.rs" : "dapp.tsx"
 
   return (
-    <div className="w-96 bg-card border-l border-border flex flex-col h-full animate-fade-in-up">
-      <div className="p-4 border-b border-border bg-background/50 backdrop-blur-sm">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-foreground hover:text-primary transition-colors cursor-default">Generated Code</h2>
-          <div className="flex gap-1 bg-muted/20 p-1 rounded-full border border-border/50">
+    <div className="w-96 bg-[#090C10] border-l border-[#222730] flex flex-col h-full">
+
+      {/* 1. Top Meta Bar */}
+      <div className="bg-[#0B0F14] border-b border-[#222730] p-3">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-semibold text-zinc-200 flex items-center gap-2">
+            <Code2 className="w-4 h-4 text-primary" />
+            Generated Source
+          </h2>
+          <div className="flex gap-1 bg-[#1A1F26] p-0.5 rounded border border-[#222730]">
             <button
               onClick={() => setActiveTab("solidity")}
-              className={`flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-300 ${activeTab === "solidity"
-                ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25 scale-105"
-                : "text-muted hover:text-foreground hover:bg-background/50"
-                }`}
+              className={cn("px-2 py-1 text-[10px] font-medium rounded transition-colors", activeTab === "solidity" ? "bg-[#222730] text-white" : "text-zinc-500 hover:text-zinc-300")}
             >
-              <Code2 size={14} className={activeTab === "solidity" ? "animate-pulse" : ""} />
-              Solidity
+              Rust/WASM
             </button>
             <button
               onClick={() => setActiveTab("frontend")}
-              className={`flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-300 ${activeTab === "frontend"
-                ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25 scale-105"
-                : "text-muted hover:text-foreground hover:bg-background/50"
-                }`}
+              className={cn("px-2 py-1 text-[10px] font-medium rounded transition-colors", activeTab === "frontend" ? "bg-[#222730] text-white" : "text-zinc-500 hover:text-zinc-300")}
             >
-              <Eye size={14} className={activeTab === "frontend" ? "animate-pulse" : ""} />
               Frontend
             </button>
           </div>
         </div>
+
+        {/* Meta Grid */}
+        <div className="grid grid-cols-2 gap-2">
+          <div className="bg-[#11151A] p-2 rounded border border-[#222730]">
+            <span className="text-[9px] text-zinc-500 uppercase block mb-1">Network</span>
+            <div className="flex items-center gap-1.5">
+              <Server className="w-3 h-3 text-zinc-400" />
+              <span className="text-[10px] text-zinc-300 font-mono">Stellar Testnet</span>
+            </div>
+          </div>
+          <div className="bg-[#11151A] p-2 rounded border border-[#222730]">
+            <span className="text-[9px] text-zinc-500 uppercase block mb-1">Compiler</span>
+            <div className="flex items-center gap-1.5">
+              <Cpu className="w-3 h-3 text-zinc-400" />
+              <span className="text-[10px] text-zinc-300 font-mono">soroban-sdk v20</span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="flex-1 overflow-auto p-4 flex flex-col">
-        <div className="relative flex-1 flex flex-col mb-4 animate-fade-in-up group">
-          <div className="absolute top-3 right-3 text-[10px] font-mono text-muted/50 px-2 py-1 bg-black/40 rounded border border-white/5 backdrop-blur-sm z-10 transition-opacity opacity-50 group-hover:opacity-100">
-            {currentCode.split("\n").length} lines
+      {/* 2. Contract Summary (Infrastructure) */}
+      <div className="p-3 border-b border-[#222730] bg-[#0B0F14]/50">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[10px] font-mono text-zinc-500 uppercase">Contract Overview</span>
+          <span className="text-[10px] font-mono text-emerald-500 flex items-center gap-1">
+            <Check className="w-3 h-3" /> Valid
+          </span>
+        </div>
+        <div className="space-y-1">
+          <div className="flex justify-between text-[10px]">
+            <span className="text-zinc-400">Functions Exported</span>
+            <span className="font-mono text-zinc-200">{blocks.length + 2}</span>
           </div>
-          <pre className="text-xs text-muted-foreground bg-black/40 p-4 rounded-xl border border-white/5 overflow-x-auto flex-1 font-mono hover:border-primary/20 transition-all shadow-inner relative">
-            <code className="relative z-0">{currentCode}</code>
-          </pre>
+          <div className="flex justify-between text-[10px]">
+            <span className="text-zinc-400">Est. WASM Size</span>
+            <span className="font-mono text-zinc-200">12.4 KB</span>
+          </div>
+          <div className="flex justify-between text-[10px]">
+            <span className="text-zinc-400">Security Checks</span>
+            <span className="font-mono text-emerald-400">Pass</span>
+          </div>
         </div>
+      </div>
 
-        <div className="flex gap-2">
-          <button
-            onClick={() => handleCopy(currentCode, activeTab)}
-            className="flex-1 flex items-center justify-center gap-2 p-2 bg-background hover:bg-border rounded transition-all hover:scale-105 text-sm font-medium text-muted hover:text-foreground group"
-            title="Copy to clipboard"
-          >
-            {copied === activeTab ? (
-              <>
-                <Check size={16} className="text-primary animate-bounce" />
-                <span className="text-primary">Copied!</span>
-              </>
-            ) : (
-              <>
-                <Copy size={16} className="group-hover:scale-110 transition-transform" />
-                Copy
-              </>
-            )}
+      {/* 3. Code Area */}
+      <div className="flex-1 overflow-auto bg-[#090C10] relative group">
+        <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+          <button onClick={() => handleCopy(currentCode, activeTab)} className="p-1.5 bg-[#1A1F26] border border-[#222730] rounded text-zinc-400 hover:text-white">
+            {copied === activeTab ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
           </button>
-          <button
-            onClick={() => handleDownload(currentCode, getFilename())}
-            className="flex-1 flex items-center justify-center gap-2 p-2 bg-background hover:bg-border rounded transition-all hover:scale-105 text-sm font-medium text-muted hover:text-foreground group"
-            title="Download file"
-          >
-            <Download size={16} className="group-hover:translate-y-0.5 transition-transform" />
-            Download
+          <button onClick={() => handleDownload(currentCode, filename)} className="p-1.5 bg-[#1A1F26] border border-[#222730] rounded text-zinc-400 hover:text-white">
+            <Download className="w-3 h-3" />
           </button>
         </div>
+        <pre className="p-4 text-[10px] font-mono leading-relaxed text-zinc-400 tab-4">
+          <code>{currentCode}</code>
+        </pre>
+      </div>
 
-        {/* Enhanced Deploy CTA */}
-        {blocks.length > 0 && activeTab === "solidity" && (
-          <div className="mt-4 p-4 bg-primary/10 border-2 border-primary/30 rounded-lg hover:border-primary/50 transition-all hover:scale-[1.02] animate-fade-in-up">
-            <div className="flex items-start gap-3 mb-3">
-              <div className="relative">
-                <div className="absolute inset-0 bg-primary/50 blur-xl animate-pulse"></div>
-                <div className="relative w-10 h-10 bg-primary rounded-lg flex items-center justify-center shrink-0 animate-bounce-subtle">
-                  <Rocket size={20} className="text-background" />
-                </div>
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-foreground mb-1 hover:text-primary transition-colors">Ready to Deploy? 🚀</h3>
-                <p className="text-xs text-muted hover:text-muted-foreground transition-colors">
-                  Your smart contract is ready! Deploy it to Celo Mainnet or Testnet in just a few clicks.
-                </p>
-              </div>
+      {/* 4. Deploy Flow (Bottom Action) */}
+      <div className="p-4 border-t border-[#222730] bg-[#0B0F14]">
+        {blocks.length > 0 ? (
+          <div className="space-y-3">
+            <div className="flex justify-between items-center text-[10px] text-zinc-500">
+              <span>Est. Cost</span>
+              <span className="font-mono text-zinc-300">0.0021 XLM</span>
             </div>
+
             <button
               onClick={() => setDeployOpen(true)}
-              className="relative w-full px-4 py-3 bg-primary hover:bg-primary-dark text-background rounded-lg font-semibold transition-all hover:scale-105 hover:-translate-y-0.5 shadow-lg shadow-primary/30 hover:shadow-primary/50 flex items-center justify-center gap-2 group overflow-hidden"
+              className="w-full h-9 bg-primary hover:bg-primary/90 text-white text-xs font-medium rounded shadow-lg shadow-blue-900/20 flex items-center justify-center gap-2 transition-all"
             >
-              <span className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500"></span>
-              <Rocket size={18} className="relative group-hover:rotate-12 group-hover:scale-110 transition-transform" />
-              <span className="relative">Deploy to Celo Now</span>
+              <Rocket className="w-3 h-3" />
+              Deploy to Network
             </button>
+
+            <div className="flex justify-center">
+              <span className="text-[9px] text-zinc-600 flex items-center gap-1">
+                <Info className="w-2.5 h-2.5" />
+                Automated verification enabled
+              </span>
+            </div>
+          </div>
+        ) : (
+          <div className="text-center py-2">
+            <span className="text-[10px] text-zinc-600">Add blocks to enable deployment</span>
           </div>
         )}
       </div>

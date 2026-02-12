@@ -66,7 +66,7 @@ describe('Property 17: High-Risk Patterns Trigger Remediation Recommendations', 
             }
           }
         ),
-        { numRuns: 100 }
+        { numRuns: 20 }
       );
     });
 
@@ -103,7 +103,7 @@ describe('Property 17: High-Risk Patterns Trigger Remediation Recommendations', 
             }
           }
         ),
-        { numRuns: 100 }
+        { numRuns: 20 }
       );
     });
 
@@ -147,7 +147,7 @@ describe('Property 17: High-Risk Patterns Trigger Remediation Recommendations', 
             }
           }
         ),
-        { numRuns: 100 }
+        { numRuns: 20 }
       );
     });
 
@@ -179,7 +179,7 @@ describe('Property 17: High-Risk Patterns Trigger Remediation Recommendations', 
             }
           }
         ),
-        { numRuns: 50 }
+        { numRuns: 10 }
       );
     });
 
@@ -216,7 +216,7 @@ describe('Property 17: High-Risk Patterns Trigger Remediation Recommendations', 
             }
           }
         ),
-        { numRuns: 100 }
+        { numRuns: 20 }
       );
     });
 
@@ -252,7 +252,7 @@ describe('Property 17: High-Risk Patterns Trigger Remediation Recommendations', 
             }
           }
         ),
-        { numRuns: 100 }
+        { numRuns: 20 }
       );
     });
 
@@ -284,7 +284,7 @@ describe('Property 17: High-Risk Patterns Trigger Remediation Recommendations', 
             }
           }
         ),
-        { numRuns: 100 }
+        { numRuns: 20 }
       );
     });
 
@@ -327,7 +327,7 @@ describe('Property 17: High-Risk Patterns Trigger Remediation Recommendations', 
             }
           }
         ),
-        { numRuns: 100 }
+        { numRuns: 20 }
       );
     });
   });

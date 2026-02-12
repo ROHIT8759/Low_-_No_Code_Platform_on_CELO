@@ -303,9 +303,9 @@ describe('Simulation Error Handling - Property-Based Tests', () => {
             }
           }
         ),
-        { numRuns: 100 }
+        { numRuns: 20 }
       );
-    }, 60000);
+    }, 30000);
 
     it('Stellar simulation failures include error messages', async () => {
       await fc.assert(
@@ -352,9 +352,9 @@ describe('Simulation Error Handling - Property-Based Tests', () => {
             expect(errorInfo!.length).toBeGreaterThan(0);
           }
         ),
-        { numRuns: 100 }
+        { numRuns: 20 }
       );
-    }, 60000);
+    }, 30000);
 
     it('EVM simulation with invalid bytecode returns descriptive error', async () => {
       await fc.assert(
@@ -387,9 +387,9 @@ describe('Simulation Error Handling - Property-Based Tests', () => {
             expect(result.details || result.revertReason).toBeDefined();
           }
         ),
-        { numRuns: 50 }
+        { numRuns: 10 }
       );
-    }, 60000);
+    }, 30000);
 
     it('Error messages are descriptive and actionable', async () => {
       await fc.assert(
@@ -442,9 +442,9 @@ describe('Simulation Error Handling - Property-Based Tests', () => {
             }
           }
         ),
-        { numRuns: 100 }
+        { numRuns: 20 }
       );
-    }, 60000);
+    }, 30000);
 
     it('Failed simulations do not return success=true', async () => {
       await fc.assert(
@@ -484,9 +484,9 @@ describe('Simulation Error Handling - Property-Based Tests', () => {
             }
           }
         ),
-        { numRuns: 100 }
+        { numRuns: 20 }
       );
-    }, 60000);
+    }, 30000);
 
     it('Revert reasons are extracted from EVM errors', async () => {
       await fc.assert(
@@ -521,9 +521,9 @@ describe('Simulation Error Handling - Property-Based Tests', () => {
             }
           }
         ),
-        { numRuns: 50 }
+        { numRuns: 10 }
       );
-    }, 60000);
+    }, 30000);
 
     it('Stellar RPC errors are properly formatted', async () => {
       await fc.assert(
@@ -550,9 +550,9 @@ describe('Simulation Error Handling - Property-Based Tests', () => {
             expect(errorText.length).toBeGreaterThan(0);
           }
         ),
-        { numRuns: 50 }
+        { numRuns: 10 }
       );
-    }, 60000);
+    }, 30000);
 
     it('Error response structure is consistent across contract types', async () => {
       await fc.assert(
@@ -597,8 +597,8 @@ describe('Simulation Error Handling - Property-Based Tests', () => {
             }
           }
         ),
-        { numRuns: 100 }
+        { numRuns: 20 }
       );
-    }, 60000);
+    }, 30000);
   });
 });

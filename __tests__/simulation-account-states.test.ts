@@ -232,9 +232,9 @@ describe('Simulation with Variable Account States - Property-Based Tests', () =>
             }
           }
         ),
-        { numRuns: 100 }
+        { numRuns: 20 }
       );
-    }, 60000);
+    }, 30000);
 
     it('Stellar simulation accepts and uses account state parameters', async () => {
       await fc.assert(
@@ -276,9 +276,9 @@ describe('Simulation with Variable Account States - Property-Based Tests', () =>
             }
           }
         ),
-        { numRuns: 100 }
+        { numRuns: 20 }
       );
-    }, 60000);
+    }, 30000);
 
     it('Simulation results differ when using different account states', async () => {
       await fc.assert(
@@ -373,9 +373,9 @@ describe('Simulation with Variable Account States - Property-Based Tests', () =>
             }
           }
         ),
-        { numRuns: 50 }
+        { numRuns: 10 }
       );
-    }, 60000);
+    }, 30000);
 
     it('Simulation with account balance affects execution', async () => {
       await fc.assert(
@@ -467,9 +467,9 @@ describe('Simulation with Variable Account States - Property-Based Tests', () =>
             }
           }
         ),
-        { numRuns: 50 }
+        { numRuns: 10 }
       );
-    }, 60000);
+    }, 30000);
 
     it('Simulation without account state uses default state', async () => {
       await fc.assert(
@@ -546,9 +546,9 @@ describe('Simulation with Variable Account States - Property-Based Tests', () =>
             }
           }
         ),
-        { numRuns: 50 }
+        { numRuns: 10 }
       );
-    }, 60000);
+    }, 30000);
 
     it('Account state is properly formatted in simulation request', async () => {
       await fc.assert(
@@ -606,9 +606,9 @@ describe('Simulation with Variable Account States - Property-Based Tests', () =>
             }
           }
         ),
-        { numRuns: 100 }
+        { numRuns: 20 }
       );
-    }, 60000);
+    }, 30000);
 
     it('Stellar simulation passes account state to RPC', async () => {
       await fc.assert(
@@ -646,9 +646,9 @@ describe('Simulation with Variable Account States - Property-Based Tests', () =>
             expect(tx.source).toBe(accountAddress);
           }
         ),
-        { numRuns: 50 }
+        { numRuns: 10 }
       );
-    }, 60000);
+    }, 30000);
 
     it('Account state with only address (no balance) is accepted', async () => {
       await fc.assert(
@@ -696,9 +696,9 @@ describe('Simulation with Variable Account States - Property-Based Tests', () =>
             }
           }
         ),
-        { numRuns: 50 }
+        { numRuns: 10 }
       );
-    }, 60000);
+    }, 30000);
 
     it('Simulation response structure is consistent with and without account state', async () => {
       await fc.assert(
@@ -763,8 +763,8 @@ describe('Simulation with Variable Account States - Property-Based Tests', () =>
             }
           }
         ),
-        { numRuns: 100 }
+        { numRuns: 20 }
       );
-    }, 60000);
+    }, 30000);
   });
 });

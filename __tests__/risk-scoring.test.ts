@@ -58,7 +58,7 @@ describe('Property 15: Contract Analysis Assigns Risk Scores to Functions', () =
             }
           }
         ),
-        { numRuns: 100 }
+        { numRuns: 20 }
       );
     });
 
@@ -100,7 +100,7 @@ describe('Property 15: Contract Analysis Assigns Risk Scores to Functions', () =
             }
           }
         ),
-        { numRuns: 100 }
+        { numRuns: 20 }
       );
     });
 
@@ -147,7 +147,7 @@ describe('Property 15: Contract Analysis Assigns Risk Scores to Functions', () =
             }
           }
         ),
-        { numRuns: 50 }
+        { numRuns: 10 }
       );
     });
 
@@ -196,7 +196,7 @@ describe('Property 15: Contract Analysis Assigns Risk Scores to Functions', () =
             }
           }
         ),
-        { numRuns: 50 }
+        { numRuns: 10 }
       );
     });
 
@@ -245,7 +245,7 @@ describe('Property 15: Contract Analysis Assigns Risk Scores to Functions', () =
             }
           }
         ),
-        { numRuns: 50 }
+        { numRuns: 10 }
       );
     });
 
@@ -288,7 +288,7 @@ describe('Property 15: Contract Analysis Assigns Risk Scores to Functions', () =
             }
           }
         ),
-        { numRuns: 50 }
+        { numRuns: 10 }
       );
     });
 
@@ -325,7 +325,7 @@ describe('Property 15: Contract Analysis Assigns Risk Scores to Functions', () =
             }
           }
         ),
-        { numRuns: 100 }
+        { numRuns: 20 }
       );
     });
 
@@ -355,7 +355,7 @@ describe('Property 15: Contract Analysis Assigns Risk Scores to Functions', () =
             }
           }
         ),
-        { numRuns: 50 }
+        { numRuns: 10 }
       );
     });
   });

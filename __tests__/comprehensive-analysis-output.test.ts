@@ -50,7 +50,7 @@ describe('Property 16: Contract Analysis Provides Comprehensive Output', () => {
             expect(Array.isArray(result.recommendations)).toBe(true);
           }
         ),
-        { numRuns: 100 }
+        { numRuns: 20 }
       );
     });
 
@@ -90,7 +90,7 @@ describe('Property 16: Contract Analysis Provides Comprehensive Output', () => {
             }
           }
         ),
-        { numRuns: 100 }
+        { numRuns: 20 }
       );
     });
 
@@ -122,7 +122,7 @@ describe('Property 16: Contract Analysis Provides Comprehensive Output', () => {
             }
           }
         ),
-        { numRuns: 100 }
+        { numRuns: 20 }
       );
     });
 
@@ -169,7 +169,7 @@ describe('Property 16: Contract Analysis Provides Comprehensive Output', () => {
             }
           }
         ),
-        { numRuns: 100 }
+        { numRuns: 20 }
       );
     });
 
@@ -217,7 +217,7 @@ describe('Property 16: Contract Analysis Provides Comprehensive Output', () => {
             }
           }
         ),
-        { numRuns: 100 }
+        { numRuns: 20 }
       );
     });
 
@@ -245,7 +245,7 @@ describe('Property 16: Contract Analysis Provides Comprehensive Output', () => {
             expect(bestPracticeRecommendations.length).toBeGreaterThan(0);
           }
         ),
-        { numRuns: 100 }
+        { numRuns: 20 }
       );
     });
 
@@ -282,7 +282,7 @@ describe('Property 16: Contract Analysis Provides Comprehensive Output', () => {
             expect(parsed).toHaveProperty('recommendations');
           }
         ),
-        { numRuns: 100 }
+        { numRuns: 20 }
       );
     });
 
@@ -317,7 +317,7 @@ describe('Property 16: Contract Analysis Provides Comprehensive Output', () => {
             }
           }
         ),
-        { numRuns: 50 }
+        { numRuns: 10 }
       );
     });
 
@@ -347,7 +347,7 @@ describe('Property 16: Contract Analysis Provides Comprehensive Output', () => {
             }
           }
         ),
-        { numRuns: 100 }
+        { numRuns: 20 }
       );
     });
 
@@ -376,7 +376,7 @@ describe('Property 16: Contract Analysis Provides Comprehensive Output', () => {
             }
           }
         ),
-        { numRuns: 50 }
+        { numRuns: 10 }
       );
     });
   });

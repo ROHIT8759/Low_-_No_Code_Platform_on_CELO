@@ -6,128 +6,107 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* --- Stellar Infrastructure Theme (Zinc & Indigo) --- */
-  /* Purpose: Architectural, Quiet, Powerful */
+  /* --- Stellar Infrastructure Theme v2.0 --- */
+  /* Philosophy: Institutional, Deterministic, Deep */
 
-  --background: #09090b;
-  /* Zinc 950 */
-  --foreground: #fafafa;
-  /* Zinc 50 */
+  /* Base Layer - Deep Charcoal */
+  --background: #0B0F14;
+  --foreground: #F0F2F5;
 
-  --card: #09090b;
-  --card-foreground: #fafafa;
+  /* Card / Surface Layer - Structural, not floating */
+  --card: #11151A;
+  --card-foreground: #F0F2F5;
 
-  --popover: #09090b;
-  --popover-foreground: #fafafa;
+  --popover: #11151A;
+  --popover-foreground: #F0F2F5;
 
-  /* --- Primary: Stellar Violet-Indigo (Trust, Precision) --- */
-  --primary: #6366f1;
-  /* Indigo 500 - slightly brighter for better contrast on dark */
-  --primary-foreground: #ffffff;
+  /* Primary: Stellar Blue (Solid, No Neon) */
+  --primary: #3B82F6;
+  --primary-foreground: #FFFFFF;
 
-  --secondary: #18181b;
-  /* Zinc 900 */
-  --secondary-foreground: #fafafa;
+  --secondary: #1A1F26;
+  --secondary-foreground: #F0F2F5;
 
-  --muted: #18181b;
-  --muted-foreground: #71717a;
-  /* Zinc 500 */
+  --muted: #1A1F26;
+  --muted-foreground: #8B949E;
+  /* Muted text for technical labels */
 
-  --accent: #18181b;
-  --accent-foreground: #fafafa;
+  --accent: #222730;
+  --accent-foreground: #F0F2F5;
 
-  --destructive: #7f1d1d;
-  --destructive-foreground: #fafafa;
+  --destructive: #7F1D1D;
+  --destructive-foreground: #F0F2F5;
 
-  --border: #27272a;
-  /* Zinc 800 */
-  --input: #27272a;
-  --ring: #6366f1;
-  /* Match primary */
+  /* Borders: Structural separation, not glowing lines */
+  --border: #222730;
+  --input: #1A1F26;
+  --ring: #3B82F6;
 
   --radius: 0.5rem;
 
-  /* --- Data Visualization Colors --- */
-  --chart-1: #6366f1;
-  /* Indigo 500 */
-  --chart-2: #818cf8;
-  /* Indigo 400 */
-  --chart-3: #a5b4fc;
-  /* Indigo 300 */
-  --chart-4: #4338ca;
-  /* Indigo 700 */
-  --chart-5: #312e81;
-  /* Indigo 900 */
+  /* --- Infrastructure Palette (Data & Status) --- */
+  --chart-1: #3B82F6;
+  /* Primary Data */
+  --chart-2: #60A5FA;
+  --chart-3: #93C5FD;
+  --chart-4: #1E40AF;
+  --chart-5: #1E3A8A;
 
-  --sidebar-background: #09090b;
-  --sidebar-foreground: #fafafa;
-  --sidebar-primary: #6366f1;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #18181b;
-  --sidebar-accent-foreground: #fafafa;
-  --sidebar-border: #27272a;
-  --sidebar-ring: #6366f1;
+  --sidebar-background: #090C10;
+  /* Slightly darker than main bg */
+  --sidebar-foreground: #F0F2F5;
+  --sidebar-primary: #3B82F6;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #1A1F26;
+  --sidebar-accent-foreground: #F0F2F5;
+  --sidebar-border: #222730;
+  --sidebar-ring: #3B82F6;
 }
 
 .dark {
-  --background: #09090b;
-  --foreground: #fafafa;
-
-  --card: #09090b;
-  --card-foreground: #fafafa;
-
-  --popover: #09090b;
-  --popover-foreground: #fafafa;
-
-  --primary: #4f46e5;
-  --primary-foreground: #ffffff;
-
-  --secondary: #18181b;
-  --secondary-foreground: #fafafa;
-
-  --muted: #18181b;
-  --muted-foreground: #71717a;
-
-  --accent: #18181b;
-  --accent-foreground: #fafafa;
-
-  --destructive: #7f1d1d;
-  --destructive-foreground: #fafafa;
-
-  --border: #27272a;
-  --input: #18181b;
-  --ring: #4f46e5;
+  /* Inherits root values as this is a dark-mode first design */
+  --background: #0B0F14;
+  --foreground: #F0F2F5;
+  --card: #11151A;
+  --card-foreground: #F0F2F5;
+  --popover: #11151A;
+  --popover-foreground: #F0F2F5;
+  --primary: #3B82F6;
+  --primary-foreground: #FFFFFF;
+  --secondary: #1A1F26;
+  --secondary-foreground: #F0F2F5;
+  --muted: #1A1F26;
+  --muted-foreground: #8B949E;
+  --accent: #222730;
+  --accent-foreground: #F0F2F5;
+  --destructive: #7F1D1D;
+  --destructive-foreground: #F0F2F5;
+  --border: #222730;
+  --input: #1A1F26;
+  --ring: #3B82F6;
 }
 
 @theme inline {
   --font-sans: "Inter", "Geist", "sans-serif";
   --font-mono: "Geist Mono", "JetBrains Mono", "monospace";
 
-  /* ... Mapping redundant vars for Tailwind v4 ... */
+  /* Tailwind v4 Variable Mapping */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
-
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
-
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
-
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
-
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
-
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
-
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
-
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -151,12 +130,13 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  /* --- Refined Animation Utilities --- */
-  /* Faster, tighter, "Engineered" */
-  --animate-accordion-down: accordion-down 0.2s cubic-bezier(0.2, 0, 0.2, 1);
-  --animate-accordion-up: accordion-up 0.2s cubic-bezier(0.2, 0, 0.2, 1);
-  --animate-fade-in: fade-in 0.3s cubic-bezier(0.2, 0, 0.2, 1) forwards;
-  --animate-slide-up: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  /* --- Engineering Motion System (Gemini 3 Mode) --- */
+  /* Precision: 160-220ms, cubic-bezier(0.16, 1, 0.3, 1) */
+  --animate-accordion-down: accordion-down 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-accordion-up: accordion-up 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-fade-in: fade-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-slide-up: slide-up 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-slide-in-right: slide-in-right 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 
   @keyframes accordion-down {
     from {
@@ -190,7 +170,7 @@
 
   @keyframes slide-up {
     from {
-      transform: translateY(10px);
+      transform: translateY(12px);
       opacity: 0;
     }
 
@@ -199,9 +179,21 @@
       opacity: 1;
     }
   }
+
+  @keyframes slide-in-right {
+    from {
+      transform: translateX(12px);
+      opacity: 0;
+    }
+
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
 }
 
-/* --- Base Styles --- */
+/* --- Base Typography & Reset --- */
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -209,33 +201,37 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-feature-settings: "rlig" 1, "calt" 1, "ss01" 1;
-    /* Smart "Inter" features */
+    font-feature-settings: "cv11", "ss01";
+    /* Technical Inter settings */
     -webkit-font-smoothing: antialiased;
   }
 }
 
-/* --- Elite Utility Classes --- */
+/* --- Infrastructure Utility Classes --- */
 @layer utilities {
-
-  /* Subtle separator for grid layouts */
-  .grid-separator {
-    @apply border-r border-zinc-800/50 last:border-r-0;
-  }
 
   /* Matte Surface - Replaces Glassmorphism */
   .surface-matte {
-    @apply bg-zinc-900/40 border border-zinc-800/60 shadow-xs backdrop-blur-md;
+    @apply bg-[#11151A] border border-[#222730] shadow-sm;
   }
 
-  /* Elevated Panel (Hover state) */
+  /* Elevated Panel (Hover/Active) */
   .surface-elevated {
-    @apply bg-zinc-900/60 border border-zinc-700/50 shadow-md transition-all duration-200 ease-out;
+    @apply bg-[#1A1F26] border border-[#2A303C] shadow-md transition-colors duration-160 ease-out;
   }
 
-  /* Editorial Text Gradient (Subtle) */
-  .text-gradient-subtle {
-    @apply bg-clip-text text-transparent bg-gradient-to-br from-white via-zinc-200 to-zinc-400;
+  /* Structural Grid Background */
+  .bg-infrastructure-grid {
+    background-size: 40px 40px;
+    background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    mask-image: radial-gradient(ellipse at center, transparent 20%, black 100%);
+    /* Inverse mask handled in component */
+  }
+
+  /* Technical Text Style */
+  .text-tech {
+    @apply font-mono text-[10px] tracking-widest text-[#8B949E] uppercase;
   }
 
   /* Hide Scrollbar */

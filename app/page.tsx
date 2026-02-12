@@ -3,6 +3,7 @@
 import { ProductWindow } from "@/components/infrastructure/product-window"
 import { BentoGrid, BentoGridItem } from "@/components/reactbits/BentoGrid"
 import { SpotlightCard } from "@/components/reactbits/SpotlightCard"
+import { Navbar } from "@/components/navbar"
 import { motion } from "framer-motion"
 import { ArrowRight, Shield, Zap, Database, Server, Cpu, Lock, Terminal, Activity, FileCheck, Layers } from "lucide-react"
 import Link from "next/link"
@@ -72,6 +73,8 @@ export default function Home() {
         <div className="absolute inset-0 bg-infrastructure-grid opacity-20" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#0B0F14_100%)] opacity-80" />
       </div>
+
+      <Navbar />
 
       {/* 2. INFRASTRUCTURE HERO */}
       <section className="relative pt-32 pb-20 px-6 max-w-7xl mx-auto z-10 grid lg:grid-cols-12 gap-16 items-center">

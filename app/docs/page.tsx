@@ -48,7 +48,7 @@ export default function DocsPage() {
             </h1>
 
             <p className="text-lg text-zinc-400 mb-8 leading-relaxed max-w-2xl mx-auto font-light">
-              A deterministic environment for visual composition, compilation, and deployment to the Celo network.
+              A deterministic environment for visual composition, compilation, and deployment to Stellar (Soroban) and EVM networks.
             </p>
           </ScrollReveal>
         </div>
@@ -110,7 +110,7 @@ export default function DocsPage() {
                 </div>
                 <h3 className="text-sm font-semibold text-zinc-200 mb-2">Network Deployment</h3>
                 <p className="text-xs text-zinc-500 leading-relaxed">
-                  Direct RPC connection to Celo Mainnet or Alfajores. Handles gas estimation and transaction signing.
+                  Direct RPC connection to Mainnet or Testnet. Handles gas estimation and transaction signing.
                 </p>
               </div>
             </ScrollReveal>

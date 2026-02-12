@@ -10,17 +10,18 @@ const geistMono = Geist_Mono({ subsets: ["latin"] })
 
 const siteUrl = "https://celobuilder.vercel.app"
 const siteName = "Block Builder"
-const siteDescription = "Build and deploy smart contracts on Celo blockchain without writing code. Visual drag-and-drop builder for ERC20 tokens, NFTs, DeFi, and more. Generate production-ready Next.js frontends instantly."
+const siteDescription = "Build and deploy smart contracts on Stellar (Soroban) and EVM blockchains without writing code. Visual drag-and-drop builder for tokens, NFTs, DeFi, and more. Generate production-ready Next.js frontends instantly."
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: `${siteName} - No-Code Smart Contract Builder for Celo Blockchain`,
+    default: `${siteName} - No-Code Smart Contract Builder for Blockchain`,
     template: `%s | ${siteName}`,
   },
   description: siteDescription,
   keywords: [
-    "Celo",
+    "Stellar",
+    "Soroban",
     "blockchain",
     "smart contracts",
     "no-code",
@@ -31,15 +32,16 @@ export const metadata: Metadata = {
     "DeFi",
     "Web3",
     "Solidity",
+    "Rust",
+    "WASM",
     "Next.js",
     "crypto",
     "token creator",
     "NFT minting",
-    "Celo network",
-    "Alfajores testnet",
     "smart contract generator",
     "visual builder",
     "drag and drop",
+    "EVM",
   ],
   authors: [{ name: "Block Builder Team", url: siteUrl }],
   creator: "Block Builder",

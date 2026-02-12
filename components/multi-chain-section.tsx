@@ -5,12 +5,12 @@ import { ArrowRight, Globe, Zap, Shield, Code, Rocket, Boxes } from "lucide-reac
 
 const chains = [
     {
-        name: "Celo (EVM)",
-        description: "Mobile-first EVM chain. Deploy Solidity contracts with low gas fees and fast finality.",
+        name: "EVM Networks",
+        description: "Deploy Solidity contracts with low gas fees and fast finality across EVM-compatible chains.",
         icon: Globe,
         color: "from-cyan-500 to-blue-500",
-        features: ["EVM Compatible", "Low Gas Fees", "Mobile Native", "Carbon Negative"],
-        logo: "C"
+        features: ["EVM Compatible", "Low Gas Fees", "Multi-Chain", "Wide Adoption"],
+        logo: "E"
     },
     {
         name: "Stellar (Soroban)",
@@ -41,7 +41,7 @@ export function MultiChainSection() {
                             Build Once, Deploy Everywhere
                         </h2>
                         <p className="text-slate-400 text-lg md:text-xl">
-                            Support for the leading mobile-first blockchains. Whether you prefer Solidity (EVM) or Rust (WASM), we've got you covered.
+                            Support for leading blockchain platforms. Whether you prefer Solidity (EVM) or Rust (WASM), we've got you covered.
                         </p>
                     </motion.div>
                 </div>
@@ -89,7 +89,7 @@ export function MultiChainSection() {
                                 </div>
 
                                 <div className="mt-8 pt-6 border-t border-slate-800 flex items-center text-sm font-medium text-slate-400 group-hover:text-white transition-colors cursor-pointer">
-                                    Start Building with {chain.name.split(' ')[0]} <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                                    Start Building <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform" />
                                 </div>
                             </div>
                         </motion.div>

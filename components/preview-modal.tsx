@@ -181,7 +181,7 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
           }
 
           function verifyContract() {
-            showNotification('✅ Contract verification coming soon!\\n\\nYou can verify manually on CeloScan', 'info');
+            showNotification('✅ Contract verification coming soon!\\n\\nYou can verify manually on the block explorer', 'info');
           }
 
           async function updateBalance() {
@@ -286,7 +286,7 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
               
               if (network.chainId !== celoSepoliaChainId) {
                 console.warn('⚠️ Wrong network, switching...');
-                showNotification('⚠️ Wrong network! Switching to Celo Sepolia...', 'warning');
+                showNotification('⚠️ Wrong network! Switching to testnet...', 'warning');
                 try {
                   await ethereum.request({
                     method: 'wallet_switchEthereumChain',
@@ -315,7 +315,7 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
                       console.log('✅ Network added');
                     } catch (addError) {
                       console.error('❌ Failed to add network:', addError);
-                      showNotification('❌ Failed to add Celo network: ' + addError.message, 'error');
+                      showNotification('❌ Failed to add network: ' + addError.message, 'error');
                       return;
                     }
                   } else {
@@ -385,7 +385,7 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
                 </div>
                 <div class="text-right">
                   <div class="text-sm text-slate-500">Network</div>
-                  <div class="text-cyan-400 font-medium">Celo Sepolia</div>
+                  <div class="text-cyan-400 font-medium">Testnet</div>
                 </div>
               </div>
               
@@ -435,7 +435,7 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
                   target="_blank"
                   class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-center font-medium rounded-lg transition-all transform hover:scale-105 shadow-md"
                 >
-                  � View on Celo Scan
+                  � View on Block Explorer
                 </a>
                 <button 
                   onclick="verifyContract()"
@@ -946,7 +946,7 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
                 <button onclick="executeStake(event)" class="w-full px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-400 hover:to-pink-400 text-white font-medium rounded-lg transition-all transform hover:scale-105 shadow-lg shadow-purple-500/30">⭐ Stake Tokens</button>`
 
       case "Withdraw":
-        return `<div class="text-sm text-slate-400 mb-3">💰 Contract Balance: <span class="text-green-400 font-bold">0 CELO</span></div>
+        return `<div class="text-sm text-slate-400 mb-3">💰 Contract Balance: <span class="text-green-400 font-bold">0 ETH</span></div>
                 <button onclick="executeWithdraw(event)" class="w-full px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-400 hover:to-emerald-400 text-white font-medium rounded-lg transition-all transform hover:scale-105 shadow-lg shadow-green-500/30">💸 Withdraw ETH</button>`
 
       case "Pause/Unpause":

@@ -205,7 +205,7 @@ export async function GET() {
       contractTypes: ['evm', 'stellar'],
       notes: [
         'Either contractAddress or contractCode must be provided',
-        'For EVM: network can be "celo", "celo-testnet", etc.',
+        'For EVM: network can be "mainnet", "testnet", etc.',
         'For Stellar: network should be "testnet" or "mainnet"',
         'Gas estimates are in gas units for EVM and Stroops for Stellar',
         'accountState allows simulation with different account balances',

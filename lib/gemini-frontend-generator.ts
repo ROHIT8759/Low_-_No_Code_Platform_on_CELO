@@ -312,7 +312,7 @@ export default function Home() {
             </div>
             <div>
               <p className="text-gray-400 text-sm">Network</p>
-              <p className="text-white">Celo Sepolia Testnet</p>
+              <p className="text-white">Testnet</p>
             </div>
           </div>
         </div>
@@ -389,8 +389,8 @@ export function WalletConnect({ onConnect }: WalletConnectProps) {
           method: "wallet_addEthereumChain",
           params: [{
             chainId: \`0x\${CHAIN_ID.toString(16)}\`,
-            chainName: "Celo Sepolia Testnet",
-            nativeCurrency: { name: "CELO", symbol: "CELO", decimals: 18 },
+            chainName: "Testnet",
+            nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
             rpcUrls: ["https://forno.celo-sepolia.celo-testnet.org/"],
             blockExplorerUrls: ["https://celo-sepolia.blockscout.com/"],
           }],

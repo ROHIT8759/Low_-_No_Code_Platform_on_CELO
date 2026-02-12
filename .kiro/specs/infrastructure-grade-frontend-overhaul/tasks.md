@@ -211,7 +211,7 @@ Each task builds incrementally, with early validation through property-based tes
     - **Validates: Requirements 16.7**
 
 - [ ] 11. Remove all Celo references
-  - [ ] 11.1 Update all UI text content
+  - [x] 11.1 Update all UI text content
     - Search and replace "Celo" references in all component files
     - Update to blockchain-agnostic or Soroban-focused language
     - _Requirements: 14.1_

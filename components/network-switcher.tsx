@@ -27,7 +27,7 @@ export function NetworkSwitcher() {
                 )}
             >
                 <Globe size={14} />
-                <span>Celo (EVM)</span>
+                <span>EVM Networks</span>
             </button>
 
             <button

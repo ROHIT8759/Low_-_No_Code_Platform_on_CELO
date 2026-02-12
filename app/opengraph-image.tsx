@@ -98,7 +98,7 @@ export default async function Image() {
                         marginBottom: 40,
                     }}
                 >
-                    No-Code Smart Contract Builder for Celo Blockchain
+                    No-Code Smart Contract Builder for Blockchain
                 </div>
 
                 {}

@@ -82,7 +82,7 @@ export function Navbar() {
 
           <Link href="/builder">
             <button className={cn(
-              "flex items-center gap-2 bg-[#0055eb] hover:bg-[#0044c2] text-white text-xs font-semibold rounded-[6px] transition-infrastructure active:translate-y-px",
+              "flex items-center gap-2 bg-[#0055eb] hover:bg-[#0044c2] text-white text-xs font-semibold rounded-[6px] transition-all shadow-sm active:translate-y-px",
               scrolled ? "px-3 py-1.5" : "px-4 py-2"
             )}>
               <span>Launch App</span>

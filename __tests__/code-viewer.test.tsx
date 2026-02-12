@@ -120,6 +120,17 @@ describe('CodeViewer', () => {
         expect(element).toHaveClass('font-mono')
       })
     })
+
+    it('should use motion system timing (180ms) for tab transitions', () => {
+      render(<CodeViewer />)
+      
+      const codeTab = screen.getByRole('button', { name: /^code$/i })
+      const abiTab = screen.getByRole('button', { name: /abi/i })
+      
+      // Verify tabs have the correct transition duration
+      expect(codeTab).toHaveClass('duration-[180ms]')
+      expect(abiTab).toHaveClass('duration-[180ms]')
+    })
   })
 
   describe('Content Display', () => {

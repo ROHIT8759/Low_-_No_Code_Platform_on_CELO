@@ -173,7 +173,7 @@ Each task builds incrementally, with early validation through property-based tes
     - Apply design system styling
     - _Requirements: 11.3_
 
-  - [ ] 9.4 Update CodeViewer with metadata tabs
+  - [x] 9.4 Update CodeViewer with metadata tabs
     - Add tab navigation (Code, ABI, Metadata)
     - Style tabs with design system tokens
     - Ensure monospace font for code display
@@ -186,7 +186,7 @@ Each task builds incrementally, with early validation through property-based tes
     - _Requirements: 11.1, 11.2, 11.5_
 
 - [ ] 10. Implement motion system
-  - [ ] 10.1 Create motion utility functions and constants
+  - [-] 10.1 Create motion utility functions and constants
     - Define motion duration constants (fast: 140ms, normal: 180ms, slow: 200ms)
     - Define easing function constant (cubic-bezier(0.16, 1, 0.3, 1))
     - Create motion variants for common animations (slideUp, fadeIn, subtle)

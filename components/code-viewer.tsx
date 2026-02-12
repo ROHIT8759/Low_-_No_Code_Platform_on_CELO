@@ -116,7 +116,7 @@ export function CodeViewer() {
           <button
             onClick={() => setActiveTab("code")}
             className={cn(
-              "flex-1 px-3 py-1.5 text-[10px] font-medium rounded transition-colors",
+              "flex-1 px-3 py-1.5 text-[10px] font-medium rounded transition-all duration-[180ms]",
               activeTab === "code" 
                 ? "bg-[#222730] text-white border-t-2 border-t-blue-500/50" 
                 : "text-zinc-500 hover:text-zinc-300"
@@ -127,7 +127,7 @@ export function CodeViewer() {
           <button
             onClick={() => setActiveTab("abi")}
             className={cn(
-              "flex-1 px-3 py-1.5 text-[10px] font-medium rounded transition-colors",
+              "flex-1 px-3 py-1.5 text-[10px] font-medium rounded transition-all duration-[180ms]",
               activeTab === "abi" 
                 ? "bg-[#222730] text-white border-t-2 border-t-blue-500/50" 
                 : "text-zinc-500 hover:text-zinc-300"
@@ -138,7 +138,7 @@ export function CodeViewer() {
           <button
             onClick={() => setActiveTab("metadata")}
             className={cn(
-              "flex-1 px-3 py-1.5 text-[10px] font-medium rounded transition-colors",
+              "flex-1 px-3 py-1.5 text-[10px] font-medium rounded transition-all duration-[180ms]",
               activeTab === "metadata" 
                 ? "bg-[#222730] text-white border-t-2 border-t-blue-500/50" 
                 : "text-zinc-500 hover:text-zinc-300"
@@ -154,7 +154,7 @@ export function CodeViewer() {
             <button
               onClick={() => setCodeSubTab("solidity")}
               className={cn(
-                "flex-1 px-2 py-1 text-[10px] font-medium rounded transition-colors",
+                "flex-1 px-2 py-1 text-[10px] font-medium rounded transition-all duration-[180ms]",
                 codeSubTab === "solidity" 
                   ? "bg-[#222730] text-white" 
                   : "text-zinc-500 hover:text-zinc-300"
@@ -165,7 +165,7 @@ export function CodeViewer() {
             <button
               onClick={() => setCodeSubTab("frontend")}
               className={cn(
-                "flex-1 px-2 py-1 text-[10px] font-medium rounded transition-colors",
+                "flex-1 px-2 py-1 text-[10px] font-medium rounded transition-all duration-[180ms]",
                 codeSubTab === "frontend" 
                   ? "bg-[#222730] text-white" 
                   : "text-zinc-500 hover:text-zinc-300"

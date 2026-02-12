@@ -30,7 +30,7 @@ Each task builds incrementally, with early validation through property-based tes
     - **Validates: Requirements 5.1, 5.2, 5.3, 5.4, 5.5, 5.7**
 
 - [ ] 2. Upgrade background system
-  - [-] 2.1 Refactor background system component
+  - [x] 2.1 Refactor background system component
     - Update Silk component configuration for 1-2% noise opacity
     - Add radial vignette overlay
     - Implement conditional grid rendering (hero/bento zones only)
@@ -45,7 +45,7 @@ Each task builds incrementally, with early validation through property-based tes
     - _Requirements: 2.1, 2.2, 2.3, 2.4_
 
 - [ ] 3. Transform Navbar component
-  - [~] 3.1 Refactor Navbar styling and behavior
+  - [-] 3.1 Refactor Navbar styling and behavior
     - Reduce border radius to 12px maximum
     - Remove glow edges and shadow effects
     - Replace gradient CTA with solid blue background (#0055eb)

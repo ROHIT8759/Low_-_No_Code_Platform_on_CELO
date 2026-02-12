@@ -27,12 +27,18 @@ export function Navbar() {
           paddingTop: scrolled ? "0.5rem" : "0.75rem",
           paddingBottom: scrolled ? "0.5rem" : "0.75rem",
         }}
-        transition={{ type: "spring", stiffness: 300, damping: 30, mass: 0.8 }}
+        transition={{ 
+          duration: 0.18, 
+          ease: [0.16, 1, 0.3, 1]
+        }}
         className={cn(
-          "pointer-events-auto flex items-center justify-between px-4 transition-all duration-300 ease-out",
-          "bg-[#0F141B]/80 backdrop-blur-md border border-white/5 shadow-xl shadow-black/20",
-          "rounded-xl"
+          "pointer-events-auto flex items-center justify-between px-4 relative",
+          "bg-[#0F141B]/80 backdrop-blur-md border border-[var(--border-outer)]",
+          "rounded-[var(--radius-md)] transition-infrastructure"
         )}
+        style={{
+          borderRadius: 'var(--radius-md)'
+        }}
       >
         {}
         <Link href="/" className="flex items-center gap-3 group mr-6 pr-6 border-r border-white/5 h-8">
@@ -76,7 +82,7 @@ export function Navbar() {
 
           <Link href="/builder">
             <button className={cn(
-              "flex items-center gap-2 bg-[#0055eb] hover:bg-[#0044c2] text-white text-xs font-semibold rounded-[6px] transition-all shadow-sm active:translate-y-px",
+              "flex items-center gap-2 bg-[#0055eb] hover:bg-[#0044c2] text-white text-xs font-semibold rounded-[6px] transition-all active:translate-y-px",
               scrolled ? "px-3 py-1.5" : "px-4 py-2"
             )}>
               <span>Launch App</span>
@@ -84,6 +90,20 @@ export function Navbar() {
             </button>
           </Link>
         </div>
+
+        {/* Bottom divider on scroll */}
+        <AnimatePresence>
+          {scrolled && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+              className="absolute bottom-0 left-0 right-0 h-px bg-[var(--border-outer)]"
+              data-testid="navbar-divider"
+            />
+          )}
+        </AnimatePresence>
       </motion.nav>
     </div>
   )

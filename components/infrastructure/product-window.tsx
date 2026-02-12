@@ -77,7 +77,6 @@ export function ProductWindow() {
 
                 </div>
 
-                {}
                 <div className="h-24 bg-[#090C10] border-t border-[#222730] p-2 flex flex-col font-mono text-[10px]">
                     <div className="flex items-center gap-2 text-zinc-500 mb-1 border-b border-[#222730]/50 pb-1">
                         <Terminal className="w-3 h-3" />

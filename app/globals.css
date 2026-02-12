@@ -320,14 +320,15 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    border-color: var(--border);
+    outline-color: rgba(var(--ring), 0.5);
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
-    font-feature-settings: "cv11", "ss01";
-    
+    background-color: var(--background);
+    color: var(--foreground);
     -webkit-font-smoothing: antialiased;
+    font-feature-settings: "cv11", "ss01";
   }
 }
 
@@ -338,19 +339,19 @@
 
   /* Surface system utilities */
   .surface-0 {
-    @apply bg-[var(--surface-0)];
+    background-color: var(--surface-0);
   }
 
   .surface-1 {
-    @apply bg-[var(--surface-1)];
+    background-color: var(--surface-1);
   }
 
   .surface-2 {
-    @apply bg-[var(--surface-2)];
+    background-color: var(--surface-2);
   }
 
   .surface-3 {
-    @apply bg-[var(--surface-3)];
+    background-color: var(--surface-3);
   }
 
   /* Surface with borders (matte finish) */
@@ -461,7 +462,8 @@
 
   /* Hover effects (subtle, deterministic) */
   .hover-lift {
-    @apply transition-infrastructure;
+    transition-duration: var(--duration-normal);
+    transition-timing-function: var(--easing-standard);
   }
 
   .hover-lift:hover {
@@ -469,7 +471,8 @@
   }
 
   .hover-surface {
-    @apply transition-infrastructure;
+    transition-duration: var(--duration-normal);
+    transition-timing-function: var(--easing-standard);
   }
 
   .hover-surface:hover {

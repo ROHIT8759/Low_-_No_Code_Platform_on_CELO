@@ -249,7 +249,7 @@ Each task builds on previous work, with property-based tests integrated througho
     - Return risk score with reasons
     - _Requirements: 5.2_
   
-  - [~] 8.3 Write property test for risk scoring
+  - [x] 8.3 Write property test for risk scoring
     - **Property 15: Contract Analysis Assigns Risk Scores to Functions**
     - **Validates: Requirements 5.2**
   
@@ -278,7 +278,7 @@ Each task builds on previous work, with property-based tests integrated througho
     - Provide example function calls
     - _Requirements: 5.6_
   
-  - [~] 8.8 Write property test for comprehensive analysis output
+  - [-] 8.8 Write property test for comprehensive analysis output
     - **Property 16: Contract Analysis Provides Comprehensive Output**
     - **Validates: Requirements 5.3, 5.4, 5.5, 5.6, 5.7**
   

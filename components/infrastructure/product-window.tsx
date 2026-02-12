@@ -7,7 +7,7 @@ export function ProductWindow() {
     return (
         <div className="w-full h-full relative group">
             {/* Main Window Frame */}
-            <div className="relative w-full aspect-[16/10] bg-[#0B0F14] rounded-lg border border-[#222730] shadow-2xl overflow-hidden flex flex-col">
+            <div className="relative w-full aspect-16/10 bg-[#0B0F14] rounded-lg border border-[#222730] shadow-2xl overflow-hidden flex flex-col">
 
                 {/* Window Bar */}
                 <div className="h-9 bg-[#11151A] border-b border-[#222730] flex items-center px-3 justify-between shrink-0">
@@ -17,7 +17,7 @@ export function ProductWindow() {
                             <div className="w-2.5 h-2.5 rounded-full bg-[#222730]" />
                             <div className="w-2.5 h-2.5 rounded-full bg-[#222730]" />
                         </div>
-                        <div className="h-4 w-[1px] bg-[#222730] mx-2" />
+                        <div className="h-4 w-px bg-[#222730] mx-2" />
                         <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
                             <Activity className="w-3 h-3" />
                             Soroban_Context_v4.rs
@@ -104,8 +104,8 @@ export function ProductWindow() {
 
             {/* Decorative Infrastructure Lines (Behind) */}
             <div className="absolute -z-10 top-[-20%] right-[-10%] w-[120%] h-[140%] opacity-20 pointer-events-none">
-                <div className="absolute top-10 right-10 w-px h-[400px] bg-gradient-to-b from-transparent via-[#3B82F6] to-transparent" />
-                <div className="absolute top-[200px] right-0 w-[400px] h-px bg-gradient-to-r from-transparent via-[#3B82F6] to-transparent" />
+                <div className="absolute top-10 right-10 w-px h-[400px] bg-linear-to-b from-transparent via-[#3B82F6] to-transparent" />
+                <div className="absolute top-[200px] right-0 w-[400px] h-px bg-linear-to-r from-transparent via-[#3B82F6] to-transparent" />
             </div>
 
         </div>

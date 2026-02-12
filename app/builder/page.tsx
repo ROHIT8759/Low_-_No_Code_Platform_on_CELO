@@ -24,11 +24,9 @@ export default function BuilderPage() {
     }
   }, [hasInitialized, projects.length])
 
-  // Sync projects when user logs in
   useEffect(() => {
     if (currentUser && !hasInitialized) {
       syncProjects().then(() => {
-        // If no projects exist after sync, create a default one
         const state = useBuilderStore.getState()
         if (state.projects.length === 0) {
           createProject("My First dApp")

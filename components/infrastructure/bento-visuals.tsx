@@ -54,7 +54,7 @@ export function WasmCompilationVisual() {
 export function StateExpirationVisual() {
     return (
         <div className="flex-1 w-full h-full min-h-32 rounded-md bg-[#0B0F14] border border-[#222730] p-4 flex flex-col justify-between relative overflow-hidden">
-            <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[length:16px_16px]" />
+            <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-size-[16px_16px]" />
 
             <div className="flex items-center justify-between relative z-10">
                 <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">Storage rent</span>

@@ -85,7 +85,7 @@ export function Navbar() {
 
           <Link href="/builder">
             <button className={cn(
-              "flex items-center gap-2 bg-primary hover:bg-primary/90 text-white text-xs font-medium transition-all shadow-lg shadow-primary/20 hover:shadow-primary/40 group",
+              "flex items-center gap-2 bg-primary hover:bg-blue-600 text-white text-xs font-medium transition-all group",
               scrolled ? "p-2 rounded-full aspect-square" : "px-4 py-2 rounded-lg"
             )}>
               <Rocket className={cn("w-3.5 h-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5", scrolled && "w-4 h-4")} />

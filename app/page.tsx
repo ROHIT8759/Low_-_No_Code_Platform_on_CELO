@@ -57,23 +57,23 @@ export default function Home() {
           <ScrollReveal>
             <div className="inline-flex items-center gap-3 mb-8">
               <span className="flex h-1.5 w-1.5 rounded-full bg-indigo-500"></span>
-              <span className="text-xs font-mono text-zinc-500 tracking-widest uppercase">Platform v2.0 // Enterprise</span>
+              <span className="text-xs font-mono text-zinc-500 tracking-widest uppercase">Stellar Infrastructure // Soroban</span>
             </div>
 
             <h1 className="text-5xl sm:text-7xl font-semibold tracking-tight mb-8 leading-[1.1] text-zinc-100">
-              Smart Contracts <br />
+              Soroban Contracts <br />
               <span className="text-zinc-500">Engineered Visually.</span>
             </h1>
 
             <p className="text-lg text-zinc-400 max-w-xl mb-10 leading-relaxed font-light">
-              The infrastructure standard for no-code Web3 development.
-              Deploy audited, enterprise-grade logic to Celo & Ethereum without maintaining boilerplate.
+              The infrastructure standard for no-code Stellar development.
+              Deploy audited, enterprise-grade WASM logic to Testnet & Mainnet without maintaining boilerplate.
             </p>
 
             <div className="flex flex-row items-center gap-4">
               <Link href="/builder">
                 <ShinyButton className="h-10 px-6 text-sm">
-                  Start Building
+                  Launch Builder
                   <ArrowRight className="ml-2 w-3 h-3" />
                 </ShinyButton>
               </Link>
@@ -86,21 +86,23 @@ export default function Home() {
           </ScrollReveal>
         </div>
 
-        {/* Right: Technical Visualization (5 cols) */}
-        <div className="lg:col-span-5 relative mt-12 lg:mt-0">
-          <div className="relative rounded-lg border border-zinc-800 bg-zinc-950 shadow-2xl overflow-hidden aspect-square lg:aspect-[4/3]">
-            {/* Precision Border Beam */}
-            <BorderBeam size={150} duration={10} delay={0} colorFrom="#4f46e5" colorTo="#818cf8" borderWidth={1} />
-            <div className="absolute inset-0 opacity-80">
-              <HeroVisualization />
-            </div>
-            {/* Technical Overlay */}
-            <div className="absolute bottom-4 left-4 font-mono text-[10px] text-zinc-600">
-              <div>SYSTEM_STATUS: ACTIVE</div>
-              <div>LATENCY: 12ms</div>
+        {/* Right: Technical Visualization (Desktop Only) */}
+        {!isMobile && (
+          <div className="lg:col-span-5 relative mt-12 lg:mt-0">
+            <div className="relative rounded-lg border border-zinc-800 bg-zinc-950 shadow-2xl overflow-hidden aspect-square lg:aspect-[4/3]">
+              {/* Precision Border Beam */}
+              <BorderBeam size={150} duration={10} delay={0} colorFrom="#6366f1" colorTo="#818cf8" borderWidth={1} />
+              <div className="absolute inset-0 opacity-80">
+                <HeroVisualization />
+              </div>
+              {/* Technical Overlay */}
+              <div className="absolute bottom-4 left-4 font-mono text-[10px] text-zinc-600">
+                <div>NETWORK: STELLAR_MAINNET</div>
+                <div>RPC_LATENCY: 12ms</div>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </section>
 
       {/* Precision Bento Grid */}
@@ -110,22 +112,22 @@ export default function Home() {
             <div className="lg:col-span-1">
               <h2 className="text-2xl font-medium text-zinc-100 mb-4">Core Infrastructure</h2>
               <p className="text-zinc-500 text-sm leading-relaxed">
-                Built for scale. Our visual engine compiles to optimized Solidity using standard factory patterns.
+                Built for scale. Our visual engine compiles to optimized Rust/WASM using standard factory patterns.
               </p>
             </div>
           </div>
 
           <BentoGrid className="max-w-none mx-0">
             <BentoGridItem
-              title="Visual Logic Engine"
-              description="Compose complex logic flows."
+              title="Soroban Visual Engine"
+              description="Compose complex WASM logic flows."
               header={<div className="flex flex-1 w-full h-full min-h-[8rem] bg-zinc-900/50 border-b border-zinc-800" />}
               icon={<Zap className="h-4 w-4 text-zinc-500" />}
               className="lg:col-span-2 border border-zinc-800 bg-zinc-950"
             />
             <BentoGridItem
-              title="One-Click Deploy"
-              description="Instant mainnet propagation."
+              title="Instant Propagation"
+              description="Direct RPC ledger submission."
               header={<div className="flex flex-1 w-full h-full min-h-[8rem] bg-zinc-900/50 border-b border-zinc-800" />}
               icon={<Rocket className="h-4 w-4 text-zinc-500" />}
               className="lg:col-span-1 border border-zinc-800 bg-zinc-950"
@@ -143,7 +145,7 @@ export default function Home() {
 
       {/* Text Reveal - Editorial Statement */}
       <section className="py-24 relative z-10 w-full bg-zinc-950 border-y border-zinc-900">
-        <TextReveal text="We are building the operating system for decentralized finance. Precision tools for serious builders." className="min-h-[100vh] font-medium" />
+        <TextReveal text="We are building the operating system for decentralized finance on Stellar. Precision tools for serious builders." className="min-h-[100vh] font-medium" />
       </section>
 
       {/* Legacy Sections (Preserved but integrated) */}
@@ -157,7 +159,7 @@ export default function Home() {
           <div className="md:col-span-2">
             <span className="font-semibold text-zinc-100 block mb-4">Block Builder</span>
             <p className="text-zinc-500 max-w-xs">
-              Enterprise-grade visual smart contract development platform.
+              Enterprise-grade visual smart contract development platform for Stellar.
             </p>
           </div>
           <div className="space-y-4">

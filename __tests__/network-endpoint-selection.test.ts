@@ -250,10 +250,10 @@ describe('Network Endpoint Selection - Property-Based Tests', () => {
             const config = deploymentService.getStellarNetworkConfig(network);
             
             
-            expect(config.horizonUrl).toMatch(/^https:\/\
+            expect(config.horizonUrl).toMatch(/^https:\/\//);
             
             
-            expect(config.sorobanRpcUrl).toMatch(/^https:\/\
+            expect(config.sorobanRpcUrl).toMatch(/^https:\/\//);
             
             
             expect(config.horizonUrl).not.toMatch(/\/$/);
@@ -278,7 +278,7 @@ describe('Network Endpoint Selection - Property-Based Tests', () => {
             const config = deploymentService.getEVMNetworkConfig(network);
             
             
-            expect(config.rpcUrl).toMatch(/^https:\/\
+            expect(config.rpcUrl).toMatch(/^https:\/\//);
             
             
             expect(() => new URL(config.rpcUrl)).not.toThrow();

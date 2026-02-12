@@ -53,12 +53,12 @@ export function ProductWindow() {
                         <div className="pl-10 h-full">
                             <span className="text-purple-400">pub trait</span> <span className="text-yellow-100">SorobanToken</span> {"{"}
                             <br />
-                            &nbsp;&nbsp;<span className="text-zinc-500">
+                            &nbsp;&nbsp;<span className="text-zinc-500">// Token initialization</span>
                             <br />
                             &nbsp;&nbsp;<span className="text-purple-400">fn</span> <span className="text-blue-400">initialize</span>(e: Env, admin: Address, decimal: u32);
                             <br />
                             <br />
-                            &nbsp;&nbsp;<span className="text-zinc-500">
+                            &nbsp;&nbsp;<span className="text-zinc-500">// Minting function</span>
                             <br />
                             &nbsp;&nbsp;<span className="text-purple-400">fn</span> <span className="text-blue-400">mint</span>(e: Env, to: Address, amount: i128) {"{"}
                             <br />
@@ -71,7 +71,7 @@ export function ProductWindow() {
                             &nbsp;&nbsp;{"}"}
                             <br />
                             <br />
-                            &nbsp;&nbsp;<span className="text-zinc-500">
+                            &nbsp;&nbsp;<span className="text-zinc-500">// State verification</span>
                             <br />
                             &nbsp;&nbsp;<span className="text-purple-400">fn</span> <span className="text-blue-400">verify_state</span>(e: Env) -&gt; State;
                             <br />
@@ -81,7 +81,8 @@ export function ProductWindow() {
 
                 </div>
 
-                <div className="h-24 bg-[#090C10] border-t border-[#222730] p-2 flex flex-col font-mono text-[10px]">
+                {}
+                <div className="h-20 border-t border-[#222730] bg-[#11151A]/50 p-3 font-mono text-[10px] overflow-hidden">
                     <div className="flex items-center gap-2 text-zinc-500 mb-1 border-b border-[#222730]/50 pb-1">
                         <Terminal className="w-3 h-3" />
                         <span>Output</span>

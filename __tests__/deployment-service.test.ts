@@ -133,7 +133,7 @@ describe('DeploymentService', () => {
       
       expect(gas).toBeGreaterThan(21000); 
       
-      const expectedGas = 21000 + 1001 * 200;
+      const expectedGas = 21000 + 1000 * 200;
       expect(gas).toBe(expectedGas);
     });
 

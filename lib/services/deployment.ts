@@ -39,12 +39,33 @@ export const STELLAR_NETWORK_CONFIG = {
   },
 } as const;
 
+export const EVM_NETWORK_CONFIG = {
+  CELO_MAINNET: {
+    chainId: 42220,
+    name: 'Celo Mainnet',
+    rpcUrl: 'https://forno.celo.org',
+  },
+  CELO_ALFAJORES: {
+    chainId: 44787,
+    name: 'Celo Alfajores Testnet',
+    rpcUrl: 'https://alfajores-forno.celo-testnet.org',
+  },
+} as const;
+
 export class DeploymentService {
   
   getStellarNetworkConfig(network: 'testnet' | 'mainnet') {
     const config = STELLAR_NETWORK_CONFIG[network];
     if (!config) {
       throw new Error(`Unknown Stellar network: ${network}`);
+    }
+    return config;
+  }
+
+  getEVMNetworkConfig(network: keyof typeof EVM_NETWORK_CONFIG) {
+    const config = EVM_NETWORK_CONFIG[network];
+    if (!config) {
+      throw new Error(`Unknown EVM network: ${network}`);
     }
     return config;
   }
@@ -326,7 +347,8 @@ export class DeploymentService {
   }
 
   validateDeploymentOptions(
-    options: StellarDeploymentOptions
+    options: StellarDeploymentOptions | any,
+    type?: 'stellar' | 'evm'
   ): { valid: boolean; error?: string } {
     if (!options.artifactId) {
       return { valid: false, error: 'Artifact ID is required' };
@@ -336,15 +358,41 @@ export class DeploymentService {
       return { valid: false, error: 'Network is required' };
     }
 
-    if (!options.sourceAccount) {
-      return { valid: false, error: 'Source account is required for Stellar deployment' };
+    if (type === 'stellar') {
+      if (!options.sourceAccount) {
+        return { valid: false, error: 'Source account is required for Stellar deployment' };
+      }
+
+      if (!['testnet', 'mainnet'].includes(options.network)) {
+        return { valid: false, error: 'Invalid Stellar network (must be testnet or mainnet)' };
+      }
     }
 
-    if (!['testnet', 'mainnet'].includes(options.network)) {
-      return { valid: false, error: 'Invalid Stellar network (must be testnet or mainnet)' };
+    if (type === 'evm') {
+      try {
+        this.getEVMNetworkConfig(options.network);
+      } catch (error: any) {
+        return { valid: false, error: error.message };
+      }
     }
 
     return { valid: true };
+  }
+
+  async estimateEVMGas(bytecode: string, network: keyof typeof EVM_NETWORK_CONFIG): Promise<number> {
+    const baseGas = 21000;
+    const bytecodeWithoutPrefix = bytecode.startsWith('0x') ? bytecode.slice(2) : bytecode;
+    const bytecodeLength = bytecodeWithoutPrefix.length / 2;
+    const perByteGas = 200;
+    return baseGas + (bytecodeLength * perByteGas);
+  }
+
+  async deployEVM(options: any): Promise<any> {
+    throw new Error('EVM deployment not yet implemented');
+  }
+
+  async submitSignedEVMTransaction(signedTx: string, network: keyof typeof EVM_NETWORK_CONFIG): Promise<any> {
+    throw new Error('EVM transaction submission not yet implemented');
   }
 
   getHorizonUrl(network: 'testnet' | 'mainnet'): string {

@@ -2,7 +2,7 @@
 
 import { useBuilderStore } from "@/lib/store"
 import { useSupabaseStore } from "@/lib/supabase-store"
-import { Download, Play, Eye, FolderOpen, Wallet, Menu, X, Rocket, Zap, BookOpen, Layers, Sparkles } from "lucide-react"
+import { Download, Play, Eye, FolderOpen, Wallet, Menu, X, Rocket, Zap, BookOpen, Layers, Sparkles, Terminal } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useScroll, useMotionValueEvent, AnimatePresence, motion } from "framer-motion"
 import Link from "next/link"
@@ -13,83 +13,74 @@ export function Navbar() {
   const { scrollY } = useScroll()
 
   useMotionValueEvent(scrollY, "change", (latest) => {
-    if (latest > 50) {
-      setScrolled(true)
-    } else {
-      setScrolled(false)
-    }
+    setScrolled(latest > 20)
   })
 
   return (
-    <div className="fixed top-6 inset-x-0 z-50 flex justify-center pointer-events-none">
+    <div className="fixed top-0 inset-x-0 z-50 flex justify-center pointer-events-none pt-4">
       <motion.nav
-        initial={{ width: "100%", maxWidth: "80rem" }} // max-w-7xl
+        initial={{ y: -20, opacity: 0 }}
         animate={{
-          width: scrolled ? "fit-content" : "100%",
-          maxWidth: scrolled ? "fit-content" : "80rem",
-          y: scrolled ? 10 : 0
+          y: 0,
+          opacity: 1,
+          width: scrolled ? "min(90%, 60rem)" : "min(95%, 80rem)",
+          paddingTop: scrolled ? "0.5rem" : "0.75rem",
+          paddingBottom: scrolled ? "0.5rem" : "0.75rem",
         }}
-        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        transition={{ type: "spring", stiffness: 300, damping: 30, mass: 0.8 }}
         className={cn(
-          "pointer-events-auto flex items-center justify-between px-4 py-2 mx-6",
-          "bg-[#0B0F14]/80 backdrop-blur-xl border border-[#222730] shadow-2xl shadow-black/50",
-          scrolled ? "rounded-full pr-2 pl-3" : "rounded-xl"
+          "pointer-events-auto flex items-center justify-between px-4 transition-all duration-300 ease-out",
+          "bg-[#0F141B]/80 backdrop-blur-md border border-white/5 shadow-xl shadow-black/20",
+          "rounded-xl"
         )}
       >
         {/* Brand */}
-        <Link href="/" className="flex items-center gap-2 group mr-4">
-          <div className="relative w-8 h-8 flex items-center justify-center bg-[#1A1F26] border border-[#222730] rounded-lg group-hover:border-primary/50 transition-colors shadow-lg shadow-black/20">
-            <span className="text-primary font-bold">B</span>
+        <Link href="/" className="flex items-center gap-3 group mr-6 pr-6 border-r border-white/5 h-8">
+          <div className="w-6 h-6 flex items-center justify-center bg-zinc-100 rounded-[4px] text-black font-bold text-xs group-hover:bg-white transition-colors">
+            B
           </div>
-          <AnimatePresence>
-            {!scrolled && (
-              <motion.div
-                initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: "auto" }}
-                exit={{ opacity: 0, width: 0 }}
-                className="overflow-hidden whitespace-nowrap"
-              >
-                <span className="text-sm font-semibold text-zinc-200 ml-2">Block Builder</span>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          <div className="flex flex-col">
+            <span className="text-sm font-semibold text-zinc-200 leading-none tracking-tight">Block Builder</span>
+            <AnimatePresence>
+              {!scrolled && (
+                <motion.span
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="text-[9px] font-mono text-zinc-500 uppercase tracking-wider mt-0.5"
+                >
+                  Infrastructure
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </div>
         </Link>
 
         {/* Center Nav */}
-        <div className="hidden md:flex items-center">
+        <div className="hidden md:flex items-center flex-1">
           <NavLinks scrolled={scrolled} />
         </div>
 
         {/* Right Actions */}
-        <div className={cn("flex items-center gap-2 pl-2 ml-2", !scrolled && "border-l border-[#222730]/50")}>
-          <AnimatePresence>
-            {!scrolled && (
-              <motion.div
-                initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: "auto" }}
-                exit={{ opacity: 0, width: 0 }}
-                className="overflow-hidden flex items-center gap-1"
-              >
-                <Link href="/docs">
-                  <button className="p-2 text-zinc-400 hover:text-zinc-200 transition-colors rounded-lg hover:bg-[#1A1F26]">
-                    <BookOpen className="w-4 h-4" />
-                  </button>
-                </Link>
-                <button className="p-2 text-zinc-400 hover:text-zinc-200 transition-colors rounded-lg hover:bg-[#1A1F26]">
-                  <span className="sr-only">Download</span>
-                  <Download className="w-4 h-4" />
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
+        <div className="flex items-center gap-3 pl-4 ml-2">
+          <div className="hidden md:flex items-center gap-1 border-r border-white/5 pr-4 mr-2">
+            <Link href="/docs">
+              <button className="p-1.5 text-zinc-500 hover:text-zinc-300 transition-colors rounded hover:bg-white/5">
+                <BookOpen className="w-3.5 h-3.5" />
+              </button>
+            </Link>
+            <button className="p-1.5 text-zinc-500 hover:text-zinc-300 transition-colors rounded hover:bg-white/5">
+              <Terminal className="w-3.5 h-3.5" />
+            </button>
+          </div>
 
           <Link href="/builder">
             <button className={cn(
-              "flex items-center gap-2 bg-primary hover:bg-blue-600 text-white text-xs font-medium transition-all group",
-              scrolled ? "p-2 rounded-full aspect-square" : "px-4 py-2 rounded-lg"
+              "flex items-center gap-2 bg-[#0055eb] hover:bg-[#0044c2] text-white text-xs font-semibold rounded-[6px] transition-all shadow-sm active:translate-y-px",
+              scrolled ? "px-3 py-1.5" : "px-4 py-2"
             )}>
-              <Rocket className={cn("w-3.5 h-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5", scrolled && "w-4 h-4")} />
-              {!scrolled && <span>Launch App</span>}
+              <span>Launch App</span>
+              <ArrowRightIcon className="w-3 h-3 opacity-70" />
             </button>
           </Link>
         </div>
@@ -100,35 +91,30 @@ export function Navbar() {
 
 function NavLinks({ scrolled }: { scrolled: boolean }) {
   const links = [
-    { label: "Features", href: "#features", icon: Zap },
-    { label: "Templates", href: "#templates", icon: Layers },
-    { label: "Showcase", href: "#showcase", icon: Sparkles },
+    { label: "Features", href: "#features" },
+    { label: "Templates", href: "#templates" },
+    { label: "Enterprise", href: "#enterprise" },
   ]
 
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-6">
       {links.map((link) => (
-        <Link key={link.label} href={link.href}>
-          <button className={cn(
-            "flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-zinc-400 hover:text-zinc-200 hover:bg-[#1A1F26] rounded-md transition-all",
-            scrolled && "px-2"
-          )}>
-            <link.icon className="w-3.5 h-3.5 text-zinc-500 group-hover:text-primary transition-colors" />
-            <AnimatePresence>
-              {!scrolled && (
-                <motion.span
-                  initial={{ opacity: 0, width: 0 }}
-                  animate={{ opacity: 1, width: "auto" }}
-                  exit={{ opacity: 0, width: 0 }}
-                  className="overflow-hidden ml-1"
-                >
-                  {link.label}
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </button>
+        <Link key={link.label} href={link.href} className="group relative py-1">
+          <span className="text-xs font-medium text-zinc-400 group-hover:text-zinc-100 transition-colors">
+            {link.label}
+          </span>
+          <span className="absolute bottom-0 left-0 w-full h-px bg-white transform scale-x-0 group-hover:scale-x-100 transition-transform duration-200 origin-left opacity-30" />
         </Link>
       ))}
     </div>
+  )
+}
+
+function ArrowRightIcon({ className }: { className?: string }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M5 12h14" />
+      <path d="m12 5 7 7-7 7" />
+    </svg>
   )
 }

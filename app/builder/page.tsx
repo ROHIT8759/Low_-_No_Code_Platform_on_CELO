@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react"
 import { useBuilderStore } from "@/lib/store"
 import { useSupabaseStore } from "@/lib/supabase-store"
-import { Navbar } from "@/components/navbar"
 import { BuilderNavbar } from "@/components/builder-navbar"
 import { BlockSidebar } from "@/components/block-sidebar"
 import { Canvas } from "@/components/canvas"

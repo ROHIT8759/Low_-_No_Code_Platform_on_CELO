@@ -9,6 +9,9 @@ import { motion } from "framer-motion"
 import { ArrowRight, Shield, Zap, Database, Server, Cpu, Lock, Terminal, Activity, FileCheck, Layers, GitCommit, CheckCircle, Code2, Workflow, Box } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
+// import { AnimatedGridPattern } from "@/components/reactbits/AnimatedGridPattern"
+import { BorderBeam } from "@/components/reactbits/BorderBeam"
+import Silk from "@/components/reactbits/Silk"
 
 const INFRASTRUCTURE_FEATURES = [
   {
@@ -76,9 +79,17 @@ export default function Home() {
 
       {/* 1. LAYERED BACKGROUND SYSTEM */}
       {/* Grid only visible in hero + bento zone then fades out */}
-      <div className="absolute inset-0 h-[1000px] z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-infrastructure-grid opacity-[0.03] [mask-image:linear-gradient(to_bottom,black_40%,transparent_100%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.03)_0%,transparent_50%)]" />
+      {/* 1. LAYERED BACKGROUND SYSTEM */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        <Silk
+          speed={5}
+          scale={1}
+          color="#1A1F26" // Tilted slightly lighter to ensure visibility against the #0B0F14 bg
+          noiseIntensity={1.5} // Increased noise for texture
+          rotation={0}
+        />
+        {/* We keep a subtle gradient overlay to ensure text readability if the silk is too busy */}
+        <div className="absolute inset-0 bg-linear-to-b from-transparent via-[#0B0F14]/50 to-[#0B0F14]" />
       </div>
 
       <Navbar />
@@ -133,9 +144,10 @@ export default function Home() {
             initial={{ opacity: 0, scale: 0.98, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="relative"
+            className="relative rounded-lg"
           >
             <ProductWindow />
+            <BorderBeam duration={10} delay={5} borderWidth={1.5} size={300} colorFrom="#3b82f6" colorTo="#06b6d4" />
           </motion.div>
         </div>
       </section>
@@ -178,100 +190,216 @@ export default function Home() {
         </BentoGrid>
       </section>
 
-      {/* 5. SYSTEM ARCHITECTURE */}
-      <section className="py-24 border-t border-[#1A1F26] bg-[#0B0F14]">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-2xl font-semibold text-white mb-2">Build Pipeline</h2>
-            <p className="text-zinc-500">From visual composition to deterministic bytecode.</p>
+      {/* 5. SYSTEM ARCHITECTURE / BUILD PIPELINE */}
+      <section className="py-32 border-t border-[#1A1F26] bg-[#0B0F14] relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="text-center mb-20">
+            <h2 className="text-3xl font-semibold text-white mb-3">Build Pipeline</h2>
+            <p className="text-zinc-500 font-mono text-sm uppercase tracking-wider">Visual Engine <span className="text-zinc-700 mx-2">→</span> Deterministic WASM</p>
           </div>
 
-          <div className="relative flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 max-w-4xl mx-auto">
-            {/* Step 1 */}
-            <div className="flex flex-col items-center gap-3 group">
-              <div className="w-16 h-16 rounded-xl bg-[#11151A] border border-[#222730] flex items-center justify-center group-hover:border-primary/50 transition-colors">
-                <Box className="w-6 h-6 text-zinc-400 group-hover:text-white" />
+          <div className="relative flex flex-col md:flex-row items-start justify-center gap-0 max-w-6xl mx-auto">
+
+            {/* ITEM 1 */}
+            <div className="flex-1 flex flex-col gap-4 relative group z-10">
+              <div className="h-48 p-6 mx-2 rounded-xl border border-zinc-800 bg-[#0F141B] hover:bg-[#11161D] transition-all hover:-translate-y-1 duration-300 relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1 bg-blue-500/50" />
+                <div className="flex justify-between items-start mb-8">
+                  <span className="text-[10px] font-mono text-zinc-600 border border-zinc-800 px-2 py-1 rounded">ID: 01</span>
+                  <div className="w-8 h-8 rounded flex items-center justify-center bg-blue-500/10 text-blue-500">
+                    <Box className="w-4 h-4" />
+                  </div>
+                </div>
+                <h3 className="text-sm font-semibold text-zinc-200 mb-2">Visual Engine</h3>
+                <p className="text-xs text-zinc-500 leading-relaxed">Drag-and-drop composition with schema enforcement.</p>
               </div>
-              <span className="text-xs font-mono text-zinc-500">VISUAL ENGINE</span>
+              {/* Micro Stats */}
+              <div className="px-6 flex gap-4 text-[10px] font-mono text-zinc-600 opacity-0 group-hover:opacity-100 transition-opacity transform translate-y-2 group-hover:translate-y-0">
+                <span>CTX: 84ms</span>
+              </div>
             </div>
 
-            {/* Connector */}
-            <div className="w-px h-8 md:w-16 md:h-px bg-zinc-800" />
-
-            {/* Step 2 */}
-            <div className="flex flex-col items-center gap-3 group">
-              <div className="w-16 h-16 rounded-xl bg-[#11151A] border border-[#222730] flex items-center justify-center group-hover:border-primary/50 transition-colors">
-                <Code2 className="w-6 h-6 text-zinc-400 group-hover:text-white" />
-              </div>
-              <span className="text-xs font-mono text-zinc-500">RUST GEN</span>
+            {/* CONNECTOR 1 */}
+            <div className="hidden md:flex w-12 h-48 items-center justify-center relative -ml-1 -mr-1 z-0">
+              <div className="w-full h-px bg-zinc-800" />
+              <div className="absolute w-2 h-2 rounded-full bg-zinc-800" />
             </div>
 
-            {/* Connector */}
-            <div className="w-px h-8 md:w-16 md:h-px bg-zinc-800" />
-
-            {/* Step 3 */}
-            <div className="flex flex-col items-center gap-3 group">
-              <div className="w-16 h-16 rounded-xl bg-[#11151A] border border-[#222730] flex items-center justify-center group-hover:border-primary/50 transition-colors">
-                <Terminal className="w-6 h-6 text-zinc-400 group-hover:text-white" />
+            {/* ITEM 2 */}
+            <div className="flex-1 flex flex-col gap-4 relative group z-10">
+              <div className="h-48 p-6 mx-2 rounded-xl border border-zinc-800 bg-[#0F141B] hover:bg-[#11161D] transition-all hover:-translate-y-1 duration-300 delay-75 relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1 bg-purple-500/50" />
+                <div className="flex justify-between items-start mb-8">
+                  <span className="text-[10px] font-mono text-zinc-600 border border-zinc-800 px-2 py-1 rounded">ID: 02</span>
+                  <div className="w-8 h-8 rounded flex items-center justify-center bg-purple-500/10 text-purple-500">
+                    <Code2 className="w-4 h-4" />
+                  </div>
+                </div>
+                <h3 className="text-sm font-semibold text-zinc-200 mb-2">Rust Synthesis</h3>
+                <p className="text-xs text-zinc-500 leading-relaxed">AST generation + borrow checker compliance.</p>
               </div>
-              <span className="text-xs font-mono text-zinc-500">COMPILER</span>
+              <div className="px-6 flex gap-4 text-[10px] font-mono text-zinc-600 opacity-0 group-hover:opacity-100 transition-opacity transform translate-y-2 group-hover:translate-y-0 delay-75">
+                <span>GEN: 12ms</span>
+              </div>
             </div>
 
-            {/* Connector */}
-            <div className="w-px h-8 md:w-16 md:h-px bg-zinc-800" />
-
-            {/* Step 4 */}
-            <div className="flex flex-col items-center gap-3 group">
-              <div className="w-16 h-16 rounded-xl bg-[#11151A] border border-[#222730] flex items-center justify-center group-hover:border-primary/50 transition-colors">
-                <Cpu className="w-6 h-6 text-zinc-400 group-hover:text-white" />
-              </div>
-              <span className="text-xs font-mono text-zinc-500">WASM</span>
+            {/* CONNECTOR 2 */}
+            <div className="hidden md:flex w-12 h-48 items-center justify-center relative -ml-1 -mr-1 z-0">
+              <div className="w-full h-px bg-zinc-800" />
+              <div className="absolute w-2 h-2 rounded-full bg-zinc-800" />
             </div>
+
+            {/* ITEM 3 */}
+            <div className="flex-1 flex flex-col gap-4 relative group z-10">
+              <div className="h-48 p-6 mx-2 rounded-xl border border-zinc-800 bg-[#0F141B] hover:bg-[#11161D] transition-all hover:-translate-y-1 duration-300 delay-100 relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1 bg-emerald-500/50" />
+                <div className="flex justify-between items-start mb-8">
+                  <span className="text-[10px] font-mono text-zinc-600 border border-zinc-800 px-2 py-1 rounded">ID: 03</span>
+                  <div className="w-8 h-8 rounded flex items-center justify-center bg-emerald-500/10 text-emerald-500">
+                    <Terminal className="w-4 h-4" />
+                  </div>
+                </div>
+                <h3 className="text-sm font-semibold text-zinc-200 mb-2">LLVM Compiler</h3>
+                <p className="text-xs text-zinc-500 leading-relaxed">Optimization pipeline for minimal bytecode size.</p>
+              </div>
+              <div className="px-6 flex gap-4 text-[10px] font-mono text-zinc-600 opacity-0 group-hover:opacity-100 transition-opacity transform translate-y-2 group-hover:translate-y-0 delay-100">
+                <span>OPT: Level 3</span>
+              </div>
+            </div>
+
+            {/* CONNECTOR 3 */}
+            <div className="hidden md:flex w-12 h-48 items-center justify-center relative -ml-1 -mr-1 z-0">
+              <div className="w-full h-px bg-zinc-800" />
+              <div className="absolute w-2 h-2 rounded-full bg-zinc-800" />
+            </div>
+
+            {/* ITEM 4 */}
+            <div className="flex-1 flex flex-col gap-4 relative group z-10">
+              <div className="h-48 p-6 mx-2 rounded-xl border border-zinc-800 bg-[#0F141B] hover:bg-[#11161D] transition-all hover:-translate-y-1 duration-300 delay-150 relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1 bg-indigo-500/50" />
+                <div className="flex justify-between items-start mb-8">
+                  <span className="text-[10px] font-mono text-zinc-600 border border-zinc-800 px-2 py-1 rounded">ID: 04</span>
+                  <div className="w-8 h-8 rounded flex items-center justify-center bg-indigo-500/10 text-indigo-500">
+                    <Cpu className="w-4 h-4" />
+                  </div>
+                </div>
+                <h3 className="text-sm font-semibold text-zinc-200 mb-2">WASM Bytecode</h3>
+                <p className="text-xs text-zinc-500 leading-relaxed">Mainnet-ready binary artifact.</p>
+              </div>
+              <div className="px-6 flex gap-4 text-[10px] font-mono text-zinc-600 opacity-0 group-hover:opacity-100 transition-opacity transform translate-y-2 group-hover:translate-y-0 delay-150">
+                <span>SIZE: 14kb</span>
+              </div>
+            </div>
+
           </div>
         </div>
       </section>
 
-      {/* 6. SECURITY & COMPLIANCE */}
-      <section className="relative py-20 px-6 border-t border-[#1A1F26] bg-[#090C10]">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
-            <div>
-              <div className="inline-flex items-center gap-2 px-2 py-1 rounded border border-emerald-900/30 bg-emerald-900/10 mb-4">
-                <Shield className="w-3 h-3 text-emerald-500" />
-                <span className="text-[10px] font-medium text-emerald-500 uppercase tracking-wider">SOC2 Pipeline</span>
-              </div>
-              <h2 className="text-2xl font-semibold text-white">Security Architecture</h2>
+      {/* 6. SECURITY & COMPLIANCE - DEFENSE IN DEPTH SPLIT */}
+      <section className="relative py-32 px-6 border-t border-[#1A1F26] bg-[#090C10]">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+
+          {/* Left: Strategic Copy */}
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-900/30 bg-emerald-900/10 mb-6">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-[10px] font-medium text-emerald-500 uppercase tracking-wider">Active Protection</span>
             </div>
-            <p className="text-zinc-500 max-w-sm text-sm">
-              Every deployment undergoes static analysis and symbolic execution before hitting the network.
+            <h2 className="text-4xl font-semibold text-white mb-6 tracking-tight">
+              Defense in Depth <br />
+              <span className="text-zinc-500">Architecture</span>
+            </h2>
+            <p className="text-zinc-400 text-base leading-relaxed mb-8 max-w-md">
+              We don't just compile; we verify. Every contract undergoes a rigorous multi-stage security pipeline before it ever touches the network.
             </p>
+
+            <div className="space-y-6">
+              <div className="flex items-start gap-4">
+                <div className="w-6 h-6 rounded bg-zinc-800 flex items-center justify-center mt-0.5 shrink-0">
+                  <Shield className="w-3 h-3 text-zinc-400" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-white">Pre-Flight Analysis</h4>
+                  <p className="text-xs text-zinc-500 mt-1">Static analysis scans for common vector vulnerabilities.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-4">
+                <div className="w-6 h-6 rounded bg-zinc-800 flex items-center justify-center mt-0.5 shrink-0">
+                  <FileCheck className="w-3 h-3 text-zinc-400" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-white">Symbolic Execution</h4>
+                  <p className="text-xs text-zinc-500 mt-1">Mathematical proof of contract logic correctness.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-4">
+                <div className="w-6 h-6 rounded bg-zinc-800 flex items-center justify-center mt-0.5 shrink-0">
+                  <Lock className="w-3 h-3 text-zinc-400" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-white">Runtime Enclaves</h4>
+                  <p className="text-xs text-zinc-500 mt-1">Isolated execution environments for gas metering.</p>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <SpotlightCard className="bg-[#0B0F14] border-l-2 border-l-blue-500 border-y border-r border-[#222730] min-h-[160px] p-6">
-              <div className="mb-4 w-8 h-8 rounded bg-blue-500/10 flex items-center justify-center">
-                <Activity className="w-4 h-4 text-blue-500" />
-              </div>
-              <h3 className="text-sm font-semibold text-zinc-200 mb-1">Runtime Assurance</h3>
-              <p className="text-xs text-zinc-500">Real-time monitoring of gas metering and execution limits.</p>
-            </SpotlightCard>
+          {/* Right: Visual Stack */}
+          <div className="relative h-[500px] w-full flex items-center justify-center">
+            <div className="relative w-full max-w-md">
+              {/* Layer 3 - Bottom */}
+              <div className="absolute top-24 left-8 right-8 h-40 bg-[#0F141B] border border-zinc-800 rounded-lg p-6 transform scale-95 opacity-40 z-0"></div>
 
-            <SpotlightCard className="bg-[#0B0F14] border-l-2 border-l-purple-500 border-y border-r border-[#222730] min-h-[160px] p-6 translate-y-4">
-              <div className="mb-4 w-8 h-8 rounded bg-purple-500/10 flex items-center justify-center">
-                <FileCheck className="w-4 h-4 text-purple-500" />
+              {/* Layer 2 - Middle */}
+              <div className="absolute top-12 left-4 right-4 h-40 bg-[#0F141B] border border-zinc-800 rounded-lg p-6 shadow-2xl transform scale-100 opacity-70 z-10 flex items-center justify-between">
+                <span className="text-xs font-mono text-zinc-600">LAYER_02</span>
+                <div className="h-1 w-12 bg-purple-500/30 rounded-full" />
               </div>
-              <h3 className="text-sm font-semibold text-zinc-200 mb-1">Bytecode Verification</h3>
-              <p className="text-xs text-zinc-500">Cryptographic proof of source-code-to-wasm compilation.</p>
-            </SpotlightCard>
 
-            <SpotlightCard className="bg-[#0B0F14] border-l-2 border-l-emerald-500 border-y border-r border-[#222730] min-h-[160px] p-6 translate-y-8">
-              <div className="mb-4 w-8 h-8 rounded bg-emerald-500/10 flex items-center justify-center">
-                <Lock className="w-4 h-4 text-emerald-500" />
-              </div>
-              <h3 className="text-sm font-semibold text-zinc-200 mb-1">Access Control</h3>
-              <p className="text-xs text-zinc-500">Role-based permissioning baked into every contract template.</p>
-            </SpotlightCard>
+              {/* Layer 1 - Top (Active) */}
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                whileInView={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.7 }}
+                className="relative h-auto bg-[#0F141B] border border-zinc-700/50 rounded-xl p-8 shadow-2xl z-20"
+              >
+                <div className="flex justify-between items-start mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+                      <Shield className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <div className="text-sm font-semibold text-white">Security Report</div>
+                      <div className="text-[10px] text-zinc-500 font-mono">ID: 0x82...9A2</div>
+                    </div>
+                  </div>
+                  <div className="px-2 py-1 rounded bg-emerald-500/10 border border-emerald-500/20 text-[10px] text-emerald-500 font-mono">
+                    PASSED
+                  </div>
+                </div>
+
+                <div className="space-y-3 font-mono text-[10px] text-zinc-400">
+                  <div className="flex justify-between py-2 border-b border-zinc-800">
+                    <span>Re-entrancy Check</span>
+                    <span className="text-emerald-500">SAFE</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-zinc-800">
+                    <span>Overflow Protection</span>
+                    <span className="text-emerald-500">SAFE</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-zinc-800">
+                    <span>Access Control</span>
+                    <span className="text-emerald-500">VERIFIED</span>
+                  </div>
+                  <div className="flex justify-between py-2">
+                    <span>Gas Optimization</span>
+                    <span className="text-blue-500">98/100</span>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
           </div>
+
         </div>
       </section>
 

@@ -32,7 +32,7 @@ export function AnimatedGridPattern({
     const id = useId();
 
     return (
-        <div className={cn("absolute inset-0 h-full w-full [mask-image:radial-gradient(900px_circle_at_center,white,transparent)]", className)}>
+        <div className={cn("absolute inset-0 h-full w-full mask-[radial-gradient(900px_circle_at_center,white,transparent)]", className)}>
             <svg
                 aria-hidden="true"
                 className={cn(
@@ -81,6 +81,6 @@ export function AnimatedGridPattern({
                     ))}
                 </svg>
             </svg>
-        </div>
+        </div >
     );
 }

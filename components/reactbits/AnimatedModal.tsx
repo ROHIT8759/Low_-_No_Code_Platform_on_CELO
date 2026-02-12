@@ -25,14 +25,14 @@ export const Modal = ({
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="fixed inset-0 z-[60] h-full w-full bg-black/60 backdrop-blur-sm"
+                        className="fixed inset-0 z-60 h-full w-full bg-black/60 backdrop-blur-sm"
                     />
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95, y: 10 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 10 }}
                         className={cn(
-                            "fixed left-[50%] top-[50%] z-[70] grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border border-zinc-800 bg-zinc-900 p-6 shadow-lg sm:rounded-lg md:w-full",
+                            "fixed left-[50%] top-[50%] z-70 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border border-zinc-800 bg-zinc-900 p-6 shadow-lg sm:rounded-lg md:w-full",
                             "glass-panel",
                             className
                         )}

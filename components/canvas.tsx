@@ -48,8 +48,8 @@ export function Canvas() {
                                 <div className="w-8 h-8 rounded bg-[#1A1F26] flex items-center justify-center border border-[#2A303C] mb-4 group-hover:border-primary/20">
                                     <Database className="w-4 h-4 text-zinc-400 group-hover:text-primary" />
                                 </div>
-                                <h4 className="text-sm font-medium text-zinc-300 group-hover:text-white mb-1">ERC-20 Standard</h4>
-                                <p className="text-xs text-zinc-600 leading-relaxed">Fungible token for payments and utility.</p>
+                                <h4 className="text-sm font-medium text-zinc-300 group-hover:text-white mb-1">Soroban Token</h4>
+                                <p className="text-xs text-zinc-600 leading-relaxed">Standard interface for fungible assets.</p>
                             </button>
 
                             {/* Option 2 */}
@@ -60,8 +60,8 @@ export function Canvas() {
                                 <div className="w-8 h-8 rounded bg-[#1A1F26] flex items-center justify-center border border-[#2A303C] mb-4 group-hover:border-purple-500/20">
                                     <Layers className="w-4 h-4 text-zinc-400 group-hover:text-purple-400" />
                                 </div>
-                                <h4 className="text-sm font-medium text-zinc-300 group-hover:text-white mb-1">NFT Standard</h4>
-                                <p className="text-xs text-zinc-600 leading-relaxed">Non-fungible token for digital assets.</p>
+                                <h4 className="text-sm font-medium text-zinc-300 group-hover:text-white mb-1">Non-Fungible Token</h4>
+                                <p className="text-xs text-zinc-600 leading-relaxed">Unique asset implementation.</p>
                             </button>
 
                             {/* Option 3 */}

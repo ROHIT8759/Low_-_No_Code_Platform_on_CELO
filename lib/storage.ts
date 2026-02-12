@@ -1,34 +1,13 @@
-import {
-  S3Client,
-  PutObjectCommand,
-  GetObjectCommand,
-  DeleteObjectCommand,
-  HeadObjectCommand,
-  S3ClientConfig,
-} from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { createHash } from 'crypto';
 import { gzip, gunzip } from 'zlib';
 import { promisify } from 'util';
+import { mkdir, writeFile, readFile, unlink, access } from 'fs/promises';
+import { join } from 'path';
 
 const gzipAsync = promisify(gzip);
 const gunzipAsync = promisify(gunzip);
 
-const s3Config: S3ClientConfig = {
-  region: process.env.AWS_REGION || 'us-east-1',
-  credentials: process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY
-    ? {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-      }
-    : undefined,
-  endpoint: process.env.S3_ENDPOINT, 
-  forcePathStyle: process.env.S3_FORCE_PATH_STYLE === 'true', 
-};
-
-const s3Client = new S3Client(s3Config);
-
-const BUCKET_NAME = process.env.S3_BUCKET_NAME || 'contract-artifacts';
+const STORAGE_ROOT = process.env.ARTIFACT_STORAGE_PATH || join(process.cwd(), '.artifacts');
 
 export type ArtifactType = 'evm' | 'stellar' | 'metadata';
 
@@ -39,10 +18,10 @@ const STORAGE_PATHS = {
 } as const;
 
 export class ArtifactStorage {
-  private bucket: string;
+  private storageRoot: string;
 
-  constructor(bucketName?: string) {
-    this.bucket = bucketName || BUCKET_NAME;
+  constructor(storageRoot?: string) {
+    this.storageRoot = storageRoot || STORAGE_ROOT;
   }
 
   
@@ -54,6 +33,17 @@ export class ArtifactStorage {
   private getStorageKey(type: ArtifactType, identifier: string, extension: string): string {
     const path = STORAGE_PATHS[type];
     return `${path}${identifier}.${extension}`;
+  }
+
+  
+  private getFilePath(key: string): string {
+    return join(this.storageRoot, key);
+  }
+
+  
+  private async ensureDir(filePath: string): Promise<void> {
+    const dir = filePath.substring(0, filePath.lastIndexOf('/') > -1 ? filePath.lastIndexOf('/') : filePath.lastIndexOf('\\'));
+    await mkdir(dir, { recursive: true });
   }
 
   
@@ -71,20 +61,9 @@ export class ArtifactStorage {
 
       
       const key = this.getStorageKey('evm', hash, 'bytecode.gz');
-      const command = new PutObjectCommand({
-        Bucket: this.bucket,
-        Key: key,
-        Body: compressed,
-        ContentType: 'application/gzip',
-        ContentEncoding: 'gzip',
-        Metadata: {
-          'original-size': bytecodeBuffer.length.toString(),
-          'compressed-size': compressed.length.toString(),
-          'hash': hash,
-        },
-      });
-
-      await s3Client.send(command);
+      const filePath = this.getFilePath(key);
+      await this.ensureDir(filePath);
+      await writeFile(filePath, compressed);
 
       return { artifactId: hash, key };
     } catch (error) {
@@ -97,19 +76,10 @@ export class ArtifactStorage {
   async retrieveEVMBytecode(artifactId: string): Promise<string> {
     try {
       const key = this.getStorageKey('evm', artifactId, 'bytecode.gz');
-      const command = new GetObjectCommand({
-        Bucket: this.bucket,
-        Key: key,
-      });
-
-      const response = await s3Client.send(command);
-      
-      if (!response.Body) {
-        throw new Error('Empty response body');
-      }
+      const filePath = this.getFilePath(key);
 
       
-      const compressed = await this.streamToBuffer(response.Body);
+      const compressed = await readFile(filePath);
 
       
       const decompressed = await gunzipAsync(compressed);
@@ -130,18 +100,9 @@ export class ArtifactStorage {
 
       
       const key = this.getStorageKey('stellar', hash, 'wasm');
-      const command = new PutObjectCommand({
-        Bucket: this.bucket,
-        Key: key,
-        Body: wasm,
-        ContentType: 'application/wasm',
-        Metadata: {
-          'size': wasm.length.toString(),
-          'hash': hash,
-        },
-      });
-
-      await s3Client.send(command);
+      const filePath = this.getFilePath(key);
+      await this.ensureDir(filePath);
+      await writeFile(filePath, wasm);
 
       return { artifactId: hash, key };
     } catch (error) {
@@ -154,18 +115,9 @@ export class ArtifactStorage {
   async retrieveStellarWASM(artifactId: string): Promise<Buffer> {
     try {
       const key = this.getStorageKey('stellar', artifactId, 'wasm');
-      const command = new GetObjectCommand({
-        Bucket: this.bucket,
-        Key: key,
-      });
+      const filePath = this.getFilePath(key);
 
-      const response = await s3Client.send(command);
-      
-      if (!response.Body) {
-        throw new Error('Empty response body');
-      }
-
-      return await this.streamToBuffer(response.Body);
+      return await readFile(filePath);
     } catch (error) {
       console.error(`[Storage] Error retrieving Stellar WASM ${artifactId}:`, error);
       throw new Error(`Failed to retrieve Stellar WASM: ${error}`);
@@ -176,14 +128,9 @@ export class ArtifactStorage {
   async storeMetadata(artifactId: string, metadata: any): Promise<string> {
     try {
       const key = this.getStorageKey('metadata', artifactId, 'json');
-      const command = new PutObjectCommand({
-        Bucket: this.bucket,
-        Key: key,
-        Body: JSON.stringify(metadata, null, 2),
-        ContentType: 'application/json',
-      });
-
-      await s3Client.send(command);
+      const filePath = this.getFilePath(key);
+      await this.ensureDir(filePath);
+      await writeFile(filePath, JSON.stringify(metadata, null, 2), 'utf-8');
 
       return key;
     } catch (error) {
@@ -196,19 +143,10 @@ export class ArtifactStorage {
   async retrieveMetadata(artifactId: string): Promise<any> {
     try {
       const key = this.getStorageKey('metadata', artifactId, 'json');
-      const command = new GetObjectCommand({
-        Bucket: this.bucket,
-        Key: key,
-      });
+      const filePath = this.getFilePath(key);
 
-      const response = await s3Client.send(command);
-      
-      if (!response.Body) {
-        throw new Error('Empty response body');
-      }
-
-      const buffer = await this.streamToBuffer(response.Body);
-      return JSON.parse(buffer.toString('utf-8'));
+      const data = await readFile(filePath, 'utf-8');
+      return JSON.parse(data);
     } catch (error) {
       console.error(`[Storage] Error retrieving metadata for ${artifactId}:`, error);
       throw new Error(`Failed to retrieve metadata: ${error}`);
@@ -221,21 +159,9 @@ export class ArtifactStorage {
     type: ArtifactType,
     expiresIn: number = 3600
   ): Promise<string> {
-    try {
-      const extension = type === 'evm' ? 'bytecode.gz' : type === 'stellar' ? 'wasm' : 'json';
-      const key = this.getStorageKey(type, artifactId, extension);
-
-      const command = new GetObjectCommand({
-        Bucket: this.bucket,
-        Key: key,
-      });
-
-      const signedUrl = await getSignedUrl(s3Client, command, { expiresIn });
-      return signedUrl;
-    } catch (error) {
-      console.error(`[Storage] Error generating signed URL for ${artifactId}:`, error);
-      throw new Error(`Failed to generate signed URL: ${error}`);
-    }
+    const extension = type === 'evm' ? 'bytecode.gz' : type === 'stellar' ? 'wasm' : 'json';
+    const key = this.getStorageKey(type, artifactId, extension);
+    return `file://${this.getFilePath(key)}`;
   }
 
   
@@ -243,13 +169,9 @@ export class ArtifactStorage {
     try {
       const extension = type === 'evm' ? 'bytecode.gz' : type === 'stellar' ? 'wasm' : 'json';
       const key = this.getStorageKey(type, artifactId, extension);
+      const filePath = this.getFilePath(key);
 
-      const command = new DeleteObjectCommand({
-        Bucket: this.bucket,
-        Key: key,
-      });
-
-      await s3Client.send(command);
+      await unlink(filePath);
     } catch (error) {
       console.error(`[Storage] Error deleting artifact ${artifactId}:`, error);
       throw new Error(`Failed to delete artifact: ${error}`);
@@ -261,32 +183,13 @@ export class ArtifactStorage {
     try {
       const extension = type === 'evm' ? 'bytecode.gz' : type === 'stellar' ? 'wasm' : 'json';
       const key = this.getStorageKey(type, artifactId, extension);
+      const filePath = this.getFilePath(key);
 
-      const command = new HeadObjectCommand({
-        Bucket: this.bucket,
-        Key: key,
-      });
-
-      await s3Client.send(command);
+      await access(filePath);
       return true;
-    } catch (error: any) {
-      if (error.name === 'NotFound' || error.$metadata?.httpStatusCode === 404) {
-        return false;
-      }
-      console.error(`[Storage] Error checking existence of ${artifactId}:`, error);
-      throw error;
+    } catch {
+      return false;
     }
-  }
-
-  
-  private async streamToBuffer(stream: any): Promise<Buffer> {
-    const chunks: Uint8Array[] = [];
-    
-    for await (const chunk of stream) {
-      chunks.push(chunk);
-    }
-    
-    return Buffer.concat(chunks);
   }
 
   
@@ -362,5 +265,3 @@ export class ArtifactStorage {
 }
 
 export const storage = new ArtifactStorage();
-
-export { s3Client };

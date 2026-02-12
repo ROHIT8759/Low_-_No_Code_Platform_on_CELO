@@ -1,57 +1,54 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z, ZodError } from 'zod';
 import { DeploymentService } from '@/lib/services/deployment';
+import { deploymentLogger as logger } from '@/lib/logger';
+import { withCSRFProtection } from '@/lib/middleware/csrf';
 
-export async function POST(request: NextRequest) {
+const StellarDeploySchema = z.object({
+  artifactId: z.string().min(1, 'Artifact ID is required'),
+  network: z.enum(['testnet', 'mainnet'], {
+    errorMap: () => ({ message: 'Network must be testnet or mainnet' }),
+  }),
+  sourceAccount: z.string().min(1, 'Source account is required'),
+});
+
+async function handlePost(request: NextRequest) {
   try {
     const body = await request.json();
-    const { artifactId, network, sourceAccount } = body;
-    if (!artifactId || typeof artifactId !== 'string') {
+    
+    const validation = StellarDeploySchema.safeParse(body);
+    if (!validation.success) {
+      const issues = validation.error.issues.map((issue: z.ZodIssue) => ({
+        field: issue.path.join('.'),
+        message: issue.message,
+      }));
+      
       return NextResponse.json(
         {
           success: false,
-          error: 'Missing or invalid artifactId field',
+          error: 'Validation failed',
+          details: issues,
         },
         { status: 400 }
       );
     }
 
-    if (!network || typeof network !== 'string') {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Missing or invalid network field',
-        },
-        { status: 400 }
-      );
-    }
-
-    if (!sourceAccount || typeof sourceAccount !== 'string') {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Missing or invalid sourceAccount field',
-        },
-        { status: 400 }
-      );
-    }
-    const supportedNetworks = ['testnet', 'mainnet'];
-    if (!supportedNetworks.includes(network)) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: `Unsupported network: ${network}`,
-          details: `Supported networks: ${supportedNetworks.join(', ')}`,
-        },
-        { status: 400 }
-      );
-    }
+    const { artifactId, network, sourceAccount } = validation.data;
+    
     const deploymentService = new DeploymentService();
     const result = await deploymentService.deployStellar({
       artifactId,
-      network: network as 'testnet' | 'mainnet',
+      network,
       sourceAccount,
     });
+
     if (!result.success) {
+      logger.error('Stellar deployment failed', undefined, { 
+        artifactId, 
+        network, 
+        error: result.error 
+      });
+      
       return NextResponse.json(
         {
           success: false,
@@ -61,6 +58,13 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    logger.info('Stellar deployment prepared', { 
+      artifactId, 
+      network,
+      hasEnvelope: !!result.envelopeXDR 
+    });
+
     return NextResponse.json(
       {
         success: true,
@@ -70,7 +74,7 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     );
   } catch (error: any) {
-    console.error('[API] Stellar deployment endpoint error:', error);
+    logger.error('Stellar deployment endpoint error', error);
     
     return NextResponse.json(
       {
@@ -82,6 +86,8 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+export const POST = withCSRFProtection(handlePost);
 export async function GET() {
   return NextResponse.json(
     {

@@ -193,7 +193,7 @@ export class DeploymentService {
         const transaction = await server.transactions().transaction(txHash).call();
         
         if (transaction) {
-          console.log(`[DeploymentService] Stellar transaction confirmed`);
+          logger.info('Stellar transaction confirmed', { txHash });
           return {
             success: transaction.successful,
             result: transaction,
@@ -213,13 +213,13 @@ export class DeploymentService {
           continue;
         }
         
-        console.error(`[DeploymentService] Error polling Stellar transaction (attempt ${attempts}):`, error);
+        logger.error('Error polling Stellar transaction', error, { txHash, attempt: attempts });
         attempts++;
         await new Promise(resolve => setTimeout(resolve, delay));
       }
     }
 
-    console.error(`[DeploymentService] Stellar transaction not found after ${maxAttempts} attempts`);
+    logger.error('Stellar transaction not found after max attempts', undefined, { txHash, maxAttempts });
     return { success: false };
   }
 
@@ -247,7 +247,7 @@ export class DeploymentService {
 
       return null;
     } catch (error) {
-      console.error('[DeploymentService] Error extracting contract ID:', error);
+      logger.error('Error extracting contract ID', error as Error);
       return null;
     }
   }
@@ -278,7 +278,7 @@ export class DeploymentService {
         txHash,
       };
     } catch (error) {
-      console.error('[DeploymentService] Transaction confirmation error:', error);
+      logger.error('Transaction confirmation error', error as Error, { txHash });
       return {
         success: false,
         txHash,

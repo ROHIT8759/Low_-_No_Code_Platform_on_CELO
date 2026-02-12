@@ -2,37 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { DeploymentService } from '@/lib/services/deployment';
 import { EVM_NETWORKS } from '@/lib/multi-chain/chain-config';
 
-/**
- * POST /api/deploy/evm
- * 
- * Deploy compiled EVM contracts to supported networks
- * 
- * Request body:
- * {
- *   artifactId: string
- *   network: string (e.g., 'celo', 'ethereum', 'polygon')
- *   constructorArgs?: any[]
- *   gasLimit?: number
- * }
- * 
- * Response:
- * {
- *   success: true
- *   network: string
- *   unsignedTransaction: {
- *     data: string
- *     chainId: number
- *     gasLimit: string
- *   }
- * }
- */
 export async function POST(request: NextRequest) {
   try {
-    // Parse request body
+    
     const body = await request.json();
     const { artifactId, network, constructorArgs, gasLimit } = body;
 
-    // Validate required fields
+    
     if (!artifactId || typeof artifactId !== 'string') {
       return NextResponse.json(
         {
@@ -53,7 +29,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate network is supported
+    
     if (!(network in EVM_NETWORKS)) {
       return NextResponse.json(
         {
@@ -65,7 +41,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate constructorArgs if provided
+    
     if (constructorArgs !== undefined && !Array.isArray(constructorArgs)) {
       return NextResponse.json(
         {
@@ -76,7 +52,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate gasLimit if provided
+    
     if (gasLimit !== undefined && (typeof gasLimit !== 'number' || gasLimit <= 0)) {
       return NextResponse.json(
         {
@@ -87,10 +63,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create deployment service instance
+    
     const deploymentService = new DeploymentService();
 
-    // Call deployEVM to prepare deployment transaction
+    
     const result = await deploymentService.deployEVM({
       artifactId,
       network: network as keyof typeof EVM_NETWORKS,
@@ -98,7 +74,7 @@ export async function POST(request: NextRequest) {
       gasLimit,
     });
 
-    // Check if deployment preparation was successful
+    
     if (!result.success) {
       return NextResponse.json(
         {
@@ -110,7 +86,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Return unsigned transaction for client-side signing
+    
     return NextResponse.json(
       {
         success: true,
@@ -133,11 +109,6 @@ export async function POST(request: NextRequest) {
   }
 }
 
-/**
- * GET /api/deploy/evm
- * 
- * Returns API information
- */
 export async function GET() {
   return NextResponse.json(
     {

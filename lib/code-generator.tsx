@@ -12,7 +12,7 @@ export function generateSolidityCode(blocks: Block[]): string {
     const standaloneTypes = ["staking", "payment", "governance"]
     const standaloneBlock = blocks.find((b) => standaloneTypes.includes(b.type))
 
-    // If there's a standalone contract, return it (these can't be combined)
+    
     if (standaloneBlock) {
         const config: ContractConfig = {
             name: standaloneBlock.config?.name || "StandaloneContract",
@@ -26,18 +26,18 @@ export function generateSolidityCode(blocks: Block[]): string {
         return getTemplate(standaloneBlock.type, config)
     }
 
-    // If no base contract, prompt user
+    
     if (!baseBlock) {
         return "// Start by adding an ERC20 Token or NFT Contract block"
     }
 
-    // Get all feature blocks (mint, transfer, burn, stake, withdraw, pausable, whitelist, etc.)
+    
     const featureBlocks = blocks.filter((b) =>
         ["mint", "transfer", "burn", "stake", "withdraw", "pausable", "whitelist", "blacklist",
             "royalty", "airdrop", "timelock", "multisig", "voting", "snapshot", "permit"].includes(b.type)
     )
 
-    // Build the combined contract
+    
     return buildCombinedContract(baseBlock, featureBlocks)
 }
 
@@ -52,14 +52,14 @@ function buildCombinedContract(baseBlock: Block, featureBlocks: Block[]): string
     const isERC20 = baseBlock.type === "erc20"
     const isNFT = baseBlock.type === "nft"
 
-    // Start with base template
+    
     let contractCode = `// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
 contract ${config.name} {
 `
 
-    // Add state variables based on contract type
+    
     if (isERC20) {
         contractCode += `    string public name = "${config.name}";
     string public symbol = "${config.symbol}";
@@ -187,7 +187,7 @@ contract ${config.name} {
 `
     }
 
-    // Add feature functions based on selected blocks
+    
     const hasFeature = (type: string) => featureBlocks.some((b) => b.type === type)
 
     if (hasFeature("mint")) {
@@ -305,7 +305,7 @@ contract ${config.name} {
 `
     }
 
-    // Pausable feature
+    
     if (hasFeature("pausable")) {
         contractCode += `
     bool public paused;
@@ -335,7 +335,7 @@ contract ${config.name} {
 `
     }
 
-    // Whitelist feature
+    
     if (hasFeature("whitelist")) {
         contractCode += `
     mapping(address => bool) public whitelist;
@@ -374,7 +374,7 @@ contract ${config.name} {
 `
     }
 
-    // Blacklist feature
+    
     if (hasFeature("blacklist")) {
         contractCode += `
     mapping(address => bool) public blacklist;
@@ -399,7 +399,7 @@ contract ${config.name} {
 `
     }
 
-    // NFT Royalty feature (EIP-2981)
+    
     if (hasFeature("royalty") && isNFT) {
         contractCode += `
     address public royaltyReceiver;
@@ -421,7 +421,7 @@ contract ${config.name} {
 `
     }
 
-    // Airdrop feature
+    
     if (hasFeature("airdrop")) {
         contractCode += `
     event AirdropCompleted(uint256 totalRecipients, uint256 totalAmount);
@@ -451,7 +451,7 @@ contract ${config.name} {
 `
     }
 
-    // Timelock feature
+    
     if (hasFeature("timelock")) {
         contractCode += `
     mapping(bytes32 => uint256) public timelocks;
@@ -478,7 +478,7 @@ contract ${config.name} {
 `
     }
 
-    // Snapshot feature
+    
     if (hasFeature("snapshot") && isERC20) {
         contractCode += `
     uint256 public currentSnapshotId;
@@ -499,7 +499,7 @@ contract ${config.name} {
 `
     }
 
-    // Voting feature
+    
     if (hasFeature("voting") && isERC20) {
         contractCode += `
     struct Proposal {
@@ -547,7 +547,7 @@ contract ${config.name} {
 `
     }
 
-    // Permit feature (EIP-2612 for gasless approvals)
+    
     if (hasFeature("permit") && isERC20) {
         contractCode += `
     mapping(address => uint256) public nonces;
@@ -583,7 +583,7 @@ contract ${config.name} {
 `
     }
 
-    // Add transferOwnership function
+    
     contractCode += `
     function transferOwnership(address newOwner) public onlyOwner {
         require(newOwner != address(0), "Invalid address");
@@ -591,7 +591,7 @@ contract ${config.name} {
     }
 `
 
-    // Close the contract
+    
     contractCode += `}`
 
     return contractCode
@@ -612,7 +612,7 @@ export function generateTypeScriptCode(blocks: Block[]): string {
     const isERC20 = baseBlock.type === "erc20"
     const isNFT = baseBlock.type === "nft"
 
-    // Get feature blocks
+    
     const hasFeature = (type: string) => blocks.some((b) => b.type === type)
 
     let code = `"use client"

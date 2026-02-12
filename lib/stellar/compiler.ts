@@ -6,13 +6,6 @@ import { join } from 'path';
 
 const execAsync = promisify(exec);
 
-/**
- * Soroban Compiler Service
- * 
- * Handles Rust/Soroban contract compilation using soroban-cli.
- * Manages temporary build environments and executes compilation commands.
- */
-
 export interface SorobanCompileResult {
   success: boolean;
   wasm?: Buffer;
@@ -23,15 +16,10 @@ export interface SorobanCompileResult {
   details?: string;
 }
 
-/**
- * Temporary directory manager for compilation
- */
 export class TempDirectoryManager {
   private tempDir: string | null = null;
 
-  /**
-   * Create a temporary directory for compilation
-   */
+  
   async create(): Promise<string> {
     try {
       const prefix = join(tmpdir(), 'soroban-compile-');
@@ -42,9 +30,7 @@ export class TempDirectoryManager {
     }
   }
 
-  /**
-   * Clean up temporary directory
-   */
+  
   async cleanup(): Promise<void> {
     if (this.tempDir) {
       try {
@@ -52,14 +38,12 @@ export class TempDirectoryManager {
         this.tempDir = null;
       } catch (error: any) {
         console.error(`[TempDirectoryManager] Failed to cleanup ${this.tempDir}:`, error);
-        // Don't throw - cleanup is best effort
+        
       }
     }
   }
 
-  /**
-   * Get the current temporary directory path
-   */
+  
   getPath(): string {
     if (!this.tempDir) {
       throw new Error('Temporary directory not created');
@@ -68,13 +52,8 @@ export class TempDirectoryManager {
   }
 }
 
-/**
- * Soroban Compiler
- */
 export class SorobanCompiler {
-  /**
-   * Check if Rust and soroban-cli are installed
-   */
+  
   async checkToolchain(): Promise<{ rust: boolean; soroban: boolean }> {
     const result = { rust: false, soroban: false };
 
@@ -95,13 +74,7 @@ export class SorobanCompiler {
     return result;
   }
 
-  /**
-   * Execute soroban contract build command
-   * 
-   * @param workDir Working directory containing Cargo.toml
-   * @param timeout Timeout in milliseconds (default: 60000)
-   * @returns Build output
-   */
+  
   async buildContract(workDir: string, timeout: number = 60000): Promise<string> {
     try {
       const { stdout, stderr } = await execAsync(
@@ -125,12 +98,7 @@ export class SorobanCompiler {
     }
   }
 
-  /**
-   * Extract ABI using soroban contract inspect
-   * 
-   * @param wasmPath Path to the WASM file
-   * @returns ABI JSON
-   */
+  
   async extractABI(wasmPath: string): Promise<any> {
     try {
       const { stdout } = await execAsync(
@@ -144,12 +112,7 @@ export class SorobanCompiler {
     }
   }
 
-  /**
-   * Create Cargo.toml for Soroban contract
-   * 
-   * @param contractName Contract name
-   * @returns Cargo.toml content
-   */
+  
   createCargoToml(contractName: string): string {
     return `[package]
 name = "${contractName}"
@@ -181,19 +144,14 @@ debug-assertions = true
 `;
   }
 
-  /**
-   * Validate Rust source code syntax (basic check)
-   * 
-   * @param code Rust source code
-   * @returns True if basic validation passes
-   */
+  
   validateRustSyntax(code: string): { valid: boolean; error?: string } {
-    // Basic validation checks
+    
     if (!code.trim()) {
       return { valid: false, error: 'Empty source code' };
     }
 
-    // Check for required soroban-sdk import
+    
     if (!code.includes('soroban_sdk')) {
       return {
         valid: false,
@@ -201,7 +159,7 @@ debug-assertions = true
       };
     }
 
-    // Check for contract macro
+    
     if (!code.includes('#[contract]') && !code.includes('#[contractimpl]')) {
       return {
         valid: false,
@@ -212,15 +170,9 @@ debug-assertions = true
     return { valid: true };
   }
 
-  /**
-   * Find WASM file in target directory
-   * 
-   * @param workDir Working directory
-   * @param contractName Contract name
-   * @returns Path to WASM file
-   */
+  
   getWasmPath(workDir: string, contractName: string): string {
-    // Soroban builds to target/wasm32-unknown-unknown/release/
+    
     return join(
       workDir,
       'target',
@@ -230,12 +182,7 @@ debug-assertions = true
     );
   }
 
-  /**
-   * Read WASM file
-   * 
-   * @param wasmPath Path to WASM file
-   * @returns WASM binary data
-   */
+  
   async readWasm(wasmPath: string): Promise<Buffer> {
     try {
       return await readFile(wasmPath);
@@ -244,30 +191,20 @@ debug-assertions = true
     }
   }
 
-  /**
-   * Write source file to temporary directory
-   * 
-   * @param workDir Working directory
-   * @param code Rust source code
-   */
+  
   async writeSourceFile(workDir: string, code: string): Promise<void> {
     const srcDir = join(workDir, 'src');
     const libPath = join(srcDir, 'lib.rs');
 
     try {
-      // Create src directory
+      
       await writeFile(libPath, code, 'utf-8');
     } catch (error: any) {
       throw new Error(`Failed to write source file: ${error.message}`);
     }
   }
 
-  /**
-   * Write Cargo.toml to temporary directory
-   * 
-   * @param workDir Working directory
-   * @param contractName Contract name
-   */
+  
   async writeCargoToml(workDir: string, contractName: string): Promise<void> {
     const cargoPath = join(workDir, 'Cargo.toml');
     const content = this.createCargoToml(contractName);
@@ -280,6 +217,5 @@ debug-assertions = true
   }
 }
 
-// Export singleton instance
 export const sorobanCompiler = new SorobanCompiler();
 

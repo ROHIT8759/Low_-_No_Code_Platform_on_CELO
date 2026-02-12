@@ -35,7 +35,7 @@ export const ShinyButton = ({ children, className, ...props }: ShinyButtonProps)
             {...animationProps}
             {...props}
             className={cn(
-                // Matte/Subtle Design - "Engineered" feel
+                
                 "relative rounded-md px-6 py-2.5 font-medium transition-all duration-200 ease-out",
                 "bg-zinc-900 border border-zinc-800 text-zinc-100",
                 "hover:bg-zinc-800 hover:border-zinc-700 hover:text-white",
@@ -53,7 +53,7 @@ export const ShinyButton = ({ children, className, ...props }: ShinyButtonProps)
             >
                 {children}
             </span>
-            {/* Subtle Border Gradient (No Glow) */}
+            {}
             <span
                 style={{
                     mask: "linear-gradient(rgb(0,0,0), rgb(0,0,0)) content-box,linear-gradient(rgb(0,0,0), rgb(0,0,0))",

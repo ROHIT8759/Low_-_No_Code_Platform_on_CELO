@@ -89,7 +89,7 @@ Make it production-ready, beautiful, and fully functional.
     const response = await result.response
     const text = response.text()
     
-    // Try to extract JSON from the response
+    
     const jsonMatch = text.match(/\{[\s\S]*\}/)
     if (jsonMatch) {
       return jsonMatch[0]

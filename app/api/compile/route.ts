@@ -1,17 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
 import { compilationService } from "@/lib/services/compilation"
 
-/**
- * POST /api/compile (Legacy endpoint)
- * 
- * Maintains backward compatibility with existing EVM compilation requests.
- * Routes to the new CompilationService for processing.
- */
 export async function POST(request: NextRequest) {
   try {
     const { solidityCode, contractName, optimizerRuns } = await request.json()
 
-    // Input validation
+    
     if (!solidityCode || !contractName) {
       return NextResponse.json(
         { error: "Missing solidityCode or contractName" },
@@ -19,14 +13,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Route to new EVM compilation service
+    
     const result = await compilationService.compileEVM(
       solidityCode,
       contractName,
       { optimizerRuns }
     )
 
-    // Handle compilation failure
+    
     if (!result.success) {
       return NextResponse.json(
         {
@@ -37,7 +31,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Return in legacy format (backward compatible)
+    
     return NextResponse.json({
       success: true,
       abi: result.abi,

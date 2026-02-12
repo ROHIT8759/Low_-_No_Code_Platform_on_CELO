@@ -4,14 +4,6 @@ import { supabase } from '@/lib/supabase';
 import { createHash } from 'crypto';
 import * as fc from 'fast-check';
 
-/**
- * Property-Based Tests for Deployment Database Records
- * 
- * These tests validate that successful deployments create proper database records
- * with all required fields.
- */
-
-// Mock the storage module to provide test artifacts
 jest.mock('@/lib/storage', () => {
   const artifacts = new Map<string, { bytecode?: string; wasm?: Buffer; abi?: any }>();
   
@@ -51,7 +43,6 @@ jest.mock('@/lib/storage', () => {
   };
 });
 
-// Mock Supabase with in-memory database records
 const mockDatabase = {
   contracts: new Map<string, any>(),
 };
@@ -63,7 +54,7 @@ jest.mock('@/lib/supabase', () => ({
         return {
           update: jest.fn((data: any) => ({
             eq: jest.fn((field: string, value: any) => {
-              // Find and update the record
+              
               const record = mockDatabase.contracts.get(value);
               if (record) {
                 Object.assign(record, data);
@@ -93,11 +84,10 @@ jest.mock('@/lib/supabase', () => ({
   },
 }));
 
-// Mock ethers to avoid network calls
 jest.mock('ethers', () => {
   const originalModule = jest.requireActual('ethers');
   
-  // Create a mock transaction receipt generator
+  
   const createMockReceipt = () => ({
     status: 1,
     contractAddress: '0x' + Math.random().toString(16).substring(2, 42).padEnd(40, '0'),
@@ -111,7 +101,7 @@ jest.mock('ethers', () => {
     JsonRpcProvider: jest.fn().mockImplementation(() => ({
       estimateGas: jest.fn().mockResolvedValue(BigInt(500000)),
       getTransactionReceipt: jest.fn().mockImplementation(() => {
-        // Return receipt immediately (simulating confirmed transaction)
+        
         return Promise.resolve(createMockReceipt());
       }),
       broadcastTransaction: jest.fn().mockImplementation(() => {
@@ -125,7 +115,6 @@ jest.mock('ethers', () => {
   };
 });
 
-// Mock Stellar SDK to avoid network calls
 jest.mock('@stellar/stellar-sdk', () => {
   const mockAccount = {
     accountId: () => 'GABC123',
@@ -194,37 +183,31 @@ describe('DeploymentService - Database Records Property Tests', () => {
   const deploymentService = new DeploymentService();
 
   beforeEach(() => {
-    // Clear mock database before each test
+    
     mockDatabase.contracts.clear();
   });
 
   describe('Property 7: Successful Deployments Create Database Records', () => {
-    // Feature: stellar-backend-infrastructure, Property 7: Successful Deployments Create Database Records
     
-    /**
-     * Property: For any successful contract deployment, a record should be inserted
-     * into the `contracts` table containing network, deployer address, contract address/ID,
-     * transaction hash, and timestamp.
-     * 
-     * **Validates: Requirements 2.7, 6.4**
-     */
+    
+    
     
     test('EVM deployment creates database record with all required fields', async () => {
       await fc.assert(
         fc.asyncProperty(
-          // Generate arbitrary bytecode
+          
           fc.stringMatching(/^[0-9a-f]{100,500}$/),
-          // Generate deployer address
+          
           fc.stringMatching(/^[0-9a-f]{40}$/).map(h => '0x' + h),
-          // Generate network
+          
           fc.constantFrom('CELO_MAINNET' as const, 'CELO_ALFAJORES' as const),
           async (bytecode, deployer, network) => {
             const fullBytecode = '0x' + bytecode;
             
-            // Store artifact
+            
             const { artifactId } = await storage.storeEVMArtifact(fullBytecode, []);
             
-            // Pre-insert a contracts record (simulating compilation)
+            
             await supabase.from('contracts').insert({
               artifact_id: artifactId,
               network: network === 'CELO_MAINNET' ? 'celo-mainnet' : 'celo-alfajores',
@@ -233,7 +216,7 @@ describe('DeploymentService - Database Records Property Tests', () => {
               bytecode_hash: artifactId,
             });
 
-            // Submit signed transaction (simulating full deployment flow)
+            
             const signedTx = '0x' + Math.random().toString(16).substring(2, 200).padEnd(198, '0');
             const result = await deploymentService.submitSignedEVMTransaction(
               signedTx,
@@ -242,24 +225,24 @@ describe('DeploymentService - Database Records Property Tests', () => {
               deployer
             );
 
-            // Verify deployment succeeded
+            
             expect(result.success).toBe(true);
             expect(result.contractAddress).toBeDefined();
             expect(result.txHash).toBeDefined();
 
-            // Verify database record was created/updated
+            
             const dbRecord = mockDatabase.contracts.get(artifactId);
             expect(dbRecord).toBeDefined();
 
             if (dbRecord) {
-              // Verify all required fields are present
+              
               expect(dbRecord.deployer).toBe(deployer);
               expect(dbRecord.contract_address).toBe(result.contractAddress);
               expect(dbRecord.tx_hash).toBe(result.txHash);
               expect(dbRecord.network).toBeDefined();
               expect(dbRecord.artifact_id).toBe(artifactId);
               
-              // Verify contract_type is set correctly
+              
               expect(dbRecord.contract_type).toBe('evm');
             }
           }
@@ -271,19 +254,19 @@ describe('DeploymentService - Database Records Property Tests', () => {
     test('Stellar deployment creates database record with all required fields', async () => {
       await fc.assert(
         fc.asyncProperty(
-          // Generate WASM data
+          
           fc.uint8Array({ minLength: 100, maxLength: 500 }),
-          // Generate source account (Stellar address)
+          
           fc.stringMatching(/^G[A-Z2-7]{55}$/),
-          // Generate network
+          
           fc.constantFrom('testnet' as const, 'mainnet' as const),
           async (wasmArray, sourceAccount, network) => {
             const wasm = Buffer.from(wasmArray);
             
-            // Store artifact
+            
             const { artifactId } = await storage.storeStellarArtifact(wasm, {});
             
-            // Pre-insert a contracts record (simulating compilation)
+            
             await supabase.from('contracts').insert({
               artifact_id: artifactId,
               network: `stellar-${network}`,
@@ -292,7 +275,7 @@ describe('DeploymentService - Database Records Property Tests', () => {
               wasm_hash: artifactId,
             });
 
-            // Submit signed transaction (simulating full deployment flow)
+            
             const signedEnvelopeXDR = 'AAAA...signed-envelope-xdr...';
             const result = await deploymentService.submitSignedStellarTransaction(
               signedEnvelopeXDR,
@@ -301,24 +284,24 @@ describe('DeploymentService - Database Records Property Tests', () => {
               sourceAccount
             );
 
-            // Verify deployment succeeded
+            
             expect(result.success).toBe(true);
             expect(result.contractId).toBeDefined();
             expect(result.txHash).toBeDefined();
 
-            // Verify database record was created/updated
+            
             const dbRecord = mockDatabase.contracts.get(artifactId);
             expect(dbRecord).toBeDefined();
 
             if (dbRecord) {
-              // Verify all required fields are present
+              
               expect(dbRecord.deployer).toBe(sourceAccount);
               expect(dbRecord.contract_address).toBe(result.contractId);
               expect(dbRecord.tx_hash).toBe(result.txHash);
               expect(dbRecord.network).toBe(`stellar-${network}`);
               expect(dbRecord.artifact_id).toBe(artifactId);
               
-              // Verify contract_type is set correctly
+              
               expect(dbRecord.contract_type).toBe('stellar');
             }
           }
@@ -330,15 +313,15 @@ describe('DeploymentService - Database Records Property Tests', () => {
     test('database record contains network information', async () => {
       await fc.assert(
         fc.asyncProperty(
-          // Generate bytecode
+          
           fc.stringMatching(/^[0-9a-f]{100,300}$/),
-          // Generate deployer
+          
           fc.stringMatching(/^[0-9a-f]{40}$/).map(h => '0x' + h),
           async (bytecode, deployer) => {
             const fullBytecode = '0x' + bytecode;
             const { artifactId } = await storage.storeEVMArtifact(fullBytecode, []);
             
-            // Pre-insert contracts record
+            
             await supabase.from('contracts').insert({
               artifact_id: artifactId,
               network: 'celo-mainnet',
@@ -347,7 +330,7 @@ describe('DeploymentService - Database Records Property Tests', () => {
               bytecode_hash: artifactId,
             });
 
-            // Deploy
+            
             const signedTx = '0x' + Math.random().toString(16).substring(2, 200).padEnd(198, '0');
             const result = await deploymentService.submitSignedEVMTransaction(
               signedTx,
@@ -358,7 +341,7 @@ describe('DeploymentService - Database Records Property Tests', () => {
 
             expect(result.success).toBe(true);
 
-            // Verify network is stored
+            
             const dbRecord = mockDatabase.contracts.get(artifactId);
             expect(dbRecord).toBeDefined();
             expect(dbRecord?.network).toBeDefined();
@@ -373,15 +356,15 @@ describe('DeploymentService - Database Records Property Tests', () => {
     test('database record contains transaction hash', async () => {
       await fc.assert(
         fc.asyncProperty(
-          // Generate bytecode
+          
           fc.stringMatching(/^[0-9a-f]{100,300}$/),
-          // Generate deployer
+          
           fc.stringMatching(/^[0-9a-f]{40}$/).map(h => '0x' + h),
           async (bytecode, deployer) => {
             const fullBytecode = '0x' + bytecode;
             const { artifactId } = await storage.storeEVMArtifact(fullBytecode, []);
             
-            // Pre-insert contracts record
+            
             await supabase.from('contracts').insert({
               artifact_id: artifactId,
               network: 'celo-mainnet',
@@ -390,7 +373,7 @@ describe('DeploymentService - Database Records Property Tests', () => {
               bytecode_hash: artifactId,
             });
 
-            // Deploy
+            
             const signedTx = '0x' + Math.random().toString(16).substring(2, 200).padEnd(198, '0');
             const result = await deploymentService.submitSignedEVMTransaction(
               signedTx,
@@ -402,7 +385,7 @@ describe('DeploymentService - Database Records Property Tests', () => {
             expect(result.success).toBe(true);
             expect(result.txHash).toBeDefined();
 
-            // Verify transaction hash is stored
+            
             const dbRecord = mockDatabase.contracts.get(artifactId);
             expect(dbRecord).toBeDefined();
             expect(dbRecord?.tx_hash).toBe(result.txHash);
@@ -418,15 +401,15 @@ describe('DeploymentService - Database Records Property Tests', () => {
     test('database record contains deployer address', async () => {
       await fc.assert(
         fc.asyncProperty(
-          // Generate bytecode
+          
           fc.stringMatching(/^[0-9a-f]{100,300}$/),
-          // Generate deployer address
+          
           fc.stringMatching(/^[0-9a-f]{40}$/).map(h => '0x' + h),
           async (bytecode, deployer) => {
             const fullBytecode = '0x' + bytecode;
             const { artifactId } = await storage.storeEVMArtifact(fullBytecode, []);
             
-            // Pre-insert contracts record
+            
             await supabase.from('contracts').insert({
               artifact_id: artifactId,
               network: 'celo-mainnet',
@@ -435,7 +418,7 @@ describe('DeploymentService - Database Records Property Tests', () => {
               bytecode_hash: artifactId,
             });
 
-            // Deploy
+            
             const signedTx = '0x' + Math.random().toString(16).substring(2, 200).padEnd(198, '0');
             const result = await deploymentService.submitSignedEVMTransaction(
               signedTx,
@@ -446,7 +429,7 @@ describe('DeploymentService - Database Records Property Tests', () => {
 
             expect(result.success).toBe(true);
 
-            // Verify deployer is stored
+            
             const dbRecord = mockDatabase.contracts.get(artifactId);
             expect(dbRecord).toBeDefined();
             expect(dbRecord?.deployer).toBe(deployer);
@@ -461,15 +444,15 @@ describe('DeploymentService - Database Records Property Tests', () => {
     test('database record contains contract address for EVM deployments', async () => {
       await fc.assert(
         fc.asyncProperty(
-          // Generate bytecode
+          
           fc.stringMatching(/^[0-9a-f]{100,300}$/),
-          // Generate deployer
+          
           fc.stringMatching(/^[0-9a-f]{40}$/).map(h => '0x' + h),
           async (bytecode, deployer) => {
             const fullBytecode = '0x' + bytecode;
             const { artifactId } = await storage.storeEVMArtifact(fullBytecode, []);
             
-            // Pre-insert contracts record
+            
             await supabase.from('contracts').insert({
               artifact_id: artifactId,
               network: 'celo-mainnet',
@@ -478,7 +461,7 @@ describe('DeploymentService - Database Records Property Tests', () => {
               bytecode_hash: artifactId,
             });
 
-            // Deploy
+            
             const signedTx = '0x' + Math.random().toString(16).substring(2, 200).padEnd(198, '0');
             const result = await deploymentService.submitSignedEVMTransaction(
               signedTx,
@@ -490,14 +473,14 @@ describe('DeploymentService - Database Records Property Tests', () => {
             expect(result.success).toBe(true);
             expect(result.contractAddress).toBeDefined();
 
-            // Verify contract address is stored
+            
             const dbRecord = mockDatabase.contracts.get(artifactId);
             expect(dbRecord).toBeDefined();
             expect(dbRecord?.contract_address).toBe(result.contractAddress);
             expect(dbRecord?.contract_address).toBeDefined();
             expect(typeof dbRecord?.contract_address).toBe('string');
             
-            // EVM addresses should start with 0x
+            
             expect(dbRecord?.contract_address.startsWith('0x')).toBe(true);
           }
         ),
@@ -508,15 +491,15 @@ describe('DeploymentService - Database Records Property Tests', () => {
     test('database record contains contract ID for Stellar deployments', async () => {
       await fc.assert(
         fc.asyncProperty(
-          // Generate WASM data
+          
           fc.uint8Array({ minLength: 100, maxLength: 300 }),
-          // Generate source account
+          
           fc.stringMatching(/^G[A-Z2-7]{55}$/),
           async (wasmArray, sourceAccount) => {
             const wasm = Buffer.from(wasmArray);
             const { artifactId } = await storage.storeStellarArtifact(wasm, {});
             
-            // Pre-insert contracts record
+            
             await supabase.from('contracts').insert({
               artifact_id: artifactId,
               network: 'stellar-testnet',
@@ -525,7 +508,7 @@ describe('DeploymentService - Database Records Property Tests', () => {
               wasm_hash: artifactId,
             });
 
-            // Deploy
+            
             const signedEnvelopeXDR = 'AAAA...signed-envelope-xdr...';
             const result = await deploymentService.submitSignedStellarTransaction(
               signedEnvelopeXDR,
@@ -537,14 +520,14 @@ describe('DeploymentService - Database Records Property Tests', () => {
             expect(result.success).toBe(true);
             expect(result.contractId).toBeDefined();
 
-            // Verify contract ID is stored
+            
             const dbRecord = mockDatabase.contracts.get(artifactId);
             expect(dbRecord).toBeDefined();
             expect(dbRecord?.contract_address).toBe(result.contractId);
             expect(dbRecord?.contract_address).toBeDefined();
             expect(typeof dbRecord?.contract_address).toBe('string');
             
-            // Stellar contract IDs typically start with 'C'
+            
             expect(dbRecord?.contract_address.startsWith('C')).toBe(true);
           }
         ),
@@ -555,15 +538,15 @@ describe('DeploymentService - Database Records Property Tests', () => {
     test('database records are unique per artifact ID', async () => {
       await fc.assert(
         fc.asyncProperty(
-          // Generate two different bytecodes
+          
           fc.tuple(
             fc.stringMatching(/^[0-9a-f]{100,300}$/),
             fc.stringMatching(/^[0-9a-f]{100,300}$/)
           ),
-          // Generate deployer
+          
           fc.stringMatching(/^[0-9a-f]{40}$/).map(h => '0x' + h),
           async ([bytecode1, bytecode2], deployer) => {
-            // Ensure bytecodes are different
+            
             if (bytecode1 === bytecode2) return;
 
             const fullBytecode1 = '0x' + bytecode1;
@@ -572,7 +555,7 @@ describe('DeploymentService - Database Records Property Tests', () => {
             const { artifactId: artifactId1 } = await storage.storeEVMArtifact(fullBytecode1, []);
             const { artifactId: artifactId2 } = await storage.storeEVMArtifact(fullBytecode2, []);
 
-            // Pre-insert contracts records
+            
             await supabase.from('contracts').insert({
               artifact_id: artifactId1,
               network: 'celo-mainnet',
@@ -589,7 +572,7 @@ describe('DeploymentService - Database Records Property Tests', () => {
               bytecode_hash: artifactId2,
             });
 
-            // Deploy both
+            
             const signedTx1 = '0x' + Math.random().toString(16).substring(2, 200).padEnd(198, '0');
             const result1 = await deploymentService.submitSignedEVMTransaction(
               signedTx1,
@@ -609,7 +592,7 @@ describe('DeploymentService - Database Records Property Tests', () => {
             expect(result1.success).toBe(true);
             expect(result2.success).toBe(true);
 
-            // Verify both records exist and are different
+            
             const dbRecord1 = mockDatabase.contracts.get(artifactId1);
             const dbRecord2 = mockDatabase.contracts.get(artifactId2);
 

@@ -1,42 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { simulationService } from '@/lib/services/simulation';
 
-/**
- * POST /api/simulate
- * 
- * Simulate contract execution before deployment
- * 
- * Supports both EVM and Stellar contract types. Simulations allow developers
- * to verify behavior and estimate costs without spending real funds.
- * 
- * Request body:
- * {
- *   contractType: 'evm' | 'stellar'
- *   contractAddress?: string
- *   contractCode?: string
- *   functionName: string
- *   args: any[]
- *   network: string
- *   accountState?: {
- *     address: string
- *     balance?: string
- *   }
- * }
- * 
- * Response:
- * {
- *   success: true
- *   result: any
- *   gasEstimate: number
- *   stateChanges: Array<StateChange>
- *   logs: Array<Log>
- * }
- * 
- * Requirements: 4.1, 4.4, 4.5, 4.6, 4.7
- */
 export async function POST(request: NextRequest) {
   try {
-    // Parse request body
+    
     const body = await request.json();
     const {
       contractType,
@@ -48,7 +15,7 @@ export async function POST(request: NextRequest) {
       accountState,
     } = body;
 
-    // Validate required fields
+    
     if (!contractType || typeof contractType !== 'string') {
       return NextResponse.json(
         {
@@ -60,7 +27,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate contract type
+    
     if (!['evm', 'stellar'].includes(contractType)) {
       return NextResponse.json(
         {
@@ -72,7 +39,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate function name
+    
     if (!functionName || typeof functionName !== 'string') {
       return NextResponse.json(
         {
@@ -83,7 +50,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate args
+    
     if (!args || !Array.isArray(args)) {
       return NextResponse.json(
         {
@@ -95,7 +62,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate network
+    
     if (!network || typeof network !== 'string') {
       return NextResponse.json(
         {
@@ -106,7 +73,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate that either contractAddress or contractCode is provided
+    
     if (!contractAddress && !contractCode) {
       return NextResponse.json(
         {
@@ -118,7 +85,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate contractAddress if provided
+    
     if (contractAddress && typeof contractAddress !== 'string') {
       return NextResponse.json(
         {
@@ -130,7 +97,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate contractCode if provided
+    
     if (contractCode && typeof contractCode !== 'string') {
       return NextResponse.json(
         {
@@ -142,7 +109,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate accountState if provided
+    
     if (accountState !== undefined) {
       if (typeof accountState !== 'object' || accountState === null) {
         return NextResponse.json(
@@ -178,7 +145,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Call simulation service
+    
     const result = await simulationService.simulate({
       contractType: contractType as 'evm' | 'stellar',
       contractAddress,
@@ -189,7 +156,7 @@ export async function POST(request: NextRequest) {
       accountState,
     });
 
-    // Check if simulation was successful
+    
     if (!result.success) {
       return NextResponse.json(
         {
@@ -202,7 +169,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Return simulation results
+    
     return NextResponse.json(
       {
         success: true,
@@ -227,11 +194,6 @@ export async function POST(request: NextRequest) {
   }
 }
 
-/**
- * GET /api/simulate
- * 
- * Returns API information
- */
 export async function GET() {
   return NextResponse.json(
     {

@@ -15,9 +15,6 @@ export interface GeneratedCode {
   contractName: string;
 }
 
-/**
- * Generate Solidity and React code from placed blocks
- */
 export function generateCode(blocks: Block[]): GeneratedCode {
   if (blocks.length === 0) {
     return {
@@ -31,7 +28,7 @@ export function generateCode(blocks: Block[]): GeneratedCode {
   let react = 'import { useState } from "react";\n\n';
   let contractName = 'GeneratedContract';
 
-  // Process each placed block
+  
   blocks.forEach((block) => {
     if (block.type === 'erc20') {
       const config = (block.config || { 
@@ -77,9 +74,6 @@ export function generateCode(blocks: Block[]): GeneratedCode {
   };
 }
 
-/**
- * Generate Solidity code from node list (backwards compatible with existing UI)
- */
 export function generateSolidityFromNodes(nodes: Array<{
   id: string;
   type: string;
@@ -100,9 +94,6 @@ export function generateSolidityFromNodes(nodes: Array<{
   return solidity;
 }
 
-/**
- * Get a minimal Solidity preview (truncated for display)
- */
 export function getSolidityPreview(blocks: Block[]): string {
   const { solidity } = generateCode(blocks);
   const lines = solidity.split('\n');

@@ -9,7 +9,7 @@ import { motion } from "framer-motion"
 import { ArrowRight, Shield, Zap, Database, Server, Cpu, Lock, Terminal, Activity, FileCheck, Layers, GitCommit, CheckCircle, Code2, Workflow, Box } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
-// import { AnimatedGridPattern } from "@/components/reactbits/AnimatedGridPattern"
+
 import { BorderBeam } from "@/components/reactbits/BorderBeam"
 import Silk from "@/components/reactbits/Silk"
 
@@ -344,19 +344,19 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Right: Visual Stack */}
+          {}
           <div className="relative h-[500px] w-full flex items-center justify-center">
             <div className="relative w-full max-w-md">
-              {/* Layer 3 - Bottom */}
+              {}
               <div className="absolute top-24 left-8 right-8 h-40 bg-[#0F141B] border border-zinc-800 rounded-lg p-6 transform scale-95 opacity-40 z-0"></div>
 
-              {/* Layer 2 - Middle */}
+              {}
               <div className="absolute top-12 left-4 right-4 h-40 bg-[#0F141B] border border-zinc-800 rounded-lg p-6 shadow-2xl transform scale-100 opacity-70 z-10 flex items-center justify-between">
                 <span className="text-xs font-mono text-zinc-600">LAYER_02</span>
                 <div className="h-1 w-12 bg-purple-500/30 rounded-full" />
               </div>
 
-              {/* Layer 1 - Top (Active) */}
+              {}
               <motion.div
                 initial={{ y: 20, opacity: 0 }}
                 whileInView={{ y: 0, opacity: 1 }}
@@ -403,7 +403,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 7. FOOTER */}
+      {}
       <footer className="border-t border-[#1A1F26] bg-[#0B0F14] py-12 px-6">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-2 opacity-50 grayscale hover:grayscale-0 transition-all">

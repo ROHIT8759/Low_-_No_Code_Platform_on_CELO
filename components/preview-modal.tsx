@@ -22,13 +22,13 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
   const hasFeature = (type: string) => blocks.some((b) => b.type === type)
   const solidityCode = generateSolidityCode(blocks)
 
-  // Generate interactive preview based on blocks
+  
   const generatePreviewHTML = () => {
     const contractName = baseBlock?.config?.name || "MyToken"
     const symbol = baseBlock?.config?.symbol || "MTK"
     const isNFT = baseBlock?.type === "nft"
 
-    // Collect all features
+    
     const features = []
     if (hasFeature("transfer")) features.push("Transfer")
     if (hasFeature("mint")) features.push("Mint")
@@ -44,7 +44,7 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
     if (hasFeature("snapshot")) features.push("Snapshot")
     if (hasFeature("timelock")) features.push("Timelock")
 
-    // Always add balance viewing for ERC20/NFT
+    
     if (baseBlock) {
       features.unshift("Balance")
     }

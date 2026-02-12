@@ -16,14 +16,14 @@ describe('Celo Configuration', () => {
   test('has RPC URLs for all networks', () => {
     Object.values(CELO_NETWORKS).forEach(network => {
       expect(network.rpcUrl).toBeDefined()
-      expect(network.rpcUrl).toMatch(/^https?:\/\//)
+      expect(network.rpcUrl).toMatch(/^https?:\/\
     })
   })
 
   test('has explorer URLs for all networks', () => {
     Object.values(CELO_NETWORKS).forEach(network => {
       expect(network.explorerUrl).toBeDefined()
-      expect(network.explorerUrl).toMatch(/^https?:\/\//)
+      expect(network.explorerUrl).toMatch(/^https?:\/\
     })
   })
 

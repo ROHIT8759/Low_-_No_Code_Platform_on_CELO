@@ -1,64 +1,35 @@
 import { Queue, QueueOptions, JobsOptions } from 'bullmq';
 import { RedisOptions } from 'ioredis';
 
-/**
- * BullMQ Queue System Configuration
- * 
- * Provides asynchronous job processing for:
- * - EVM contract compilation
- * - Stellar contract compilation
- * - Contract analysis
- * - Long-running operations
- */
-
-// Redis connection configuration for BullMQ
 const redisConnection: RedisOptions = {
   host: process.env.REDIS_HOST || 'localhost',
   port: parseInt(process.env.REDIS_PORT || '6379', 10),
   password: process.env.REDIS_PASSWORD,
   db: parseInt(process.env.REDIS_DB || '0', 10),
-  maxRetriesPerRequest: null, // BullMQ recommendation
-  enableReadyCheck: false, // BullMQ recommendation
+  maxRetriesPerRequest: null, 
+  enableReadyCheck: false, 
 };
 
-// Default job options
 const defaultJobOptions: JobsOptions = {
-  attempts: 3, // Retry up to 3 times
+  attempts: 3, 
   backoff: {
     type: 'exponential',
-    delay: 2000, // Start with 2 second delay
+    delay: 2000, 
   },
-  removeOnComplete: 100, // Keep last 100 completed jobs
-  removeOnFail: 500, // Keep last 500 failed jobs for debugging
+  removeOnComplete: 100, 
+  removeOnFail: 500, 
 };
 
-// Queue configuration
 const queueConfig: QueueOptions = {
   connection: redisConnection,
   defaultJobOptions,
 };
 
-/**
- * Compilation Queue
- * Handles EVM and Stellar contract compilation jobs
- */
 export const compilationQueue = new Queue('compilation', queueConfig);
 
-/**
- * Analysis Queue
- * Handles AI-powered contract analysis jobs
- */
 export const analysisQueue = new Queue('analysis', queueConfig);
 
-/**
- * Deployment Queue
- * Handles contract deployment jobs
- */
 export const deploymentQueue = new Queue('deployment', queueConfig);
-
-/**
- * Job data types
- */
 
 export interface EVMCompilationJobData {
   type: 'compile-evm';
@@ -99,10 +70,6 @@ export interface DeploymentJobData {
 export type CompilationJobData = EVMCompilationJobData | StellarCompilationJobData;
 export type JobData = CompilationJobData | AnalysisJobData | DeploymentJobData;
 
-/**
- * Job result types
- */
-
 export interface EVMCompilationResult {
   success: boolean;
   abi?: any[];
@@ -142,13 +109,6 @@ export interface DeploymentResult {
 
 export type JobResult = EVMCompilationResult | StellarCompilationResult | AnalysisResult | DeploymentResult;
 
-/**
- * Queue helper functions
- */
-
-/**
- * Add a compilation job to the queue
- */
 export async function enqueueCompilation(
   data: CompilationJobData,
   options?: JobsOptions
@@ -164,9 +124,6 @@ export async function enqueueCompilation(
   return job.id!;
 }
 
-/**
- * Add an analysis job to the queue
- */
 export async function enqueueAnalysis(
   data: AnalysisJobData,
   options?: JobsOptions
@@ -182,9 +139,6 @@ export async function enqueueAnalysis(
   return job.id!;
 }
 
-/**
- * Add a deployment job to the queue
- */
 export async function enqueueDeployment(
   data: DeploymentJobData,
   options?: JobsOptions
@@ -200,9 +154,6 @@ export async function enqueueDeployment(
   return job.id!;
 }
 
-/**
- * Get job status and result
- */
 export async function getJobStatus(
   queueName: 'compilation' | 'analysis' | 'deployment',
   jobId: string
@@ -242,9 +193,6 @@ export async function getJobStatus(
   }
 }
 
-/**
- * Remove a job from the queue
- */
 export async function removeJob(
   queueName: 'compilation' | 'analysis' | 'deployment',
   jobId: string
@@ -270,9 +218,6 @@ export async function removeJob(
   }
 }
 
-/**
- * Get queue metrics
- */
 export async function getQueueMetrics(
   queueName: 'compilation' | 'analysis' | 'deployment'
 ): Promise<{
@@ -304,12 +249,9 @@ export async function getQueueMetrics(
   }
 }
 
-/**
- * Clean old jobs from queue
- */
 export async function cleanQueue(
   queueName: 'compilation' | 'analysis' | 'deployment',
-  grace: number = 86400000 // 24 hours in milliseconds
+  grace: number = 86400000 
 ): Promise<void> {
   try {
     const queue = queueName === 'compilation' 
@@ -325,9 +267,6 @@ export async function cleanQueue(
   }
 }
 
-/**
- * Close all queue connections
- */
 export async function closeQueues(): Promise<void> {
   await Promise.all([
     compilationQueue.close(),
@@ -336,5 +275,4 @@ export async function closeQueues(): Promise<void> {
   ]);
 }
 
-// Export queue instances
 export { compilationQueue as compilation, analysisQueue as analysis, deploymentQueue as deployment };

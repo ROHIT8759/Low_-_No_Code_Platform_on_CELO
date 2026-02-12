@@ -47,16 +47,16 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
   useEffect(() => {
     if (!isOpen) return
 
-    // Check if wallet is already connected
+    
     checkWalletConnection()
 
-    // Listen for account changes
+    
     if (window.ethereum) {
       window.ethereum.on("accountsChanged", handleAccountsChanged)
       window.ethereum.on("chainChanged", handleChainChanged)
     }
 
-    // Handle ESC key press to close modal
+    
     const handleEscKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         onClose()
@@ -86,7 +86,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
           setWalletAddress(address)
           setProvider(provider)
 
-          // Get current chain ID
+          
           const network = await provider.getNetwork()
           setCurrentChainId(Number(network.chainId))
 
@@ -100,7 +100,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
 
   const handleAccountsChanged = (accounts: string[]) => {
     if (accounts.length === 0) {
-      // User disconnected wallet
+      
       setWalletAddress(null)
       setProvider(null)
       setStep("connect")
@@ -112,7 +112,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
   const handleChainChanged = (chainIdHex: string) => {
     const chainId = parseInt(chainIdHex, 16)
     setCurrentChainId(chainId)
-    // Reload the page to reset state when chain changes
+    
     window.location.reload()
   }
 
@@ -154,7 +154,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
       setCurrentChainId(networkConfig.chainId)
       return true
     } catch (err: any) {
-      // Error code 4902 means the chain hasn't been added yet
+      
       if (err.code === 4902) {
         return await addCeloNetwork(networkType)
       }
@@ -167,13 +167,13 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
       setLoading(true)
       setError(null)
 
-      // Check if a Celo-compatible wallet is available
+      
       if (!window.ethereum) {
         setError("Please install a Celo-compatible wallet extension to continue")
         return
       }
 
-      // Request account access
+      
       const accounts = await window.ethereum.request({
         method: "eth_requestAccounts",
       })
@@ -183,24 +183,24 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
         return
       }
 
-      // Create provider
+      
       const provider = new ethers.BrowserProvider(window.ethereum)
       setProvider(provider)
 
-      // Get signer and address
+      
       const signer = await provider.getSigner()
       const address = await signer.getAddress()
       setWalletAddress(address)
 
-      // Get current network
+      
       const network = await provider.getNetwork()
       const chainId = Number(network.chainId)
       setCurrentChainId(chainId)
 
-      // Check if we're on the correct network
+      
       const targetChainId = CELO_NETWORKS.sepolia.chainId
       if (chainId !== targetChainId) {
-        // Try to switch to Sepolia
+        
         try {
           await switchNetwork("sepolia")
         } catch (switchErr) {
@@ -239,14 +239,14 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
         throw new Error("No wallet detected. Please install MetaMask or another Web3 wallet.")
       }
 
-      // Always get a fresh provider and signer at deployment time
+      
       const freshProvider = new ethers.BrowserProvider(window.ethereum)
       const signer = await freshProvider.getSigner()
       const signerAddress = await signer.getAddress()
 
       console.log("Deploying from address:", signerAddress)
 
-      // Verify network
+      
       const network_info = await freshProvider.getNetwork()
       const currentChain = Number(network_info.chainId)
 
@@ -254,7 +254,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
         throw new Error(`Please switch to ${CELO_NETWORKS[network].name}. Current chain: ${currentChain}`)
       }
 
-      // Check balance
+      
       const balance = await freshProvider.getBalance(signerAddress)
       console.log("Wallet balance:", ethers.formatEther(balance), "CELO")
 
@@ -262,23 +262,23 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
         throw new Error("Insufficient CELO balance. Please fund your wallet from the Celo Faucet.")
       }
 
-      // Generate the Solidity code with user parameters
+      
       const baseBlock = blocks.find((b) => b.type === "erc20" || b.type === "nft")
       if (!baseBlock) {
         throw new Error("Please add an ERC20 or NFT contract block first")
       }
 
-      // Generate Solidity code
+      
       const solidityCode = generateSolidityCode(blocks)
 
-      // Extract contract name from the code
+      
       const contractNameMatch = solidityCode.match(/contract\s+(\w+)/)
       const contractName = contractNameMatch ? contractNameMatch[1] : "MyToken"
 
       console.log("Step 1: Compiling contract...")
       console.log("Contract Name:", contractName)
 
-      // Step 1: Compile the contract via API
+      
       const compileResponse = await fetch("/api/compile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -302,45 +302,45 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
       console.log("✅ Compilation successful!")
       console.log("Bytecode length:", bytecode.length)
 
-      // Create contract factory with compiled bytecode
+      
       const factory = new ethers.ContractFactory(abi, bytecode, signer)
 
-      // Deploy based on contract type
+      
       if (baseBlock.type === "erc20") {
         console.log("Step 2: Deploying ERC20 token...")
         console.log("Name:", tokenName)
         console.log("Symbol:", tokenSymbol)
         console.log("Initial Supply:", initialSupply)
 
-        // Estimate gas first
+        
         console.log("Estimating gas...")
         let deployTxData
 
         try {
-          // Most of our generated contracts don't need constructor parameters
+          
           deployTxData = await factory.getDeployTransaction()
         } catch {
-          // Some contracts need constructor parameters
+          
           const supply = ethers.parseEther(initialSupply)
           deployTxData = await factory.getDeployTransaction(tokenName, tokenSymbol, supply)
         }
 
-        // Get gas estimate
+        
         const gasEstimate = await freshProvider.estimateGas({
           ...deployTxData,
           from: signerAddress,
         })
         console.log("Estimated gas:", gasEstimate.toString())
 
-        // Add 20% buffer to gas estimate
+        
         const gasLimit = (gasEstimate * BigInt(120)) / BigInt(100)
         console.log("Gas limit with buffer:", gasLimit.toString())
 
-        // Get current gas price
+        
         const feeData = await freshProvider.getFeeData()
         console.log("Gas price:", feeData.gasPrice?.toString())
 
-        // Deploy with explicit gas settings
+        
         console.log("Sending deployment transaction...")
         let contract
 
@@ -359,7 +359,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
         console.log("Waiting for deployment confirmation...")
         await contract.waitForDeployment()
 
-        // Get contract address and transaction hash
+        
         const contractAddress = await contract.getAddress()
         const deployTx = contract.deploymentTransaction()
 
@@ -367,16 +367,16 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
         console.log("Contract Address:", contractAddress)
         console.log("Transaction Hash:", deployTx?.hash)
 
-        // Save deployment details
+        
         setContractAddress(contractAddress)
         setTxHash(deployTx?.hash || contractAddress)
 
-        // Save to localStorage for preview
+        
         localStorage.setItem('deployedContractAddress', contractAddress)
         localStorage.setItem('deployedContractNetwork', network)
         localStorage.setItem('deployedContractType', baseBlock.type)
 
-        // Save to store for project manager
+        
         const networkConfig = CELO_NETWORKS[network]
         const explorerUrl = `${networkConfig.explorerUrl}/address/${contractAddress}`
         const deployedContractInfo = {
@@ -400,7 +400,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
 
         addDeployedContract(deployedContractInfo)
 
-        // Save to Supabase if user is logged in
+        
         if (currentUser?.id) {
           try {
             await saveDeployedContract(currentUser.id, {
@@ -421,12 +421,12 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
               explorerUrl,
             })
 
-            // Sync deployed contracts after saving
+            
             await syncDeployedContracts()
             console.log('✅ ERC20 Contract saved to Supabase')
           } catch (supabaseError) {
             console.error('Failed to save ERC20 contract to Supabase:', supabaseError)
-            // Don't fail deployment if Supabase save fails
+            
           }
         }
 
@@ -436,7 +436,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
         console.log("Name:", tokenName)
         console.log("Symbol:", tokenSymbol)
 
-        // Estimate gas for NFT deployment
+        
         console.log("Estimating gas...")
         const deployTxData = await factory.getDeployTransaction()
         const gasEstimate = await freshProvider.estimateGas({
@@ -445,10 +445,10 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
         })
         console.log("Estimated gas:", gasEstimate.toString())
 
-        // Add 20% buffer
+        
         const gasLimit = (gasEstimate * BigInt(120)) / BigInt(100)
 
-        // Deploy NFT contract with gas settings
+        
         console.log("Sending deployment transaction...")
         const contract = await factory.deploy({
           gasLimit,
@@ -457,7 +457,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
         console.log("Waiting for deployment confirmation...")
         await contract.waitForDeployment()
 
-        // Get contract address and transaction hash
+        
         const contractAddress = await contract.getAddress()
         const deployTx = contract.deploymentTransaction()
 
@@ -465,16 +465,16 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
         console.log("Contract Address:", contractAddress)
         console.log("Transaction Hash:", deployTx?.hash)
 
-        // Save deployment details
+        
         setContractAddress(contractAddress)
         setTxHash(deployTx?.hash || contractAddress)
 
-        // Save to localStorage for preview
+        
         localStorage.setItem('deployedContractAddress', contractAddress)
         localStorage.setItem('deployedContractNetwork', network)
         localStorage.setItem('deployedContractType', baseBlock.type)
 
-        // Save to store for project manager
+        
         const networkConfig = CELO_NETWORKS[network]
         const explorerUrl = `${networkConfig.explorerUrl}/address/${contractAddress}`
         const deployedContractInfo = {
@@ -498,7 +498,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
 
         addDeployedContract(deployedContractInfo)
 
-        // Save to Supabase if user is logged in
+        
         if (currentUser?.id) {
           try {
             await saveDeployedContract(currentUser.id, {
@@ -519,12 +519,12 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
               explorerUrl,
             })
 
-            // Sync deployed contracts after saving
+            
             await syncDeployedContracts()
             console.log('✅ NFT Contract saved to Supabase')
           } catch (supabaseError) {
             console.error('Failed to save NFT contract to Supabase:', supabaseError)
-            // Don't fail deployment if Supabase save fails
+            
           }
         }
 
@@ -535,7 +535,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
     } catch (err: any) {
       console.error("Deployment error:", err)
 
-      // Parse error message for user-friendly display
+      
       let errorMessage = "Deployment failed"
 
       if (err.code === "ACTION_REJECTED" || err.code === 4001) {
@@ -567,7 +567,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
     <div
       className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
       onClick={(e) => {
-        // Close modal when clicking on backdrop
+        
         if (e.target === e.currentTarget) {
           onClose()
         }
@@ -587,7 +587,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
         </div>
 
         <div className="p-6 space-y-6">
-          {/* Step Indicator */}
+          {}
           <div className="flex items-center justify-between">
             {(["connect", "configure", "deploying", "success"] as const).map((s, i) => (
               <div key={s} className="flex items-center flex-1">
@@ -611,7 +611,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
             ))}
           </div>
 
-          {/* Connect Wallet Step */}
+          {}
           {step === "connect" && (
             <div className="space-y-4">
               <div>
@@ -647,7 +647,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
             </div>
           )}
 
-          {/* Configure Step */}
+          {}
           {step === "configure" && (
             <div className="space-y-4">
               <div>
@@ -655,7 +655,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
                 <p className="text-sm text-muted">Set deployment parameters</p>
               </div>
 
-              {/* Wallet Info Card */}
+              {}
               <div className="p-4 bg-primary/10 border border-primary/30 rounded-lg">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
@@ -694,7 +694,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
                         const newNetwork = e.target.value as "sepolia" | "mainnet"
                         setNetwork(newNetwork)
 
-                        // Check if we need to switch network
+                        
                         const targetChainId = CELO_NETWORKS[newNetwork].chainId
                         if (currentChainId !== targetChainId) {
                           try {
@@ -828,7 +828,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
             </div>
           )}
 
-          {/* Deploying Step */}
+          {}
           {step === "deploying" && (
             <div className="flex flex-col items-center justify-center py-12 space-y-4">
               <Loader size={48} className="text-primary animate-spin" />
@@ -839,7 +839,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
             </div>
           )}
 
-          {/* Success Step */}
+          {}
           {step === "success" && txHash && (
             <div className="space-y-4">
               <div className="flex items-center justify-center">
@@ -869,7 +869,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
                 </div>
               </div>
 
-              {/* Preview Button - Prominent */}
+              {}
               <button
                 onClick={() => {
                   const baseBlock = blocks.find((b) => b.type === "erc20" || b.type === "nft")
@@ -909,7 +909,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
             </div>
           )}
 
-          {/* Error Step */}
+          {}
           {step === "error" && error && (
             <div className="space-y-4">
               <div className="flex items-center justify-center">
@@ -939,7 +939,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
         </div>
       </div>
 
-      {/* Contract Preview Modal */}
+      {}
       {showPreview && deployedContractData && (
         <ContractPreviewModal
           isOpen={showPreview}

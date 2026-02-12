@@ -56,8 +56,8 @@ export async function getProvider(network: "sepolia" | "mainnet" = "sepolia") {
 }
 
 export async function compileSolidityCode(code: string): Promise<any> {
-  // This would typically use solc compiler
-  // For now, return a mock compilation result
+  
+  
   console.log("Compiling Solidity code...")
   return {
     abi: [],

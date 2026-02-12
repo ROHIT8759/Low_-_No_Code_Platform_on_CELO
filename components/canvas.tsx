@@ -9,8 +9,8 @@ export function Canvas() {
     const addBlock = useBuilderStore((state) => state.addBlock)
 
     const handleQuickAdd = (type: string) => {
-        // Find block definition and add it
-        // This is a simplified mock, in real app we'd lookup the full block object
+        
+        
         const block = { id: Date.now().toString(), type, label: type.toUpperCase(), position: { x: 0, y: 0 } }
         addBlock(block as any)
     }
@@ -18,7 +18,7 @@ export function Canvas() {
     return (
         <div className="flex-1 relative bg-[#0B0F14] overflow-hidden flex flex-col">
 
-            {/* Top Status Bar (Canvas Context) */}
+            {}
             <div className="h-9 border-b border-[#222730] flex items-center justify-between px-4 bg-[#0B0F14]">
                 <div className="flex items-center gap-2">
                     <span className="text-[10px] text-zinc-500 font-mono uppercase">Context:</span>
@@ -40,7 +40,7 @@ export function Canvas() {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            {/* Option 1 */}
+                            {}
                             <button
                                 onClick={() => handleQuickAdd('erc20')}
                                 className="group p-5 bg-[#11151A] border border-[#222730] rounded-md hover:border-primary/50 hover:bg-[#161B22] transition-all text-left"
@@ -52,7 +52,7 @@ export function Canvas() {
                                 <p className="text-xs text-zinc-600 leading-relaxed">Standard interface for fungible assets.</p>
                             </button>
 
-                            {/* Option 2 */}
+                            {}
                             <button
                                 onClick={() => handleQuickAdd('nft')}
                                 className="group p-5 bg-[#11151A] border border-[#222730] rounded-md hover:border-purple-500/50 hover:bg-[#161B22] transition-all text-left"
@@ -64,7 +64,7 @@ export function Canvas() {
                                 <p className="text-xs text-zinc-600 leading-relaxed">Unique asset implementation.</p>
                             </button>
 
-                            {/* Option 3 */}
+                            {}
                             <button
                                 className="group p-5 bg-[#11151A] border border-[#222730] border-dashed rounded-md hover:border-zinc-500 hover:bg-[#161B22] transition-all text-left"
                             >
@@ -78,15 +78,15 @@ export function Canvas() {
                     </div>
                 ) : (
                     <div className="relative w-full h-full">
-                        {/* Vertical Pipeline Visualization would go here - keeping simple block list for now but styled */}
+                        {}
                         <div className="flex flex-col items-center gap-4 py-10">
-                            {/* Start Node */}
+                            {}
                             <div className="w-32 h-8 rounded-full border border-dashed border-zinc-700 flex items-center justify-center text-[10px] text-zinc-600 uppercase tracking-widest font-mono">
                                 Entry Point
                             </div>
                             <div className="h-8 w-px bg-zinc-800" />
 
-                            {/* Blocks */}
+                            {}
                             {blocks.map((block, index) => (
                                 <motion.div
                                     key={block.id}

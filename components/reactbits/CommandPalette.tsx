@@ -30,7 +30,7 @@ export const CommandPalette = ({
                 />
             </div>
             <div className="max-h-[300px] overflow-y-auto p-2">
-                {/* Placeholder results */}
+                {}
                 <div className="px-2 py-4 text-center text-sm text-muted-foreground">
                     No results found.
                 </div>

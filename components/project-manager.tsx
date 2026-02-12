@@ -58,27 +58,27 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
     setDeployingFrontend(contract.id)
 
     try {
-      // Ensure we're in the browser
+      
       if (typeof window === 'undefined') {
         throw new Error('This function must run in the browser')
       }
 
-      // Generate frontend files
+      
       const files = generateNextJsFrontend(contract)
 
-      // Dynamically import JSZip only in browser
+      
       const JSZip = (await import('jszip')).default
       const zip = new JSZip()
 
-      // Add all files to zip
+      
       Object.entries(files).forEach(([path, content]) => {
         zip.file(path, content)
       })
 
-      // Generate zip file
+      
       const blob = await zip.generateAsync({ type: 'blob' })
 
-      // Download zip
+      
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
@@ -107,7 +107,7 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
   const deployToGithubHandler = async () => {
     if (!selectedContractForGithub) return
 
-    // Validate inputs
+    
     if (!githubToken.trim()) {
       alert('❌ Please enter your GitHub Personal Access Token')
       return
@@ -118,7 +118,7 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
       return
     }
 
-    // Validate repo name format
+    
     if (!/^[a-zA-Z0-9._-]+$/.test(repoName)) {
       alert('❌ Repository name can only contain letters, numbers, dots, hyphens, and underscores')
       return
@@ -127,22 +127,22 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
     setDeployingGithub(selectedContractForGithub.id)
 
     try {
-      // Validate GitHub token first
+      
       const isValid = await validateGitHubToken(githubToken)
       if (!isValid) {
         throw new Error('Invalid GitHub token. Please check your Personal Access Token.')
       }
 
-      // Get user info
+      
       const userInfo = await getGitHubUser(githubToken)
       if (!userInfo) {
         throw new Error('Failed to get GitHub user information')
       }
 
-      // Generate frontend files
+      
       const files = generateNextJsFrontend(selectedContractForGithub)
 
-      // Deploy to GitHub
+      
       const result = await deployToGitHub({
         repoName: repoName,
         repoDescription: repoDescription,
@@ -152,7 +152,7 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
       })
 
       if (result.success && result.repoUrl) {
-        // Update the contract with GitHub repo URL
+        
         updateDeployedContract(selectedContractForGithub.id, {
           githubRepo: result.repoUrl
         })
@@ -176,7 +176,7 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
 
   return (
     <>
-      {/* GitHub Deploy Modal */}
+      {}
       {showGithubModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[60] animate-fade-in">
           <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl border-2 border-cyan-500/50 w-full max-w-2xl max-h-[90vh] overflow-auto shadow-2xl shadow-cyan-500/20 animate-scale-in">
@@ -204,7 +204,7 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
             </div>
 
             <div className="p-6 space-y-6">
-              {/* GitHub Token Input */}
+              {}
               <div>
                 <label className="block text-sm font-semibold text-white mb-2">
                   GitHub Personal Access Token *
@@ -231,7 +231,7 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
                 </p>
               </div>
 
-              {/* Repository Name */}
+              {}
               <div>
                 <label className="block text-sm font-semibold text-white mb-2">
                   Repository Name *
@@ -249,7 +249,7 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
                 </p>
               </div>
 
-              {/* Repository Description */}
+              {}
               <div>
                 <label className="block text-sm font-semibold text-white mb-2">
                   Description
@@ -264,7 +264,7 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
                 />
               </div>
 
-              {/* Privacy Toggle */}
+              {}
               <div className="flex items-center gap-3 p-4 bg-slate-800/50 rounded-lg border border-slate-700">
                 <input
                   type="checkbox"
@@ -279,7 +279,7 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
                 </label>
               </div>
 
-              {/* Contract Info */}
+              {}
               {selectedContractForGithub && (
                 <div className="p-4 bg-cyan-900/20 border border-cyan-500/30 rounded-lg">
                   <div className="text-sm text-cyan-300">
@@ -291,7 +291,7 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
                 </div>
               )}
 
-              {/* Deploy Button */}
+              {}
               <div className="flex gap-3">
                 <button
                   onClick={() => {
@@ -355,7 +355,7 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
                     key={contract.id}
                     className="border border-slate-700/50 rounded-lg bg-slate-800/30 overflow-hidden hover:border-slate-600 transition-all duration-200"
                   >
-                    {/* Contract Header */}
+                    {}
                     <div className="p-5 bg-slate-800/20">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
@@ -395,7 +395,7 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
                         </button>
                       </div>
 
-                      {/* Contract Address */}
+                      {}
                       <div className="mt-4 p-3 bg-slate-900/50 rounded-lg border border-slate-700/50">
                         <div className="flex items-center justify-between gap-3">
                           <div className="flex-1 min-w-0">
@@ -425,7 +425,7 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
                         </div>
                       </div>
 
-                      {/* Transaction Hash */}
+                      {}
                       <div className="mt-2 p-3 bg-slate-900/50 rounded-lg border border-slate-700/50">
                         <div className="flex items-center justify-between gap-3">
                           <div className="flex-1 min-w-0">
@@ -444,9 +444,9 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
                         </div>
                       </div>
 
-                      {/* Action Buttons */}
+                      {}
                       <div className="mt-4 flex flex-col gap-3">
-                        {/* Preview Button - Full Width */}
+                        {}
                         <button
                           onClick={() => {
                             console.log('Opening preview for contract:', {
@@ -463,9 +463,9 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
                           <span className="text-white font-semibold">Preview & Interact</span>
                         </button>
 
-                        {/* Deploy Buttons Row */}
+                        {}
                         <div className="flex flex-col md:flex-row gap-3">
-                          {/* Deploy Frontend Button */}
+                          {}
                           <button
                             onClick={() => deployFrontend(contract)}
                             disabled={deployingFrontend === contract.id}
@@ -485,7 +485,7 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
                             )}
                           </button>
 
-                          {/* Deploy to GitHub Button */}
+                          {}
                           <button
                             onClick={() => openGithubDeployModal(contract)}
                             disabled={deployingGithub === contract.id}
@@ -506,13 +506,13 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
                         </div>
                       </div>
 
-                      {/* Helper Text */}
+                      {}
                       <div className="mt-2 flex flex-col md:flex-row gap-2 text-xs text-slate-500">
                         <p className="flex-1">Downloads a complete Next.js app</p>
                         <p className="flex-1">Creates a GitHub repository with your dApp</p>
                       </div>
 
-                      {/* GitHub Repo Link */}
+                      {}
                       {contract.githubRepo && (
                         <a
                           href={contract.githubRepo}
@@ -525,7 +525,7 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
                       )}
                     </div>
 
-                    {/* Expandable Details */}
+                    {}
                     <div className="border-t border-slate-700/50">
                       <button
                         onClick={() => setExpandedContract(expandedContract === contract.id ? null : contract.id)}
@@ -538,7 +538,7 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
 
                       {expandedContract === contract.id && (
                         <div className="p-5 bg-slate-900/30">
-                          {/* Tabs */}
+                          {}
                           <div className="flex gap-2 mb-4 border-b border-slate-700/50">
                             <button
                               onClick={() => setActiveTab("info")}
@@ -572,7 +572,7 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
                             </button>
                           </div>
 
-                          {/* Tab Content */}
+                          {}
                           <div className="max-h-96 overflow-auto">
                             {activeTab === "info" && (
                               <div className="space-y-3">
@@ -639,7 +639,7 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
         </div>
       </div>
 
-      {/* Contract Preview Modal */}
+      {}
       {previewContract && (
         <>
           {console.log('🚀 Rendering ContractPreviewModal with (from Supabase):', {

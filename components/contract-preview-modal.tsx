@@ -31,11 +31,11 @@ export function ContractPreviewModal({ isOpen, onClose, contract, walletAddress 
   const isNFT = contract.contractType === "nft"
   const networkConfig = CELO_NETWORKS[contract.network]
 
-  // Collect features from blocks - with better null/undefined handling
+  
   const features: string[] = []
   const blocks = contract.blocks && Array.isArray(contract.blocks) ? contract.blocks : []
 
-  // Debug: Log what we received
+  
   console.log('=== ContractPreviewModal Debug (from Supabase) ===')
   console.log('Contract object received:', {
     name: contract.contractName,
@@ -54,7 +54,7 @@ export function ContractPreviewModal({ isOpen, onClose, contract, walletAddress 
   console.log('===========================================')
 
   if (blocks && Array.isArray(blocks) && blocks.length > 0) {
-    // Case-insensitive feature matching
+    
     const hasFeature = (type: string) => blocks?.some((b: any) => {
       const blockType = (b.type || '').toLowerCase()
       return blockType === type.toLowerCase()
@@ -65,7 +65,7 @@ export function ContractPreviewModal({ isOpen, onClose, contract, walletAddress 
       console.log(`  Block ${i}: type="${b.type}", label="${b.label}"`)
     })
 
-    // Check each feature type
+    
     if (hasFeature("transfer")) { features.push("Transfer"); console.log('  ✓ Found transfer block') }
     if (hasFeature("mint")) { features.push("Mint"); console.log('  ✓ Found mint block') }
     if (hasFeature("burn")) { features.push("Burn"); console.log('  ✓ Found burn block') }

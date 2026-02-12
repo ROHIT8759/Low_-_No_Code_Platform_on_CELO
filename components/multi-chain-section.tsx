@@ -25,7 +25,7 @@ const chains = [
 export function MultiChainSection() {
     return (
         <section className="py-24 relative overflow-hidden">
-            {/* Background Gradients */}
+            {}
             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-[120px] pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
 

@@ -15,7 +15,7 @@ export function NetworkProvider({ children }: { children: React.ReactNode }) {
     const [networkType, setLocalNetworkType] = useState<"evm" | "stellar">("evm");
 
     useEffect(() => {
-        // Sync store network with local network type if needed or vice versa
+        
         if (network === "stellar") {
             setLocalNetworkType("stellar");
         } else {
@@ -24,7 +24,7 @@ export function NetworkProvider({ children }: { children: React.ReactNode }) {
     }, [network]);
 
     const setNetworkType = (type: "evm" | "stellar") => {
-        // Logic to switch network in store, handle side effects
+        
         setLocalNetworkType(type);
         if (type === "stellar") {
             setNetwork("stellar");

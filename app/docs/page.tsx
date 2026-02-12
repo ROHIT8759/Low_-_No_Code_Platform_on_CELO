@@ -7,7 +7,7 @@ import { ScrollReveal } from "@/components/scroll-reveal";
 export default function DocsPage() {
   return (
     <div className="min-h-screen bg-[#0B0F14] text-zinc-300">
-      {/* Navbar */}
+      {}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0B0F14]/80 backdrop-blur-md border-b border-[#1A1F26]">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
@@ -33,7 +33,7 @@ export default function DocsPage() {
         </div>
       </nav>
 
-      {/* Hero Section */}
+      {}
       <section className="pt-40 pb-20 px-6 relative overflow-hidden bg-[#0B0F14]">
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <ScrollReveal>
@@ -54,7 +54,7 @@ export default function DocsPage() {
         </div>
       </section>
 
-      {/* How to Use Section */}
+      {}
       <section id="how-to-use" className="px-6 py-20 bg-[#0B0F14] border-t border-[#1A1F26]">
         <div className="max-w-5xl mx-auto">
           <ScrollReveal>
@@ -67,7 +67,7 @@ export default function DocsPage() {
           </ScrollReveal>
 
           <div className="grid lg:grid-cols-2 gap-8 mb-16">
-            {/* Step 1 */}
+            {}
             <ScrollReveal delay={100}>
               <div className="p-6 rounded-xl border border-zinc-800 bg-[#0F141B] hover:border-zinc-700 transition-all group">
                 <div className="flex justify-between items-start mb-6">
@@ -83,7 +83,7 @@ export default function DocsPage() {
               </div>
             </ScrollReveal>
 
-            {/* Step 2 */}
+            {}
             <ScrollReveal delay={200}>
               <div className="p-6 rounded-xl border border-zinc-800 bg-[#0F141B] hover:border-zinc-700 transition-all group">
                 <div className="flex justify-between items-start mb-6">
@@ -99,7 +99,7 @@ export default function DocsPage() {
               </div>
             </ScrollReveal>
 
-            {/* Step 3 */}
+            {}
             <ScrollReveal delay={300}>
               <div className="p-6 rounded-xl border border-zinc-800 bg-[#0F141B] hover:border-zinc-700 transition-all group">
                 <div className="flex justify-between items-start mb-6">
@@ -115,7 +115,7 @@ export default function DocsPage() {
               </div>
             </ScrollReveal>
 
-            {/* Step 4 */}
+            {}
             <ScrollReveal delay={400}>
               <div className="p-6 rounded-xl border border-zinc-800 bg-[#0F141B] hover:border-zinc-700 transition-all group">
                 <div className="flex justify-between items-start mb-6">
@@ -132,7 +132,7 @@ export default function DocsPage() {
             </ScrollReveal>
           </div>
 
-          {/* Pro Tips / Architecture Notes */}
+          {}
           <ScrollReveal delay={200}>
             <div className="grid md:grid-cols-3 gap-6 pt-8 border-t border-[#1A1F26]">
               <div className="flex gap-4">
@@ -170,7 +170,7 @@ export default function DocsPage() {
         </div>
       </section>
 
-      {/* Footer */}
+      {}
       <footer className="border-t border-[#1A1F26] bg-[#0B0F14] py-12 px-6">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-2 opacity-50 grayscale hover:grayscale-0 transition-all">

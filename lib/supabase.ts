@@ -3,7 +3,6 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 
-// Validate Supabase credentials
 const isSupabaseConfigured =
   supabaseUrl &&
   supabaseAnonKey &&
@@ -11,15 +10,12 @@ const isSupabaseConfigured =
   supabaseAnonKey !== 'your_supabase_anon_key_here' &&
   (supabaseUrl.startsWith('http://') || supabaseUrl.startsWith('https://'))
 
-// Create Supabase client only if properly configured
 export const supabase = isSupabaseConfigured
   ? createClient(supabaseUrl, supabaseAnonKey)
   : null
 
-// Helper to check if Supabase is available
 export const isSupabaseAvailable = () => isSupabaseConfigured
 
-// Log configuration status (only in development)
 if (typeof window === 'undefined' && process.env.NODE_ENV === 'development') {
   if (!isSupabaseConfigured) {
     console.log('ℹ️ Supabase not configured - cloud features disabled')
@@ -29,7 +25,6 @@ if (typeof window === 'undefined' && process.env.NODE_ENV === 'development') {
   }
 }
 
-// Database Types
 export interface Database {
   public: {
     Tables: {
@@ -175,7 +170,6 @@ export interface Database {
   }
 }
 
-// Helper functions for user management
 export async function getUserByWallet(walletAddress: string) {
   if (!supabase) {
     console.warn('Supabase not configured - skipping user fetch')
@@ -189,8 +183,8 @@ export async function getUserByWallet(walletAddress: string) {
     .single()
 
   if (error && error.code !== 'PGRST116') {
-    // Silently ignore - backend not configured yet
-    // console.error('Error fetching user:', error)
+    
+    
     return null
   }
 
@@ -213,8 +207,8 @@ export async function createUser(walletAddress: string, username?: string) {
     .single()
 
   if (error) {
-    // Silently ignore - backend not configured yet
-    // console.error('Error creating user:', error)
+    
+    
     return null
   }
 
@@ -231,7 +225,6 @@ export async function getOrCreateUser(walletAddress: string) {
   return user
 }
 
-// Project management
 export async function saveProject(userId: string, project: any) {
   if (!supabase) {
     console.warn('Supabase not configured - skipping project save')
@@ -287,7 +280,6 @@ export async function updateProject(projectId: string, updates: any) {
   return data
 }
 
-// Upsert project (insert or update)
 export async function upsertProject(projectId: string, userId: string, project: any) {
   if (!supabase) {
     console.warn('Supabase not configured - skipping project upsert')
@@ -314,8 +306,8 @@ export async function upsertProject(projectId: string, userId: string, project: 
     .single()
 
   if (error) {
-    // Silently ignore - backend not configured yet
-    // console.error('Error upserting project:', error.message || error)
+    
+    
     return null
   }
 
@@ -335,8 +327,8 @@ export async function getUserProjects(userId: string) {
     .order('updated_at', { ascending: false })
 
   if (error) {
-    // Silently ignore - backend not configured yet
-    // console.error('Error fetching projects:', error)
+    
+    
     return []
   }
 
@@ -362,7 +354,6 @@ export async function deleteProject(projectId: string) {
   return true
 }
 
-// Deployed contracts management
 export async function saveDeployedContract(userId: string, contract: any) {
   if (!supabase) {
     console.warn('Supabase not configured - skipping contract save')

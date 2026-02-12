@@ -1,12 +1,5 @@
 import { CacheKeys, CacheTTL } from '../lib/cache';
 
-/**
- * Cache Service Tests
- * 
- * These tests verify the cache configuration, key generators, and TTL constants.
- * The actual Redis operations are tested through integration tests with a real Redis instance.
- */
-
 describe('Cache Service - Configuration Tests', () => {
   describe('CacheKeys helpers', () => {
     it('should generate correct contract ABI key', () => {
@@ -43,20 +36,20 @@ describe('Cache Service - Configuration Tests', () => {
 
   describe('CacheTTL constants', () => {
     it('should have correct TTL values per requirements', () => {
-      // Requirement 8.6: Cache TTL of 1 hour for contract metadata
-      expect(CacheTTL.CONTRACT_ABI).toBe(3600); // 1 hour in seconds
       
-      // Design spec: 5 minutes for simulation results
-      expect(CacheTTL.SIMULATION).toBe(300); // 5 minutes in seconds
+      expect(CacheTTL.CONTRACT_ABI).toBe(3600); 
       
-      // Design spec: 1 hour for analysis results
-      expect(CacheTTL.ANALYSIS).toBe(3600); // 1 hour in seconds
       
-      // Design spec: 24 hours for artifact metadata
-      expect(CacheTTL.ARTIFACT).toBe(86400); // 24 hours in seconds
+      expect(CacheTTL.SIMULATION).toBe(300); 
       
-      // Design spec: 10 minutes for compilation jobs
-      expect(CacheTTL.COMPILATION_JOB).toBe(600); // 10 minutes in seconds
+      
+      expect(CacheTTL.ANALYSIS).toBe(3600); 
+      
+      
+      expect(CacheTTL.ARTIFACT).toBe(86400); 
+      
+      
+      expect(CacheTTL.COMPILATION_JOB).toBe(600); 
     });
 
     it('should have all TTL values as positive integers', () => {
@@ -69,9 +62,9 @@ describe('Cache Service - Configuration Tests', () => {
     });
 
     it('should have TTL values in reasonable ranges', () => {
-      // All TTLs should be between 1 minute and 7 days
-      const MIN_TTL = 60; // 1 minute
-      const MAX_TTL = 604800; // 7 days
+      
+      const MIN_TTL = 60; 
+      const MAX_TTL = 604800; 
       
       const ttlValues = Object.values(CacheTTL);
       
@@ -100,7 +93,7 @@ describe('Cache Service - Configuration Tests', () => {
         CacheKeys.COMPILATION_JOB(''),
       ];
 
-      // Empty inputs should still generate valid keys with prefixes
+      
       keys.forEach(key => {
         expect(key.length).toBeGreaterThan(0);
         expect(key).toContain(':');
@@ -120,7 +113,7 @@ describe('Cache Service - Configuration Tests', () => {
 
   describe('Cache configuration requirements', () => {
     it('should meet requirement 8.4: Cache layer for frequently accessed data', () => {
-      // Verify cache key generators exist for all required data types
+      
       expect(typeof CacheKeys.CONTRACT_ABI).toBe('function');
       expect(typeof CacheKeys.SIMULATION).toBe('function');
       expect(typeof CacheKeys.ANALYSIS).toBe('function');
@@ -128,7 +121,7 @@ describe('Cache Service - Configuration Tests', () => {
     });
 
     it('should meet requirement 8.5: Cache-first retrieval pattern', () => {
-      // Verify TTL constants exist for cache expiration
+      
       expect(CacheTTL.CONTRACT_ABI).toBeDefined();
       expect(CacheTTL.SIMULATION).toBeDefined();
       expect(CacheTTL.ANALYSIS).toBeDefined();

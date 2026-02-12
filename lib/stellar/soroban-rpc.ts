@@ -6,7 +6,7 @@ export interface SorobanRpcConfig {
 export interface SimulationResult {
   success: boolean;
   result?: any;
-  gasEstimate?: number; // In Stroops
+  gasEstimate?: number; 
   stateChanges?: StateChange[];
   logs?: ContractEvent[];
   error?: string;
@@ -75,10 +75,10 @@ export class SorobanRpcClient {
     try {
       console.log('[SorobanRpcClient] Simulating transaction...');
 
-      // Convert transaction to XDR
+      
       const transactionXdr = transaction.toXDR();
 
-      // Make RPC call
+      
       const rpcResponse = await this.makeRpcCall('simulateTransaction', {
         transaction: transactionXdr,
       });
@@ -109,7 +109,7 @@ export class SorobanRpcClient {
 
   parseSimulationResult(result: any): SimulationResult {
     try {
-      // Check if simulation was successful
+      
       if (!result) {
         return {
           success: false,
@@ -117,7 +117,7 @@ export class SorobanRpcClient {
         };
       }
 
-      // Check for simulation errors
+      
       if (result.error) {
         return {
           success: false,

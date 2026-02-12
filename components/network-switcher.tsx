@@ -12,7 +12,7 @@ export function NetworkSwitcher() {
     const handleSwitch = (newNetwork: "celo" | "stellar") => {
         setNetwork(newNetwork);
         setNetworkType(newNetwork === "stellar" ? "stellar" : "evm");
-        // Also reset current project if needed or handle migration
+        
     };
 
     return (

@@ -31,7 +31,7 @@ export default function handler(
       })
     }
 
-    // Generate code from blocks
+    
     const generated = generateCode(blocks)
 
     return res.status(200).json({

@@ -3,14 +3,6 @@ import { storage } from '@/lib/storage';
 import { createHash } from 'crypto';
 import * as fc from 'fast-check';
 
-/**
- * Property-Based Tests for Deployment Transaction Creation
- * 
- * These tests validate that deployment creates appropriate transaction structures
- * for both EVM and Stellar deployments.
- */
-
-// Mock the storage module to provide test artifacts
 jest.mock('@/lib/storage', () => {
   const artifacts = new Map<string, { bytecode?: string; wasm?: Buffer; abi?: any }>();
   
@@ -50,12 +42,10 @@ jest.mock('@/lib/storage', () => {
   };
 });
 
-// Mock Supabase to avoid database connection issues
 jest.mock('@/lib/supabase', () => ({
   supabase: null,
 }));
 
-// Mock ethers to avoid network calls
 jest.mock('ethers', () => {
   const originalModule = jest.requireActual('ethers');
   
@@ -70,7 +60,6 @@ jest.mock('ethers', () => {
   };
 });
 
-// Mock Stellar SDK to avoid network calls
 jest.mock('@stellar/stellar-sdk', () => {
   const mockAccount = {
     accountId: () => 'GABC123',
@@ -114,41 +103,35 @@ describe('DeploymentService - Property-Based Tests', () => {
   const deploymentService = new DeploymentService();
 
   describe('Property 5: Deployment Creates Appropriate Transaction Structures', () => {
-    // Feature: stellar-backend-infrastructure, Property 5: Deployment Creates Appropriate Transaction Structures
     
-    /**
-     * Property: For any deployment request with a valid artifact ID, the Deployment_Service
-     * should create the appropriate transaction structure (unsigned transaction for EVM,
-     * Transaction_Envelope for Stellar) based on the contract type and network.
-     * 
-     * Validates: Requirements 2.1, 2.2
-     */
+    
+    
     
     test('EVM deployment creates unsigned transaction with correct structure', async () => {
       await fc.assert(
         fc.asyncProperty(
-          // Generate arbitrary bytecode (valid hex string)
+          
           fc.stringMatching(/^[0-9a-f]{100,1000}$/),
-          // Generate arbitrary constructor args
+          
           fc.array(
             fc.oneof(
-              fc.integer({ min: 0, max: 1000000 }), // uint256
-              fc.boolean(), // bool
-              fc.stringMatching(/^[0-9a-f]{40}$/).map(h => '0x' + h), // address
-              fc.string({ minLength: 1, maxLength: 50 }) // string
+              fc.integer({ min: 0, max: 1000000 }), 
+              fc.boolean(), 
+              fc.stringMatching(/^[0-9a-f]{40}$/).map(h => '0x' + h), 
+              fc.string({ minLength: 1, maxLength: 50 }) 
             ),
             { maxLength: 5 }
           ),
-          // Generate optional gas limit
+          
           fc.option(fc.integer({ min: 21000, max: 10000000 }), { nil: undefined }),
           async (bytecode, constructorArgs, gasLimit) => {
-            // Ensure bytecode has 0x prefix
+            
             const fullBytecode = '0x' + bytecode;
             
-            // Store artifact in mock storage
+            
             const { artifactId } = await storage.storeEVMArtifact(fullBytecode, []);
             
-            // Create deployment options
+            
             const options = {
               artifactId,
               network: 'CELO_MAINNET' as const,
@@ -156,36 +139,36 @@ describe('DeploymentService - Property-Based Tests', () => {
               gasLimit,
             };
 
-            // Call deployEVM
+            
             const result = await deploymentService.deployEVM(options);
 
-            // Verify result structure
+            
             expect(result.success).toBe(true);
             expect(result.unsignedTransaction).toBeDefined();
             
             if (result.unsignedTransaction) {
-              // Verify unsigned transaction has required fields
+              
               expect(result.unsignedTransaction.data).toBeDefined();
               expect(typeof result.unsignedTransaction.data).toBe('string');
               expect(result.unsignedTransaction.data.startsWith('0x')).toBe(true);
               
-              // Verify chainId is correct for CELO_MAINNET
+              
               expect(result.unsignedTransaction.chainId).toBe(42220);
               
-              // Verify gasLimit is present and is a string
+              
               expect(result.unsignedTransaction.gasLimit).toBeDefined();
               expect(typeof result.unsignedTransaction.gasLimit).toBe('string');
               
-              // Verify data contains at least the bytecode
+              
               expect(result.unsignedTransaction.data.length).toBeGreaterThanOrEqual(fullBytecode.length);
               
-              // If constructor args were provided, data should be longer than bytecode
+              
               if (constructorArgs.length > 0) {
                 expect(result.unsignedTransaction.data.length).toBeGreaterThan(fullBytecode.length);
               }
             }
             
-            // Verify network is returned
+            
             expect(result.network).toBe('Celo Mainnet');
           }
         ),
@@ -196,33 +179,33 @@ describe('DeploymentService - Property-Based Tests', () => {
     test('EVM deployment transaction data includes constructor arguments', async () => {
       await fc.assert(
         fc.asyncProperty(
-          // Generate simple bytecode
+          
           fc.constant('0x608060405234801561001057600080fd5b50'),
-          // Generate constructor args with known types
+          
           fc.tuple(
             fc.integer({ min: 0, max: 1000 }),
             fc.boolean()
           ),
           async (bytecode, [uintArg, boolArg]) => {
-            // Store artifact
+            
             const { artifactId } = await storage.storeEVMArtifact(bytecode, []);
             
-            // Create deployment with constructor args
+            
             const result = await deploymentService.deployEVM({
               artifactId,
               network: 'CELO_MAINNET',
               constructorArgs: [uintArg, boolArg],
             });
 
-            // Verify transaction data is longer than bytecode (includes encoded args)
+            
             expect(result.success).toBe(true);
             expect(result.unsignedTransaction).toBeDefined();
             
             if (result.unsignedTransaction) {
-              // Data should be longer than original bytecode due to encoded constructor args
+              
               expect(result.unsignedTransaction.data.length).toBeGreaterThan(bytecode.length);
               
-              // Data should start with the bytecode
+              
               expect(result.unsignedTransaction.data.startsWith(bytecode)).toBe(true);
             }
           }
@@ -234,9 +217,9 @@ describe('DeploymentService - Property-Based Tests', () => {
     test('EVM deployment for different networks creates transactions with correct chainId', async () => {
       await fc.assert(
         fc.asyncProperty(
-          // Generate bytecode
+          
           fc.stringMatching(/^[0-9a-f]{100,500}$/),
-          // Generate network selection
+          
           fc.constantFrom('CELO_MAINNET' as const, 'CELO_ALFAJORES' as const),
           async (bytecode, network) => {
             const fullBytecode = '0x' + bytecode;
@@ -252,7 +235,7 @@ describe('DeploymentService - Property-Based Tests', () => {
             expect(result.unsignedTransaction).toBeDefined();
             
             if (result.unsignedTransaction) {
-              // Verify chainId matches the network
+              
               if (network === 'CELO_MAINNET') {
                 expect(result.unsignedTransaction.chainId).toBe(42220);
               } else if (network === 'CELO_ALFAJORES') {
@@ -268,39 +251,39 @@ describe('DeploymentService - Property-Based Tests', () => {
     test('Stellar deployment creates transaction envelope XDR', async () => {
       await fc.assert(
         fc.asyncProperty(
-          // Generate arbitrary WASM data
+          
           fc.uint8Array({ minLength: 100, maxLength: 1000 }),
-          // Generate source account (Stellar address format)
+          
           fc.stringMatching(/^G[A-Z2-7]{55}$/),
-          // Generate network selection
+          
           fc.constantFrom('testnet' as const, 'mainnet' as const),
           async (wasmArray, sourceAccount, network) => {
             const wasm = Buffer.from(wasmArray);
             
-            // Store artifact
+            
             const { artifactId } = await storage.storeStellarArtifact(wasm, {});
             
-            // Create deployment options
+            
             const options = {
               artifactId,
               network,
               sourceAccount,
             };
 
-            // Call deployStellar
+            
             const result = await deploymentService.deployStellar(options);
 
-            // Verify result structure
+            
             expect(result.success).toBe(true);
             expect(result.envelopeXDR).toBeDefined();
             
             if (result.envelopeXDR) {
-              // Verify envelope XDR is a non-empty string
+              
               expect(typeof result.envelopeXDR).toBe('string');
               expect(result.envelopeXDR.length).toBeGreaterThan(0);
             }
             
-            // Verify network is returned correctly
+            
             expect(result.network).toBe(`stellar-${network}`);
           }
         ),
@@ -311,15 +294,15 @@ describe('DeploymentService - Property-Based Tests', () => {
     test('Stellar deployment for different networks uses correct configuration', async () => {
       await fc.assert(
         fc.asyncProperty(
-          // Generate WASM data
+          
           fc.uint8Array({ minLength: 50, maxLength: 500 }),
-          // Generate source account
+          
           fc.stringMatching(/^G[A-Z2-7]{55}$/),
           async (wasmArray, sourceAccount) => {
             const wasm = Buffer.from(wasmArray);
             const { artifactId } = await storage.storeStellarArtifact(wasm, {});
             
-            // Test both testnet and mainnet
+            
             const testnetResult = await deploymentService.deployStellar({
               artifactId,
               network: 'testnet',
@@ -332,15 +315,15 @@ describe('DeploymentService - Property-Based Tests', () => {
               sourceAccount,
             });
 
-            // Both should succeed
+            
             expect(testnetResult.success).toBe(true);
             expect(mainnetResult.success).toBe(true);
             
-            // Both should have envelope XDR
+            
             expect(testnetResult.envelopeXDR).toBeDefined();
             expect(mainnetResult.envelopeXDR).toBeDefined();
             
-            // Network should be correctly identified
+            
             expect(testnetResult.network).toBe('stellar-testnet');
             expect(mainnetResult.network).toBe('stellar-mainnet');
           }
@@ -352,9 +335,9 @@ describe('DeploymentService - Property-Based Tests', () => {
     test('deployment fails gracefully for non-existent artifacts', async () => {
       await fc.assert(
         fc.asyncProperty(
-          // Generate random artifact ID that doesn't exist
+          
           fc.stringMatching(/^[0-9a-f]{64}$/),
-          // Generate network type
+          
           fc.constantFrom('evm' as const, 'stellar' as const),
           async (artifactId, deploymentType) => {
             if (deploymentType === 'evm') {
@@ -364,7 +347,7 @@ describe('DeploymentService - Property-Based Tests', () => {
                 constructorArgs: [],
               });
 
-              // Should fail with appropriate error
+              
               expect(result.success).toBe(false);
               expect(result.error).toBeDefined();
               expect(result.error).toContain('Artifact not found');
@@ -375,7 +358,7 @@ describe('DeploymentService - Property-Based Tests', () => {
                 sourceAccount: 'GABC123DEFG456HIJK789LMNO012PQRS345TUVW678XYZA901BCDE234',
               });
 
-              // Should fail with appropriate error
+              
               expect(result.success).toBe(false);
               expect(result.error).toBeDefined();
               expect(result.error).toContain('Artifact not found');
@@ -389,7 +372,7 @@ describe('DeploymentService - Property-Based Tests', () => {
     test('EVM deployment creates valid transaction data format', async () => {
       await fc.assert(
         fc.asyncProperty(
-          // Generate bytecode
+          
           fc.stringMatching(/^[0-9a-f]{100,500}$/),
           async (bytecode) => {
             const fullBytecode = '0x' + bytecode;
@@ -406,14 +389,14 @@ describe('DeploymentService - Property-Based Tests', () => {
             if (result.unsignedTransaction) {
               const { data, chainId, gasLimit } = result.unsignedTransaction;
               
-              // Data must be valid hex string with 0x prefix
+              
               expect(data).toMatch(/^0x[0-9a-fA-F]+$/);
               
-              // ChainId must be a positive integer
+              
               expect(Number.isInteger(chainId)).toBe(true);
               expect(chainId).toBeGreaterThan(0);
               
-              // GasLimit must be a numeric string
+              
               expect(gasLimit).toMatch(/^\d+$/);
               expect(parseInt(gasLimit)).toBeGreaterThan(0);
             }

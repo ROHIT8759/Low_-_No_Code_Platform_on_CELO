@@ -1,9 +1,4 @@
-/**
- * GitHub Deployment Utilities
- * 
- * This module provides functionality to deploy frontend projects to GitHub
- * using the GitHub API.
- */
+
 
 export interface GitHubDeployOptions {
   repoName: string
@@ -20,15 +15,11 @@ export interface GitHubDeployResult {
   message?: string
 }
 
-/**
- * Deploy a frontend project to GitHub
- * Creates a new repository and pushes all files
- */
 export async function deployToGitHub(options: GitHubDeployOptions): Promise<GitHubDeployResult> {
   const { repoName, repoDescription, files, githubToken, isPrivate = false } = options
 
   try {
-    // 1. Create repository
+    
     const createRepoResponse = await fetch('https://api.github.com/user/repos', {
       method: 'POST',
       headers: {
@@ -54,10 +45,10 @@ export async function deployToGitHub(options: GitHubDeployOptions): Promise<GitH
     const ownerLogin = repoData.owner.login
     const defaultBranch = repoData.default_branch || 'main'
 
-    // Wait a bit for repo initialization
+    
     await new Promise(resolve => setTimeout(resolve, 2000))
 
-    // 2. Get the latest commit SHA
+    
     const getRefResponse = await fetch(
       `https://api.github.com/repos/${ownerLogin}/${repoName}/git/ref/heads/${defaultBranch}`,
       {
@@ -75,7 +66,7 @@ export async function deployToGitHub(options: GitHubDeployOptions): Promise<GitH
     const refData = await getRefResponse.json()
     const latestCommitSha = refData.object.sha
 
-    // 3. Get the base tree
+    
     const getCommitResponse = await fetch(
       `https://api.github.com/repos/${ownerLogin}/${repoName}/git/commits/${latestCommitSha}`,
       {
@@ -93,7 +84,7 @@ export async function deployToGitHub(options: GitHubDeployOptions): Promise<GitH
     const commitData = await getCommitResponse.json()
     const baseTreeSha = commitData.tree.sha
 
-    // 4. Create blobs for all files
+    
     const tree = []
     for (const [path, content] of Object.entries(files)) {
       const createBlobResponse = await fetch(
@@ -125,7 +116,7 @@ export async function deployToGitHub(options: GitHubDeployOptions): Promise<GitH
       })
     }
 
-    // 5. Create a new tree
+    
     const createTreeResponse = await fetch(
       `https://api.github.com/repos/${ownerLogin}/${repoName}/git/trees`,
       {
@@ -148,7 +139,7 @@ export async function deployToGitHub(options: GitHubDeployOptions): Promise<GitH
 
     const treeData = await createTreeResponse.json()
 
-    // 6. Create a new commit
+    
     const createCommitResponse = await fetch(
       `https://api.github.com/repos/${ownerLogin}/${repoName}/git/commits`,
       {
@@ -172,7 +163,7 @@ export async function deployToGitHub(options: GitHubDeployOptions): Promise<GitH
 
     const newCommitData = await createCommitResponse.json()
 
-    // 7. Update the reference
+    
     const updateRefResponse = await fetch(
       `https://api.github.com/repos/${ownerLogin}/${repoName}/git/refs/heads/${defaultBranch}`,
       {
@@ -208,9 +199,6 @@ export async function deployToGitHub(options: GitHubDeployOptions): Promise<GitH
   }
 }
 
-/**
- * Validate GitHub token by checking user access
- */
 export async function validateGitHubToken(token: string): Promise<boolean> {
   try {
     const response = await fetch('https://api.github.com/user', {
@@ -225,9 +213,6 @@ export async function validateGitHubToken(token: string): Promise<boolean> {
   }
 }
 
-/**
- * Get authenticated user info
- */
 export async function getGitHubUser(token: string): Promise<{ login: string; name: string } | null> {
   try {
     const response = await fetch('https://api.github.com/user', {

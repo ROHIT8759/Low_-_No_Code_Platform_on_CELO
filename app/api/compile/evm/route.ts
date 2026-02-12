@@ -2,18 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { enqueueCompilation } from '@/lib/queue';
 import { v4 as uuidv4 } from 'uuid';
 
-/**
- * POST /api/compile/evm
- * 
- * Compile EVM Solidity contracts
- * Enqueues compilation job for asynchronous processing
- */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { solidityCode, contractName, optimizerRuns } = body;
 
-    // Input validation
+    
     if (!solidityCode || typeof solidityCode !== 'string') {
       return NextResponse.json(
         {
@@ -34,7 +28,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate optimizer runs if provided
+    
     if (optimizerRuns !== undefined) {
       if (typeof optimizerRuns !== 'number' || optimizerRuns < 0) {
         return NextResponse.json(
@@ -47,10 +41,10 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Generate request ID for tracking
+    
     const requestId = uuidv4();
 
-    // Enqueue compilation job
+    
     const jobId = await enqueueCompilation({
       type: 'compile-evm',
       solidityCode,
@@ -59,7 +53,7 @@ export async function POST(request: NextRequest) {
       requestId,
     });
 
-    // Return job ID for status polling
+    
     return NextResponse.json({
       success: true,
       jobId,

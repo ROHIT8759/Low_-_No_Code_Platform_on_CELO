@@ -34,10 +34,10 @@ export function BuilderNavbar() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
     useEffect(() => {
-        // Check if wallet is already connected on load
+        
         checkWalletConnection()
 
-        // Listen for account and chain changes
+        
         if (window.ethereum) {
             window.ethereum.on("accountsChanged", handleAccountsChanged)
             window.ethereum.on("chainChanged", handleChainChanged)
@@ -56,7 +56,7 @@ export function BuilderNavbar() {
             const status = await checkStellarConnection();
             if (status.isConnected && status.publicKey) {
                 setWalletAddress(status.publicKey);
-                // setWalletChainId? Stellar doesn't have numeric chainId in the same way, maybe store network passphrase hash or 0
+                
                 setWalletChainId(0);
             }
             return;
@@ -72,11 +72,11 @@ export function BuilderNavbar() {
                     const address = await signer.getAddress()
                     setWalletAddress(address)
 
-                    // Get current chain ID
+                    
                     const network = await provider.getNetwork()
                     setWalletChainId(Number(network.chainId))
 
-                    // Initialize user in Supabase (store wallet on reconnection)
+                    
                     await initializeUser(address)
                     console.log('✅ Wallet reconnected and stored in Supabase')
                 }
@@ -92,7 +92,7 @@ export function BuilderNavbar() {
             setWalletChainId(null)
         } else {
             setWalletAddress(accounts[0])
-            // Store new account in Supabase when user switches accounts
+            
             await initializeUser(accounts[0])
             console.log('✅ Account changed and stored in Supabase')
         }
@@ -129,11 +129,11 @@ export function BuilderNavbar() {
             const address = await signer.getAddress()
             setWalletAddress(address)
 
-            // Get current chain ID
+            
             const network = await provider.getNetwork()
             setWalletChainId(Number(network.chainId))
 
-            // Initialize user in Supabase
+            
             await initializeUser(address)
             console.log('✅ User initialized in Supabase')
         } catch (err) {
@@ -172,7 +172,7 @@ export function BuilderNavbar() {
         element.click()
         document.body.removeChild(element)
 
-        // Save to store
+        
         saveProject()
     }
 
@@ -186,11 +186,11 @@ export function BuilderNavbar() {
                     </div>
                 </div>
 
-                {/* Desktop Actions */}
+                {}
                 <div className="hidden lg:flex items-center gap-4">
                     <NetworkSwitcher />
 
-                    {/* Wallet Section */}
+                    {}
                     {walletAddress ? (
                         <div className="flex items-center gap-2">
                             <div className="group relative px-3 py-1.5 bg-zinc-800/50 border border-zinc-700/50 rounded-lg text-zinc-300 text-xs font-medium flex items-center gap-2 hover:bg-zinc-800 hover:border-zinc-600 cursor-default transition-all">
@@ -218,7 +218,7 @@ export function BuilderNavbar() {
 
                     <div className="h-4 w-px bg-zinc-800 mx-1"></div>
 
-                    {/* Project Tools */}
+                    {}
                     <div className="flex items-center gap-1">
                         <button
                             onClick={() => setProjectManagerOpen(true)}
@@ -255,7 +255,7 @@ export function BuilderNavbar() {
                     </button>
                 </div>
 
-                {/* Mobile Toggle */}
+                {}
                 <button
                     onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                     className="lg:hidden p-2 text-zinc-400 hover:text-white"
@@ -264,7 +264,7 @@ export function BuilderNavbar() {
                 </button>
             </nav>
 
-            {/* Mobile Menu */}
+            {}
             <AnimatePresence>
                 {mobileMenuOpen && (
                     <motion.div

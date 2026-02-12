@@ -99,7 +99,7 @@ describe('ContractPreviewModal', () => {
             />
         )
 
-        // The iframe should contain the features
+        
         const iframe = screen.getByTitle('Contract dApp Preview')
         expect(iframe).toBeInTheDocument()
     })

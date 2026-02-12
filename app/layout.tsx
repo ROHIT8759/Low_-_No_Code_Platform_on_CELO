@@ -146,8 +146,8 @@ export default function RootLayout({
   }
 
   return (
-    // Enable dark theme by default by adding the `dark` class on the <html> element.
-    // This activates the `.dark { ... }` CSS variable overrides in `globals.css`.
+    
+    
     <html lang="en" className="dark" suppressHydrationWarning>
       <head>
         <script

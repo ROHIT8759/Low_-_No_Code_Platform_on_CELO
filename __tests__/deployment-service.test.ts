@@ -128,21 +128,21 @@ describe('DeploymentService', () => {
 
   describe('Gas and Fee Estimation', () => {
     it('should estimate EVM gas based on bytecode size', async () => {
-      const bytecode = '0x' + '60'.repeat(1000); // 2000 hex chars = 1000 bytes
+      const bytecode = '0x' + '60'.repeat(1000); 
       const gas = await service.estimateEVMGas(bytecode, 'CELO_MAINNET');
       
-      expect(gas).toBeGreaterThan(21000); // Should be more than base gas
-      // bytecode.length = 2002 (including '0x'), so 2002/2 = 1001 bytes
+      expect(gas).toBeGreaterThan(21000); 
+      
       const expectedGas = 21000 + 1001 * 200;
       expect(gas).toBe(expectedGas);
     });
 
     it('should estimate Stellar fee based on WASM size', async () => {
-      const wasmSize = 50000; // 50KB WASM
+      const wasmSize = 50000; 
       const fee = await service.estimateStellarFee(wasmSize, 'testnet');
       
-      expect(fee).toBeGreaterThan(100); // Should be more than base fee
-      expect(fee).toBe(100 + 50000 * 10); // Base + per-byte fee
+      expect(fee).toBeGreaterThan(100); 
+      expect(fee).toBe(100 + 50000 * 10); 
     });
   });
 
@@ -166,14 +166,14 @@ describe('DeploymentService', () => {
 
   describe('Transaction Creation Helpers', () => {
     it('should create EVM deployment data with bytecode', () => {
-      // This tests the private method indirectly through deployEVM
-      // The actual implementation would be tested through integration tests
+      
+      
       expect(service).toBeDefined();
     });
 
     it('should create Stellar deployment envelope structure', () => {
-      // This tests the private method indirectly through deployStellar
-      // The actual implementation would be tested through integration tests
+      
+      
       expect(service).toBeDefined();
     });
   });

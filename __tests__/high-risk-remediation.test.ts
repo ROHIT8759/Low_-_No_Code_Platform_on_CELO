@@ -1,14 +1,4 @@
-/**
- * Property-Based Tests for High-Risk Remediation
- * Feature: stellar-backend-infrastructure
- * Property 17: High-Risk Patterns Trigger Remediation Recommendations
- * 
- * **Validates: Requirements 5.8**
- * 
- * Tests that for any contract analysis that detects functions with high or critical
- * risk scores, the AI_Intelligence_Engine provides specific remediation recommendations
- * for those functions.
- */
+
 
 import { AIIntelligenceEngine } from '@/lib/services/ai-engine';
 import * as fc from 'fast-check';
@@ -26,37 +16,37 @@ describe('Property 17: High-Risk Patterns Trigger Remediation Recommendations', 
         fc.asyncProperty(
           fc.stringMatching(/^[A-Z][a-zA-Z0-9]{2,20}$/),
           async (contractName) => {
-            // Generate a contract with high-risk patterns
+            
             const contract = generateHighRiskContract(contractName);
 
-            // Analyze the contract
+            
             const result = aiEngine.performFullAnalysis(contract);
 
-            // Find functions with high risk scores
+            
             const highRiskFunctions = Object.entries(result.riskScores).filter(
               ([_, riskScore]) => riskScore.level === 'high' || riskScore.level === 'critical'
             );
 
-            // If there are high-risk functions, there should be recommendations
+            
             if (highRiskFunctions.length > 0) {
               expect(result.recommendations.length).toBeGreaterThan(0);
 
-              // Check that recommendations exist for high-risk functions
+              
               for (const [functionName, riskScore] of highRiskFunctions) {
                 const functionRecommendations = result.recommendations.filter(
                   rec => rec.location === functionName
                 );
 
-                // Should have at least one recommendation for this high-risk function
+                
                 expect(functionRecommendations.length).toBeGreaterThan(0);
 
-                // Recommendations should be security-related
+                
                 const securityRecs = functionRecommendations.filter(
                   rec => rec.type === 'security'
                 );
                 expect(securityRecs.length).toBeGreaterThan(0);
 
-                // Recommendations should mention the risk level
+                
                 const hasRiskMention = functionRecommendations.some(rec =>
                   rec.message.toLowerCase().includes('high') ||
                   rec.message.toLowerCase().includes('critical')
@@ -75,25 +65,25 @@ describe('Property 17: High-Risk Patterns Trigger Remediation Recommendations', 
         fc.asyncProperty(
           fc.stringMatching(/^[A-Z][a-zA-Z0-9]{2,20}$/),
           async (contractName) => {
-            // Generate a contract with critical-risk patterns (delegatecall + payable + no access control)
+            
             const contract = generateCriticalRiskContract(contractName);
 
-            // Analyze the contract
+            
             const result = aiEngine.performFullAnalysis(contract);
 
-            // Find functions with critical risk scores
+            
             const criticalRiskFunctions = Object.entries(result.riskScores).filter(
               ([_, riskScore]) => riskScore.level === 'critical'
             );
 
-            // If there are critical-risk functions, there should be error-level recommendations
+            
             if (criticalRiskFunctions.length > 0) {
               const errorRecommendations = result.recommendations.filter(
                 rec => rec.severity === 'error'
               );
               expect(errorRecommendations.length).toBeGreaterThan(0);
 
-              // Check that critical functions have error-level recommendations
+              
               for (const [functionName, _] of criticalRiskFunctions) {
                 const functionErrorRecs = result.recommendations.filter(
                   rec => rec.location === functionName && rec.severity === 'error'
@@ -115,26 +105,26 @@ describe('Property 17: High-Risk Patterns Trigger Remediation Recommendations', 
             riskPattern: fc.constantFrom('delegatecall', 'externalCall', 'payable', 'reentrancy'),
           }),
           async ({ contractName, riskPattern }) => {
-            // Generate contract with specific risk pattern
+            
             const contract = generateContractWithPattern(contractName, riskPattern);
 
-            // Analyze the contract
+            
             const result = aiEngine.performFullAnalysis(contract);
 
-            // Find high or critical risk functions
+            
             const highRiskFunctions = Object.entries(result.riskScores).filter(
               ([_, riskScore]) => riskScore.level === 'high' || riskScore.level === 'critical'
             );
 
             if (highRiskFunctions.length > 0) {
-              // Recommendations should include the risk reasons
+              
               for (const [functionName, riskScore] of highRiskFunctions) {
                 const functionRecommendations = result.recommendations.filter(
                   rec => rec.location === functionName && rec.type === 'security'
                 );
 
                 if (functionRecommendations.length > 0) {
-                  // At least one recommendation should mention the risk reasons
+                  
                   const hasReasonMention = functionRecommendations.some(rec => {
                     const message = rec.message.toLowerCase();
                     return riskScore.reasons.some(reason =>
@@ -156,18 +146,18 @@ describe('Property 17: High-Risk Patterns Trigger Remediation Recommendations', 
         fc.asyncProperty(
           fc.stringMatching(/^[A-Z][a-zA-Z0-9]{2,20}$/),
           async (contractName) => {
-            // Generate a low-risk contract (view functions only)
+            
             const contract = generateLowRiskContract(contractName);
 
-            // Analyze the contract
+            
             const result = aiEngine.performFullAnalysis(contract);
 
-            // Find low-risk functions
+            
             const lowRiskFunctions = Object.entries(result.riskScores).filter(
               ([_, riskScore]) => riskScore.level === 'low'
             );
 
-            // Low-risk functions should not have error-level security recommendations
+            
             for (const [functionName, _] of lowRiskFunctions) {
               const errorSecurityRecs = result.recommendations.filter(
                 rec =>
@@ -188,13 +178,13 @@ describe('Property 17: High-Risk Patterns Trigger Remediation Recommendations', 
         fc.asyncProperty(
           fc.stringMatching(/^[A-Z][a-zA-Z0-9]{2,20}$/),
           async (contractName) => {
-            // Generate contract with mixed risk levels
+            
             const contract = generateMixedRiskContract(contractName);
 
-            // Analyze the contract
+            
             const result = aiEngine.performFullAnalysis(contract);
 
-            // Check severity alignment with risk levels
+            
             for (const [functionName, riskScore] of Object.entries(result.riskScores)) {
               const functionSecurityRecs = result.recommendations.filter(
                 rec => rec.location === functionName && rec.type === 'security'
@@ -202,11 +192,11 @@ describe('Property 17: High-Risk Patterns Trigger Remediation Recommendations', 
 
               if (functionSecurityRecs.length > 0) {
                 if (riskScore.level === 'critical') {
-                  // Critical risk should have error severity
+                  
                   const hasError = functionSecurityRecs.some(rec => rec.severity === 'error');
                   expect(hasError).toBe(true);
                 } else if (riskScore.level === 'high') {
-                  // High risk should have warning or error severity
+                  
                   const hasWarningOrError = functionSecurityRecs.some(
                     rec => rec.severity === 'warning' || rec.severity === 'error'
                   );
@@ -225,13 +215,13 @@ describe('Property 17: High-Risk Patterns Trigger Remediation Recommendations', 
         fc.asyncProperty(
           fc.stringMatching(/^[A-Z][a-zA-Z0-9]{2,20}$/),
           async (contractName) => {
-            // Generate high-risk contract
+            
             const contract = generateHighRiskContract(contractName);
 
-            // Analyze the contract
+            
             const result = aiEngine.performFullAnalysis(contract);
 
-            // Find high or critical risk functions
+            
             const highRiskFunctions = Object.entries(result.riskScores).filter(
               ([_, riskScore]) => riskScore.level === 'high' || riskScore.level === 'critical'
             );
@@ -242,7 +232,7 @@ describe('Property 17: High-Risk Patterns Trigger Remediation Recommendations', 
                   rec => rec.location === functionName && rec.type === 'security'
                 );
 
-                // Each recommendation should have a non-empty message
+                
                 for (const rec of functionSecurityRecs) {
                   expect(rec.message).toBeTruthy();
                   expect(rec.message.length).toBeGreaterThan(10);
@@ -261,20 +251,20 @@ describe('Property 17: High-Risk Patterns Trigger Remediation Recommendations', 
         fc.asyncProperty(
           fc.stringMatching(/^[A-Z][a-zA-Z0-9]{2,20}$/),
           async (contractName) => {
-            // Generate contract with multiple high-risk functions
+            
             const contract = generateMultipleHighRiskContract(contractName);
 
-            // Analyze the contract
+            
             const result = aiEngine.performFullAnalysis(contract);
 
-            // Find all high or critical risk functions
+            
             const highRiskFunctions = Object.entries(result.riskScores).filter(
               ([_, riskScore]) => riskScore.level === 'high' || riskScore.level === 'critical'
             );
 
-            // If there are multiple high-risk functions
+            
             if (highRiskFunctions.length >= 2) {
-              // Each should have its own recommendations
+              
               for (const [functionName, _] of highRiskFunctions) {
                 const functionSecurityRecs = result.recommendations.filter(
                   rec => rec.location === functionName && rec.type === 'security'
@@ -293,20 +283,20 @@ describe('Property 17: High-Risk Patterns Trigger Remediation Recommendations', 
         fc.asyncProperty(
           fc.stringMatching(/^[A-Z][a-zA-Z0-9]{2,20}$/),
           async (contractName) => {
-            // Generate high-risk contract
+            
             const contract = generateHighRiskContract(contractName);
 
-            // Analyze the contract
+            
             const result = aiEngine.performFullAnalysis(contract);
 
-            // All recommendations should have location information
+            
             for (const rec of result.recommendations) {
               expect(rec.location).toBeTruthy();
               expect(typeof rec.location).toBe('string');
               expect(rec.location.length).toBeGreaterThan(0);
             }
 
-            // High-risk security recommendations should point to specific functions
+            
             const highRiskFunctions = Object.entries(result.riskScores).filter(
               ([_, riskScore]) => riskScore.level === 'high' || riskScore.level === 'critical'
             );
@@ -315,7 +305,7 @@ describe('Property 17: High-Risk Patterns Trigger Remediation Recommendations', 
               const securityRecs = result.recommendations.filter(rec => rec.type === 'security');
               
               for (const rec of securityRecs) {
-                // Location should match a function name pattern
+                
                 const matchesFunction = highRiskFunctions.some(([funcName, _]) =>
                   rec.location === funcName
                 );
@@ -333,9 +323,6 @@ describe('Property 17: High-Risk Patterns Trigger Remediation Recommendations', 
   });
 });
 
-/**
- * Helper function to generate a high-risk contract
- */
 function generateHighRiskContract(contractName: string): string {
   return `
     pragma solidity ^0.8.0;
@@ -352,9 +339,6 @@ function generateHighRiskContract(contractName: string): string {
   `;
 }
 
-/**
- * Helper function to generate a critical-risk contract
- */
 function generateCriticalRiskContract(contractName: string): string {
   return `
     pragma solidity ^0.8.0;
@@ -371,9 +355,6 @@ function generateCriticalRiskContract(contractName: string): string {
   `;
 }
 
-/**
- * Helper function to generate a low-risk contract
- */
 function generateLowRiskContract(contractName: string): string {
   return `
     pragma solidity ^0.8.0;
@@ -392,9 +373,6 @@ function generateLowRiskContract(contractName: string): string {
   `;
 }
 
-/**
- * Helper function to generate a contract with a specific risk pattern
- */
 function generateContractWithPattern(contractName: string, pattern: string): string {
   switch (pattern) {
     case 'delegatecall':
@@ -451,9 +429,6 @@ function generateContractWithPattern(contractName: string, pattern: string): str
   }
 }
 
-/**
- * Helper function to generate a contract with mixed risk levels
- */
 function generateMixedRiskContract(contractName: string): string {
   return `
     pragma solidity ^0.8.0;
@@ -486,9 +461,6 @@ function generateMixedRiskContract(contractName: string): string {
   `;
 }
 
-/**
- * Helper function to generate a contract with multiple high-risk functions
- */
 function generateMultipleHighRiskContract(contractName: string): string {
   return `
     pragma solidity ^0.8.0;

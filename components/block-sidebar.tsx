@@ -86,7 +86,7 @@ export function BlockSidebar() {
                       hover:bg-[#161B22] hover:border-[#30363D] transition-all cursor-grab active:cursor-grabbing
                     "
                   >
-                    {/* Left Accent Bar on Hover */}
+                    {}
                     <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary opacity-0 group-hover:opacity-100 transition-opacity" />
 
                     <div className="flex items-start justify-between">
@@ -102,7 +102,7 @@ export function BlockSidebar() {
                       <GripHorizontal className="w-3 h-3 text-zinc-700 opacity-0 group-hover:opacity-100" />
                     </div>
 
-                    {/* Metadata Footer */}
+                    {}
                     <div className="mt-2 flex items-center justify-between border-t border-[#222730]/50 pt-2">
                       <div className="flex items-center gap-1.5">
                         <span className="text-[9px] text-zinc-600 font-mono uppercase">Gas:</span>

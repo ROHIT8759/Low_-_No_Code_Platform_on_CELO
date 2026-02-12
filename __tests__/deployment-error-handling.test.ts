@@ -3,14 +3,6 @@ import { storage } from '@/lib/storage';
 import { createHash } from 'crypto';
 import * as fc from 'fast-check';
 
-/**
- * Property-Based Tests for Deployment Error Handling
- * 
- * These tests validate that failed deployments return appropriate error information
- * including failure reasons and transaction hashes when available.
- */
-
-// Mock the storage module to provide test artifacts
 jest.mock('@/lib/storage', () => {
   const artifacts = new Map<string, { bytecode?: string; wasm?: Buffer; abi?: any }>();
   
@@ -50,16 +42,14 @@ jest.mock('@/lib/storage', () => {
   };
 });
 
-// Mock Supabase to avoid database connection issues
 jest.mock('@/lib/supabase', () => ({
   supabase: null,
 }));
 
-// Mock ethers with configurable failure scenarios
 jest.mock('ethers', () => {
   const originalModule = jest.requireActual('ethers');
   
-  // Track mock behavior for different test scenarios
+  
   let mockBehavior: 'success' | 'gas-estimation-failure' | 'broadcast-failure' | 'receipt-failure' = 'success';
   
   const setMockBehavior = (behavior: typeof mockBehavior) => {
@@ -77,7 +67,7 @@ jest.mock('ethers', () => {
       }),
       getTransactionReceipt: jest.fn().mockImplementation(() => {
         if (mockBehavior === 'receipt-failure') {
-          // Return null to simulate transaction not being mined
+          
           return Promise.resolve(null);
         }
         return Promise.resolve({
@@ -101,7 +91,6 @@ jest.mock('ethers', () => {
   };
 });
 
-// Mock Stellar SDK with configurable failure scenarios
 jest.mock('@stellar/stellar-sdk', () => {
   let mockBehavior: 'success' | 'account-load-failure' | 'submit-failure' | 'transaction-not-found' = 'success';
   
@@ -192,21 +181,16 @@ describe('DeploymentService - Error Handling Property Tests', () => {
   const deploymentService = new DeploymentService();
 
   describe('Property 8: Failed Deployments Return Error Information', () => {
-    // Feature: stellar-backend-infrastructure, Property 8: Failed Deployments Return Error Information
     
-    /**
-     * Property: For any deployment that fails, the error response should contain
-     * the failure reason and transaction hash (if the transaction was submitted but reverted).
-     * 
-     * **Validates: Requirements 2.6**
-     */
+    
+    
     
     test('EVM deployment with non-existent artifact returns error with failure reason', async () => {
       await fc.assert(
         fc.asyncProperty(
-          // Generate random artifact ID that doesn't exist
+          
           fc.stringMatching(/^[0-9a-f]{64}$/),
-          // Generate network
+          
           fc.constantFrom('CELO_MAINNET' as const, 'CELO_ALFAJORES' as const),
           async (artifactId, network) => {
             const result = await deploymentService.deployEVM({
@@ -215,16 +199,16 @@ describe('DeploymentService - Error Handling Property Tests', () => {
               constructorArgs: [],
             });
 
-            // Verify failure response structure
+            
             expect(result.success).toBe(false);
             expect(result.error).toBeDefined();
             expect(typeof result.error).toBe('string');
             expect(result.error.length).toBeGreaterThan(0);
             
-            // Verify error message contains meaningful information
+            
             expect(result.error).toContain('Artifact not found');
             
-            // Verify details field provides additional context
+            
             expect(result.details).toBeDefined();
             expect(result.details).toContain(artifactId);
           }
@@ -236,11 +220,11 @@ describe('DeploymentService - Error Handling Property Tests', () => {
     test('Stellar deployment with non-existent artifact returns error with failure reason', async () => {
       await fc.assert(
         fc.asyncProperty(
-          // Generate random artifact ID that doesn't exist
+          
           fc.stringMatching(/^[0-9a-f]{64}$/),
-          // Generate network
+          
           fc.constantFrom('testnet' as const, 'mainnet' as const),
-          // Generate source account
+          
           fc.stringMatching(/^G[A-Z2-7]{55}$/),
           async (artifactId, network, sourceAccount) => {
             const result = await deploymentService.deployStellar({
@@ -249,16 +233,16 @@ describe('DeploymentService - Error Handling Property Tests', () => {
               sourceAccount,
             });
 
-            // Verify failure response structure
+            
             expect(result.success).toBe(false);
             expect(result.error).toBeDefined();
             expect(typeof result.error).toBe('string');
             expect(result.error.length).toBeGreaterThan(0);
             
-            // Verify error message contains meaningful information
+            
             expect(result.error).toContain('Artifact not found');
             
-            // Verify details field provides additional context
+            
             expect(result.details).toBeDefined();
             expect(result.details).toContain(artifactId);
           }
@@ -270,15 +254,15 @@ describe('DeploymentService - Error Handling Property Tests', () => {
     test('EVM deployment failure during transaction submission includes transaction hash', async () => {
       await fc.assert(
         fc.asyncProperty(
-          // Generate bytecode
+          
           fc.stringMatching(/^[0-9a-f]{100,500}$/),
-          // Generate deployer
+          
           fc.stringMatching(/^[0-9a-f]{40}$/).map(h => '0x' + h),
           async (bytecode, deployer) => {
             const fullBytecode = '0x' + bytecode;
             const { artifactId } = await storage.storeEVMArtifact(fullBytecode, []);
             
-            // Attempt to submit signed transaction (will fail due to mock)
+            
             const signedTx = '0x' + Math.random().toString(16).substring(2, 200).padEnd(198, '0');
             const result = await deploymentService.submitSignedEVMTransaction(
               signedTx,
@@ -287,12 +271,12 @@ describe('DeploymentService - Error Handling Property Tests', () => {
               deployer
             );
 
-            // Verify failure response (should fail because we're using mock provider)
+            
             expect(result.success).toBe(false);
             expect(result.error).toBeDefined();
             expect(result.error).toContain('Transaction submission failed');
             
-            // Verify details contain error information
+            
             expect(result.details).toBeDefined();
             expect(typeof result.details).toBe('string');
           }
@@ -304,15 +288,15 @@ describe('DeploymentService - Error Handling Property Tests', () => {
     test('EVM deployment failure when receipt not found includes transaction hash', async () => {
       await fc.assert(
         fc.asyncProperty(
-          // Generate bytecode
+          
           fc.stringMatching(/^[0-9a-f]{100,500}$/),
-          // Generate deployer
+          
           fc.stringMatching(/^[0-9a-f]{40}$/).map(h => '0x' + h),
           async (bytecode, deployer) => {
             const fullBytecode = '0x' + bytecode;
             const { artifactId } = await storage.storeEVMArtifact(fullBytecode, []);
             
-            // Attempt to submit signed transaction (will fail due to mock)
+            
             const signedTx = '0x' + Math.random().toString(16).substring(2, 200).padEnd(198, '0');
             const result = await deploymentService.submitSignedEVMTransaction(
               signedTx,
@@ -321,12 +305,12 @@ describe('DeploymentService - Error Handling Property Tests', () => {
               deployer
             );
 
-            // Verify failure response (should fail because we're using mock provider)
+            
             expect(result.success).toBe(false);
             expect(result.error).toBeDefined();
             expect(result.error).toContain('Transaction submission failed');
             
-            // Verify details contain error information
+            
             expect(result.details).toBeDefined();
             expect(typeof result.details).toBe('string');
           }
@@ -338,15 +322,15 @@ describe('DeploymentService - Error Handling Property Tests', () => {
     test('Stellar deployment failure during envelope creation returns error with reason', async () => {
       await fc.assert(
         fc.asyncProperty(
-          // Generate WASM data
+          
           fc.uint8Array({ minLength: 100, maxLength: 500 }),
-          // Generate source account
+          
           fc.stringMatching(/^G[A-Z2-7]{55}$/),
           async (wasmArray, sourceAccount) => {
             const wasm = Buffer.from(wasmArray);
             const { artifactId } = await storage.storeStellarArtifact(wasm, {});
             
-            // Configure mock to fail during account loading
+            
             const stellarSdk = require('@stellar/stellar-sdk');
             stellarSdk.__setMockBehavior('account-load-failure');
 
@@ -357,16 +341,16 @@ describe('DeploymentService - Error Handling Property Tests', () => {
                 sourceAccount,
               });
 
-              // Verify failure response
+              
               expect(result.success).toBe(false);
               expect(result.error).toBeDefined();
               expect(result.error).toContain('Deployment preparation failed');
               
-              // Verify details contain the underlying error
+              
               expect(result.details).toBeDefined();
               expect(result.details).toContain('Account not found');
             } finally {
-              // Reset mock behavior
+              
               stellarSdk.__setMockBehavior('success');
             }
           }
@@ -378,15 +362,15 @@ describe('DeploymentService - Error Handling Property Tests', () => {
     test('Stellar deployment failure during transaction submission includes transaction hash', async () => {
       await fc.assert(
         fc.asyncProperty(
-          // Generate WASM data
+          
           fc.uint8Array({ minLength: 100, maxLength: 500 }),
-          // Generate source account
+          
           fc.stringMatching(/^G[A-Z2-7]{55}$/),
           async (wasmArray, sourceAccount) => {
             const wasm = Buffer.from(wasmArray);
             const { artifactId } = await storage.storeStellarArtifact(wasm, {});
             
-            // Configure mock to fail during transaction submission
+            
             const stellarSdk = require('@stellar/stellar-sdk');
             stellarSdk.__setMockBehavior('submit-failure');
 
@@ -399,16 +383,16 @@ describe('DeploymentService - Error Handling Property Tests', () => {
                 sourceAccount
               );
 
-              // Verify failure response
+              
               expect(result.success).toBe(false);
               expect(result.error).toBeDefined();
               expect(result.error).toContain('Transaction submission failed');
               
-              // Verify details contain error information
+              
               expect(result.details).toBeDefined();
               expect(result.details).toContain('insufficient balance');
             } finally {
-              // Reset mock behavior
+              
               stellarSdk.__setMockBehavior('success');
             }
           }
@@ -420,9 +404,9 @@ describe('DeploymentService - Error Handling Property Tests', () => {
     test('all deployment errors include success: false flag', async () => {
       await fc.assert(
         fc.asyncProperty(
-          // Generate random artifact ID that doesn't exist
+          
           fc.stringMatching(/^[0-9a-f]{64}$/),
-          // Generate deployment type
+          
           fc.constantFrom('evm' as const, 'stellar' as const),
           async (artifactId, deploymentType) => {
             let result;
@@ -441,10 +425,10 @@ describe('DeploymentService - Error Handling Property Tests', () => {
               });
             }
 
-            // Verify success flag is false
+            
             expect(result.success).toBe(false);
             
-            // Verify error field is present
+            
             expect(result.error).toBeDefined();
             expect(typeof result.error).toBe('string');
             expect(result.error.length).toBeGreaterThan(0);
@@ -457,10 +441,10 @@ describe('DeploymentService - Error Handling Property Tests', () => {
     test('deployment errors provide actionable error messages', async () => {
       await fc.assert(
         fc.asyncProperty(
-          // Generate random artifact ID
+          
           fc.stringMatching(/^[0-9a-f]{64}$/),
           async (artifactId) => {
-            // Test with non-existent artifact
+            
             const result = await deploymentService.deployEVM({
               artifactId,
               network: 'CELO_MAINNET',
@@ -470,12 +454,12 @@ describe('DeploymentService - Error Handling Property Tests', () => {
             expect(result.success).toBe(false);
             expect(result.error).toBeDefined();
             
-            // Error message should be actionable (not just "error occurred")
+            
             expect(result.error).not.toBe('Error');
             expect(result.error).not.toBe('Failed');
             expect(result.error.length).toBeGreaterThan(10);
             
-            // Should provide context about what went wrong
+            
             expect(
               result.error.toLowerCase().includes('artifact') ||
               result.error.toLowerCase().includes('not found') ||
@@ -490,9 +474,9 @@ describe('DeploymentService - Error Handling Property Tests', () => {
     test('error details field provides additional context when available', async () => {
       await fc.assert(
         fc.asyncProperty(
-          // Generate random artifact ID
+          
           fc.stringMatching(/^[0-9a-f]{64}$/),
-          // Generate deployment type
+          
           fc.constantFrom('evm' as const, 'stellar' as const),
           async (artifactId, deploymentType) => {
             let result;
@@ -513,12 +497,12 @@ describe('DeploymentService - Error Handling Property Tests', () => {
 
             expect(result.success).toBe(false);
             
-            // If details field is present, it should provide additional information
+            
             if (result.details) {
               expect(typeof result.details).toBe('string');
               expect(result.details.length).toBeGreaterThan(0);
               
-              // Details should be different from the main error message
+              
               expect(result.details).not.toBe(result.error);
             }
           }
@@ -530,7 +514,7 @@ describe('DeploymentService - Error Handling Property Tests', () => {
     test('deployment errors maintain consistent response structure', async () => {
       await fc.assert(
         fc.asyncProperty(
-          // Generate random artifact ID
+          
           fc.stringMatching(/^[0-9a-f]{64}$/),
           async (artifactId) => {
             const result = await deploymentService.deployEVM({
@@ -539,15 +523,15 @@ describe('DeploymentService - Error Handling Property Tests', () => {
               constructorArgs: [],
             });
 
-            // Verify response has consistent structure
+            
             expect(result).toHaveProperty('success');
             expect(result.success).toBe(false);
             
-            // Error field must be present for failures
+            
             expect(result).toHaveProperty('error');
             expect(result.error).toBeDefined();
             
-            // Optional fields should be undefined or have correct type
+            
             if (result.contractAddress !== undefined) {
               expect(typeof result.contractAddress).toBe('string');
             }

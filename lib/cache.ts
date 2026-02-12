@@ -1,23 +1,12 @@
 import Redis, { RedisOptions } from 'ioredis';
 
-/**
- * Redis Cache Configuration and Operations
- * 
- * Provides a centralized caching layer for:
- * - Contract ABIs and metadata
- * - Simulation results
- * - AI analysis results
- * - Artifact metadata
- */
-
-// Redis connection configuration
 const redisConfig: RedisOptions = {
   host: process.env.REDIS_HOST || 'localhost',
   port: parseInt(process.env.REDIS_PORT || '6379', 10),
   password: process.env.REDIS_PASSWORD,
   db: parseInt(process.env.REDIS_DB || '0', 10),
   retryStrategy: (times: number) => {
-    // Exponential backoff: 50ms, 100ms, 200ms, 400ms, 800ms, max 3000ms
+    
     const delay = Math.min(times * 50, 3000);
     return delay;
   },
@@ -26,17 +15,13 @@ const redisConfig: RedisOptions = {
   lazyConnect: true,
 };
 
-// Singleton Redis client instance
 let redisClient: Redis | null = null;
 
-/**
- * Get or create Redis client instance
- */
 export function getRedisClient(): Redis {
   if (!redisClient) {
     redisClient = new Redis(redisConfig);
 
-    // Connection event handlers
+    
     redisClient.on('connect', () => {
       console.log('[Cache] Redis client connected');
     });
@@ -61,9 +46,6 @@ export function getRedisClient(): Redis {
   return redisClient;
 }
 
-/**
- * Cache operations interface
- */
 export class CacheService {
   private client: Redis;
 
@@ -71,9 +53,7 @@ export class CacheService {
     this.client = getRedisClient();
   }
 
-  /**
-   * Connect to Redis (lazy connection)
-   */
+  
   async connect(): Promise<void> {
     if (this.client.status === 'ready') {
       return;
@@ -81,11 +61,7 @@ export class CacheService {
     await this.client.connect();
   }
 
-  /**
-   * Get value from cache
-   * @param key Cache key
-   * @returns Cached value or null if not found
-   */
+  
   async get<T = string>(key: string): Promise<T | null> {
     try {
       await this.connect();
@@ -95,7 +71,7 @@ export class CacheService {
         return null;
       }
 
-      // Try to parse as JSON, fallback to string
+      
       try {
         return JSON.parse(value) as T;
       } catch {
@@ -107,12 +83,7 @@ export class CacheService {
     }
   }
 
-  /**
-   * Set value in cache with optional TTL
-   * @param key Cache key
-   * @param value Value to cache (will be JSON stringified if object)
-   * @param ttl Time to live in seconds (optional)
-   */
+  
   async set(key: string, value: any, ttl?: number): Promise<boolean> {
     try {
       await this.connect();
@@ -131,11 +102,7 @@ export class CacheService {
     }
   }
 
-  /**
-   * Delete key from cache
-   * @param key Cache key
-   * @returns Number of keys deleted
-   */
+  
   async del(key: string): Promise<number> {
     try {
       await this.connect();
@@ -146,11 +113,7 @@ export class CacheService {
     }
   }
 
-  /**
-   * Check if key exists in cache
-   * @param key Cache key
-   * @returns True if key exists
-   */
+  
   async exists(key: string): Promise<boolean> {
     try {
       await this.connect();
@@ -162,11 +125,7 @@ export class CacheService {
     }
   }
 
-  /**
-   * Delete multiple keys matching a pattern
-   * @param pattern Key pattern (e.g., "contract:*")
-   * @returns Number of keys deleted
-   */
+  
   async deletePattern(pattern: string): Promise<number> {
     try {
       await this.connect();
@@ -183,11 +142,7 @@ export class CacheService {
     }
   }
 
-  /**
-   * Get remaining TTL for a key
-   * @param key Cache key
-   * @returns TTL in seconds, -1 if no expiry, -2 if key doesn't exist
-   */
+  
   async ttl(key: string): Promise<number> {
     try {
       await this.connect();
@@ -198,12 +153,7 @@ export class CacheService {
     }
   }
 
-  /**
-   * Increment a numeric value
-   * @param key Cache key
-   * @param amount Amount to increment by (default: 1)
-   * @returns New value after increment
-   */
+  
   async increment(key: string, amount: number = 1): Promise<number> {
     try {
       await this.connect();
@@ -214,18 +164,14 @@ export class CacheService {
     }
   }
 
-  /**
-   * Close Redis connection
-   */
+  
   async disconnect(): Promise<void> {
     if (this.client) {
       await this.client.quit();
     }
   }
 
-  /**
-   * Ping Redis to check connection
-   */
+  
   async ping(): Promise<boolean> {
     try {
       await this.connect();
@@ -238,10 +184,8 @@ export class CacheService {
   }
 }
 
-// Export singleton instance
 export const cache = new CacheService();
 
-// Cache key prefixes for organization
 export const CacheKeys = {
   CONTRACT_ABI: (address: string) => `contract:abi:${address}`,
   SIMULATION: (hash: string) => `simulation:${hash}`,
@@ -250,11 +194,10 @@ export const CacheKeys = {
   COMPILATION_JOB: (jobId: string) => `job:${jobId}`,
 } as const;
 
-// Cache TTL constants (in seconds)
 export const CacheTTL = {
-  CONTRACT_ABI: 3600, // 1 hour
-  SIMULATION: 300, // 5 minutes
-  ANALYSIS: 3600, // 1 hour
-  ARTIFACT: 86400, // 24 hours
-  COMPILATION_JOB: 600, // 10 minutes
+  CONTRACT_ABI: 3600, 
+  SIMULATION: 300, 
+  ANALYSIS: 3600, 
+  ARTIFACT: 86400, 
+  COMPILATION_JOB: 600, 
 } as const;

@@ -1,14 +1,5 @@
 import * as StellarSdk from '@stellar/stellar-sdk';
 
-/**
- * Horizon API Integration
- * 
- * Provides a client for interacting with Stellar's Horizon API.
- * Handles transaction submission, status polling, and account queries.
- * 
- * Requirements: 3.1, 3.3
- */
-
 export interface HorizonConfig {
   horizonUrl: string;
   networkPassphrase: string;
@@ -39,9 +30,6 @@ export interface AccountInfo {
   }>;
 }
 
-/**
- * Network configurations for Stellar Horizon API
- */
 export const HORIZON_NETWORKS = {
   testnet: {
     horizonUrl: 'https://horizon-testnet.stellar.org',
@@ -53,14 +41,6 @@ export const HORIZON_NETWORKS = {
   },
 } as const;
 
-/**
- * Horizon API Client
- * 
- * Provides methods for interacting with Stellar's Horizon API:
- * - Transaction submission
- * - Transaction status polling
- * - Account queries for sequence numbers
- */
 export class HorizonClient {
   private server: StellarSdk.Horizon.Server;
   private config: HorizonConfig;
@@ -70,33 +50,17 @@ export class HorizonClient {
     this.server = new StellarSdk.Horizon.Server(this.config.horizonUrl);
   }
 
-  /**
-   * Get the Horizon server instance
-   * 
-   * @returns Horizon server instance
-   */
+  
   getServer(): StellarSdk.Horizon.Server {
     return this.server;
   }
 
-  /**
-   * Get the network passphrase
-   * 
-   * @returns Network passphrase for transaction signing
-   */
+  
   getNetworkPassphrase(): string {
     return this.config.networkPassphrase;
   }
 
-  /**
-   * Submit a signed transaction to the Stellar network
-   * 
-   * Takes a signed transaction envelope and submits it to Horizon.
-   * Returns the transaction hash and submission status.
-   * 
-   * @param transaction Signed Stellar transaction
-   * @returns Submission result with transaction hash
-   */
+  
   async submitTransaction(
     transaction: StellarSdk.Transaction
   ): Promise<TransactionSubmissionResult> {
@@ -123,17 +87,7 @@ export class HorizonClient {
     }
   }
 
-  /**
-   * Poll for transaction status
-   * 
-   * Polls Horizon API to check if a transaction has been confirmed.
-   * Uses exponential backoff for retries.
-   * 
-   * @param txHash Transaction hash to poll
-   * @param maxAttempts Maximum number of polling attempts (default: 30)
-   * @param initialDelay Initial delay in milliseconds (default: 2000)
-   * @returns Transaction status result
-   */
+  
   async pollTransactionStatus(
     txHash: string,
     maxAttempts: number = 30,
@@ -163,17 +117,17 @@ export class HorizonClient {
           };
         }
       } catch (error: any) {
-        // Transaction not found yet (404) - continue polling
+        
         if (error.response?.status === 404) {
           console.log(`[HorizonClient] Transaction not found yet (attempt ${attempts + 1}/${maxAttempts})`);
           
           await this.sleep(delay);
-          delay = Math.min(delay * 1.5, 10000); // Exponential backoff, max 10s
+          delay = Math.min(delay * 1.5, 10000); 
           attempts++;
           continue;
         }
 
-        // Other errors - return failure
+        
         console.error(`[HorizonClient] Error polling transaction:`, error);
         
         return {
@@ -197,14 +151,7 @@ export class HorizonClient {
     };
   }
 
-  /**
-   * Get transaction details
-   * 
-   * Retrieves full transaction details from Horizon.
-   * 
-   * @param txHash Transaction hash
-   * @returns Transaction details or null if not found
-   */
+  
   async getTransaction(txHash: string): Promise<any | null> {
     try {
       const transaction = await this.server
@@ -223,15 +170,7 @@ export class HorizonClient {
     }
   }
 
-  /**
-   * Query account information
-   * 
-   * Fetches account details including sequence number and balances.
-   * The sequence number is required for building transactions.
-   * 
-   * @param accountId Stellar account ID (public key)
-   * @returns Account information including sequence number
-   */
+  
   async getAccount(accountId: string): Promise<AccountInfo> {
     try {
       console.log(`[HorizonClient] Fetching account info for ${accountId}...`);
@@ -252,30 +191,13 @@ export class HorizonClient {
     }
   }
 
-  /**
-   * Get account sequence number
-   * 
-   * Convenience method to fetch just the sequence number for an account.
-   * This is commonly needed when building transactions.
-   * 
-   * @param accountId Stellar account ID (public key)
-   * @returns Account sequence number as string
-   */
+  
   async getAccountSequence(accountId: string): Promise<string> {
     const accountInfo = await this.getAccount(accountId);
     return accountInfo.sequence;
   }
 
-  /**
-   * Load account for transaction building
-   * 
-   * Returns a Stellar SDK Account object that can be used directly
-   * in TransactionBuilder. This is the most common method for
-   * building transactions.
-   * 
-   * @param accountId Stellar account ID (public key)
-   * @returns Stellar SDK Account object
-   */
+  
   async loadAccount(accountId: string): Promise<StellarSdk.Account> {
     try {
       return await this.server.loadAccount(accountId);
@@ -285,14 +207,7 @@ export class HorizonClient {
     }
   }
 
-  /**
-   * Check if account exists
-   * 
-   * Verifies whether an account exists on the Stellar network.
-   * 
-   * @param accountId Stellar account ID (public key)
-   * @returns True if account exists, false otherwise
-   */
+  
   async accountExists(accountId: string): Promise<boolean> {
     try {
       await this.server.loadAccount(accountId);
@@ -305,16 +220,10 @@ export class HorizonClient {
     }
   }
 
-  /**
-   * Get network information
-   * 
-   * Fetches current network information from Horizon.
-   * 
-   * @returns Network information
-   */
+  
   async getNetworkInfo(): Promise<any> {
     try {
-      // Fetch the root endpoint for network info
+      
       const response = await fetch(this.config.horizonUrl);
       return await response.json();
     } catch (error: any) {
@@ -323,48 +232,20 @@ export class HorizonClient {
     }
   }
 
-  /**
-   * Sleep utility for polling delays
-   * 
-   * @param ms Milliseconds to sleep
-   */
+  
   private sleep(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 }
 
-/**
- * Create a Horizon client for the specified network
- * 
- * Factory function to create a configured Horizon client.
- * 
- * @param network Network identifier (testnet or mainnet)
- * @returns Configured Horizon client
- */
 export function createHorizonClient(network: 'testnet' | 'mainnet'): HorizonClient {
   return new HorizonClient(network);
 }
 
-/**
- * Get Horizon URL for network
- * 
- * Helper function to get the Horizon API URL for a network.
- * 
- * @param network Network identifier (testnet or mainnet)
- * @returns Horizon API URL
- */
 export function getHorizonUrl(network: 'testnet' | 'mainnet'): string {
   return HORIZON_NETWORKS[network].horizonUrl;
 }
 
-/**
- * Get network passphrase
- * 
- * Helper function to get the network passphrase for transaction signing.
- * 
- * @param network Network identifier (testnet or mainnet)
- * @returns Network passphrase
- */
 export function getNetworkPassphrase(network: 'testnet' | 'mainnet'): string {
   return HORIZON_NETWORKS[network].networkPassphrase;
 }

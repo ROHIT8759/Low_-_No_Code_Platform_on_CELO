@@ -1,4 +1,4 @@
-// Celo Network Configuration and Contract Interaction Helpers
+
 
 export const CELO_NETWORKS = {
   alfajores: {
@@ -27,7 +27,6 @@ export const CELO_NETWORKS = {
 
 export type CeloNetwork = keyof typeof CELO_NETWORKS
 
-// Stable token addresses
 export const STABLE_TOKEN_ADDRESSES = {
   alfajores: {
     cUSD: '0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1',
@@ -41,30 +40,18 @@ export const STABLE_TOKEN_ADDRESSES = {
   },
 } as const
 
-/**
- * Get the RPC URL for a specific Celo network
- */
 export function getRpcUrl(network: CeloNetwork): string {
   return CELO_NETWORKS[network].rpcUrl
 }
 
-/**
- * Get the chain ID for a specific Celo network
- */
 export function getChainId(network: CeloNetwork): number {
   return CELO_NETWORKS[network].chainId
 }
 
-/**
- * Get the block explorer URL for a specific network
- */
 export function getExplorerUrl(network: CeloNetwork): string {
   return CELO_NETWORKS[network].explorer
 }
 
-/**
- * Get the stable token address for a specific token and network
- */
 export function getStableTokenAddress(
   network: CeloNetwork,
   token: 'cUSD' | 'cEUR' | 'cREAL'
@@ -72,38 +59,23 @@ export function getStableTokenAddress(
   return STABLE_TOKEN_ADDRESSES[network][token]
 }
 
-/**
- * Format a transaction hash for explorer link
- */
 export function formatTxUrl(network: CeloNetwork, txHash: string): string {
   return `${getExplorerUrl(network)}/tx/${txHash}`
 }
 
-/**
- * Format a contract address for explorer link
- */
 export function formatAddressUrl(network: CeloNetwork, address: string): string {
   return `${getExplorerUrl(network)}/address/${address}`
 }
 
-/**
- * Shorten an address for display (0x1234...5678)
- */
 export function shortenAddress(address: string): string {
   if (!address) return ''
   return `${address.slice(0, 6)}...${address.slice(-4)}`
 }
 
-/**
- * Validate Celo address format
- */
 export function isValidAddress(address: string): boolean {
   return /^0x[a-fA-F0-9]{40}$/.test(address)
 }
 
-/**
- * Format amount with decimals
- */
 export function formatAmount(amount: string | number, decimals = 18): string {
   const num = typeof amount === 'string' ? parseFloat(amount) : amount
   return (num / Math.pow(10, decimals)).toFixed(4)

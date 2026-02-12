@@ -6,8 +6,8 @@ export interface RustContract {
 }
 
 export function generateSorobanContract(blocks: Block[]): RustContract {
-    // logic to generate Rust code from blocks
-    // This is a placeholder for the actual generation logic
+    
+    
 
     let rustCode = `#![no_std]
 use soroban_sdk::{contract, contractimpl, symbol_short, vec, Env, Symbol, Vec};
@@ -20,7 +20,7 @@ impl Contract {
 `;
 
     blocks.forEach(block => {
-        if (block.type === 'erc20') { // Mapping ERC20 block to Soroban Token style (simplified)
+        if (block.type === 'erc20') { 
             rustCode += `
     pub function balance(env: Env, owner: Symbol) -> u32 {
         // ... logic
@@ -28,7 +28,7 @@ impl Contract {
     }
 `;
         }
-        // Add more block mappings here
+        
     });
 
     rustCode += `

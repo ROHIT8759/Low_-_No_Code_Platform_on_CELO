@@ -13,16 +13,16 @@ const FEATURES = [
 
 export default function LiveGeneratorDemo() {
     const [selectedFeatures, setSelectedFeatures] = useState<string[]>(["erc20"])
-    const [activeTab, setActiveTab] = useStateLike<"solidity" | "rust">("solidity") // Helper for type safety
+    const [activeTab, setActiveTab] = useStateLike<"solidity" | "rust">("solidity") 
 
     const toggleFeature = (id: string) => {
-        if (id === "erc20") return // Always selected
+        if (id === "erc20") return 
         setSelectedFeatures(prev =>
             prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]
         )
     }
 
-    // Simplified code generation logic for demo
+    
     const generateCode = () => {
         const isMintable = selectedFeatures.includes("mintable")
         const isBurnable = selectedFeatures.includes("burnable")
@@ -64,11 +64,11 @@ impl MyToken {
     }
 
     ${isMintable ? `pub fn mint(e: Env, to: Address, amount: i128) {
-        // ... mint logic
+        
     }` : ''}
 
     ${isBurnable ? `pub fn burn(e: Env, from: Address, amount: i128) {
-        // ... burn logic
+        
     }` : ''}
 }`
 
@@ -100,7 +100,7 @@ impl MyToken {
                 </div>
 
                 <div className="grid lg:grid-cols-2 gap-8 items-start">
-                    {/* Controls */}
+                    {}
                     <motion.div
                         initial={{ opacity: 0, x: -20 }}
                         whileInView={{ opacity: 1, x: 0 }}
@@ -154,7 +154,7 @@ impl MyToken {
                         </div>
                     </motion.div>
 
-                    {/* Code Preview */}
+                    {}
                     <motion.div
                         initial={{ opacity: 0, x: 20 }}
                         whileInView={{ opacity: 1, x: 0 }}
@@ -163,7 +163,7 @@ impl MyToken {
                     >
                         <div className="absolute -inset-0.5 bg-linear-to-r from-cyan-500 to-blue-500 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-500" />
                         <div className="relative bg-[#0d1117] rounded-2xl border border-slate-800 overflow-hidden shadow-2xl">
-                            {/* Toolbar */}
+                            {}
                             <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800 bg-slate-900/50">
                                 <div className="flex items-center gap-2">
                                     <div className="flex gap-1.5">
@@ -194,7 +194,7 @@ impl MyToken {
                                 </button>
                             </div>
 
-                            {/* Code Area */}
+                            {}
                             <div className="p-6 overflow-x-auto">
                                 <pre className="font-mono text-sm leading-relaxed">
                                     <code className="block text-slate-300">
@@ -203,7 +203,7 @@ impl MyToken {
                                 </pre>
                             </div>
 
-                            {/* Status Bar */}
+                            {}
                             <div className="bg-slate-900/50 border-t border-slate-800 px-4 py-2 flex items-center justify-between text-xs text-slate-500 font-mono">
                                 <span>{selectedFeatures.length} features selected</span>
                                 <span className="flex items-center gap-1.5 text-green-400">

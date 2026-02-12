@@ -17,7 +17,7 @@ export async function checkStellarConnection(): Promise<StellarWalletState> {
     if (allowed) {
         const { address } = await getAddress();
         const networkObj = await getNetwork();
-        // Use optional chaining or check property existence as the type might vary
+        
         const network = typeof networkObj === 'string' ? networkObj : networkObj?.network;
 
         return {
@@ -48,8 +48,8 @@ export async function signSorobanTransaction(
     networkPassphrase?: string
 ) {
     try {
-        // freighter signTransaction opts: { network?: string, networkPassphrase?: string, ... }
-        // If 'network' property is invalid, we use networkPassphrase
+        
+        
         const opts: any = {};
         if (networkPassphrase) {
             opts.networkPassphrase = networkPassphrase;

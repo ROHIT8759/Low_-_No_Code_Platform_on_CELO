@@ -1,7 +1,6 @@
 import { GET } from '@/app/api/jobs/[jobId]/route';
 import { NextRequest } from 'next/server';
 
-// Mock dependencies
 jest.mock('@/lib/queue', () => ({
   getJobStatus: jest.fn(),
 }));
@@ -41,19 +40,19 @@ describe('Job Status Endpoint', () => {
     const request = new NextRequest(`http://localhost:3000/api/jobs/${jobId}`);
     const params = { params: { jobId } };
 
-    // Mock database returning no record
+    
     (supabase.from as jest.Mock).mockReturnValue({
       select: jest.fn().mockReturnValue({
         eq: jest.fn().mockReturnValue({
           single: jest.fn().mockResolvedValue({
             data: null,
-            error: { code: 'PGRST116' }, // Not found error
+            error: { code: 'PGRST116' }, 
           }),
         }),
       }),
     });
 
-    // Mock queue returning unknown status
+    
     (getJobStatus as jest.Mock).mockResolvedValue({
       status: 'unknown',
     });
@@ -83,7 +82,7 @@ describe('Job Status Endpoint', () => {
       completed_at: null,
     };
 
-    // Mock database returning job record
+    
     (supabase.from as jest.Mock).mockReturnValue({
       select: jest.fn().mockReturnValue({
         eq: jest.fn().mockReturnValue({
@@ -95,7 +94,7 @@ describe('Job Status Endpoint', () => {
       }),
     });
 
-    // Mock queue status
+    
     (getJobStatus as jest.Mock).mockResolvedValue({
       status: 'waiting',
       progress: 0,
@@ -129,7 +128,7 @@ describe('Job Status Endpoint', () => {
       completed_at: null,
     };
 
-    // Mock database returning job record
+    
     (supabase.from as jest.Mock).mockReturnValue({
       select: jest.fn().mockReturnValue({
         eq: jest.fn().mockReturnValue({
@@ -141,7 +140,7 @@ describe('Job Status Endpoint', () => {
       }),
     });
 
-    // Mock queue status with progress
+    
     (getJobStatus as jest.Mock).mockResolvedValue({
       status: 'active',
       progress: 75,
@@ -183,7 +182,7 @@ describe('Job Status Endpoint', () => {
       artifactId,
     };
 
-    // Mock database returning job record
+    
     (supabase.from as jest.Mock).mockReturnValue({
       select: jest.fn().mockReturnValue({
         eq: jest.fn().mockReturnValue({
@@ -195,7 +194,7 @@ describe('Job Status Endpoint', () => {
       }),
     });
 
-    // Mock queue status with result
+    
     (getJobStatus as jest.Mock).mockResolvedValue({
       status: 'completed',
       progress: 100,
@@ -232,7 +231,7 @@ describe('Job Status Endpoint', () => {
       completed_at: '2024-01-01T00:01:00Z',
     };
 
-    // Mock database returning job record
+    
     (supabase.from as jest.Mock).mockReturnValue({
       select: jest.fn().mockReturnValue({
         eq: jest.fn().mockReturnValue({
@@ -244,7 +243,7 @@ describe('Job Status Endpoint', () => {
       }),
     });
 
-    // Mock queue status
+    
     (getJobStatus as jest.Mock).mockResolvedValue({
       status: 'failed',
       error: 'Additional error details from queue',
@@ -266,7 +265,7 @@ describe('Job Status Endpoint', () => {
     const request = new NextRequest(`http://localhost:3000/api/jobs/${jobId}`);
     const params = { params: { jobId } };
 
-    // Mock database returning no record
+    
     (supabase.from as jest.Mock).mockReturnValue({
       select: jest.fn().mockReturnValue({
         eq: jest.fn().mockReturnValue({
@@ -278,7 +277,7 @@ describe('Job Status Endpoint', () => {
       }),
     });
 
-    // Mock queue returning job status (first call for compilation queue)
+    
     (getJobStatus as jest.Mock).mockResolvedValueOnce({
       status: 'active',
       progress: 50,
@@ -300,7 +299,7 @@ describe('Job Status Endpoint', () => {
     const request = new NextRequest(`http://localhost:3000/api/jobs/${jobId}`);
     const params = { params: { jobId } };
 
-    // Mock database returning error
+    
     (supabase.from as jest.Mock).mockReturnValue({
       select: jest.fn().mockReturnValue({
         eq: jest.fn().mockReturnValue({

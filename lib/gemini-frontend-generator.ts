@@ -15,7 +15,7 @@ export async function generateEnhancedFrontend(
 ): Promise<Blob> {
   let frontendFiles: Record<string, string>
 
-  // Try to use Gemini API if available
+  
   if (process.env.NEXT_PUBLIC_GEMINI_API_KEY && process.env.NEXT_PUBLIC_GEMINI_API_KEY !== 'your_gemini_api_key_here') {
     try {
       const geminiResponse = await generateFrontendWithGemini(
@@ -27,26 +27,26 @@ export async function generateEnhancedFrontend(
         blocks
       )
 
-      // Parse the Gemini response
+      
       frontendFiles = JSON.parse(geminiResponse)
     } catch (error) {
       console.error('Gemini API failed, using fallback generator:', error)
       frontendFiles = generateFallbackFrontend(solidityCode, abi, contractAddress, contractName, contractType, blocks, network)
     }
   } else {
-    // Use fallback generator if no Gemini API key
+    
     frontendFiles = generateFallbackFrontend(solidityCode, abi, contractAddress, contractName, contractType, blocks, network)
   }
 
-  // Create ZIP file
+  
   const zip = new JSZip()
 
-  // Add all files to ZIP
+  
   Object.entries(frontendFiles).forEach(([path, content]) => {
     zip.file(path, content)
   })
 
-  // Add README
+  
   zip.file(
     "README.md",
     `# ${contractName} dApp

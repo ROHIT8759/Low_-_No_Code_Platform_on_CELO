@@ -27,7 +27,7 @@ describe('BlockSidebar Component', () => {
     test('displays available blocks', () => {
         render(<BlockSidebar />)
 
-        // Check for core features
+        
         expect(screen.getByText(/ERC20 Token/i)).toBeInTheDocument()
         expect(screen.getByText(/NFT Collection/i)).toBeInTheDocument()
         expect(screen.getByText(/Pausable/i)).toBeInTheDocument()
@@ -36,7 +36,7 @@ describe('BlockSidebar Component', () => {
     test('blocks are organized in categories', () => {
         render(<BlockSidebar />)
 
-        // Check for actual text
+        
         expect(screen.getByText(/Smart Contract Blocks/i)).toBeInTheDocument()
         expect(screen.getByText(/Drag to canvas or click to add/i)).toBeInTheDocument()
     })
@@ -54,7 +54,7 @@ describe('BlockSidebar Component', () => {
     test('displays block descriptions', () => {
         render(<BlockSidebar />)
 
-        // Blocks should have descriptive text
+        
         const sidebar = screen.getByText(/Smart Contract Blocks/i).closest('div')
         expect(sidebar).toBeInTheDocument()
     })

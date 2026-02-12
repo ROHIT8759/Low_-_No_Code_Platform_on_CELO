@@ -1,14 +1,4 @@
-/**
- * Property-Based Tests for Comprehensive Analysis Output
- * Feature: stellar-backend-infrastructure
- * Property 16: Contract Analysis Provides Comprehensive Output
- * 
- * **Validates: Requirements 5.3, 5.4, 5.5, 5.6, 5.7**
- * 
- * Tests that for any contract analysis, the response includes risk scores,
- * gas estimates, UI field suggestions, error handling recommendations, and
- * frontend integration suggestions in structured JSON format.
- */
+
 
 import { AIIntelligenceEngine } from '@/lib/services/ai-engine';
 import * as fc from 'fast-check';
@@ -30,20 +20,20 @@ describe('Property 16: Contract Analysis Provides Comprehensive Output', () => {
             hasParameters: fc.boolean(),
           }),
           async ({ contractName, functionCount, hasParameters }) => {
-            // Generate a valid contract
+            
             const contract = generateContract(contractName, functionCount, hasParameters);
 
-            // Perform full analysis
+            
             const result = aiEngine.performFullAnalysis(contract);
 
-            // Property: Analysis result must have all required top-level fields
+            
             expect(result).toBeDefined();
             expect(result).toHaveProperty('riskScores');
             expect(result).toHaveProperty('gasEstimates');
             expect(result).toHaveProperty('uiSuggestions');
             expect(result).toHaveProperty('recommendations');
 
-            // Verify types
+            
             expect(typeof result.riskScores).toBe('object');
             expect(typeof result.gasEstimates).toBe('object');
             expect(typeof result.uiSuggestions).toBe('object');
@@ -62,30 +52,30 @@ describe('Property 16: Contract Analysis Provides Comprehensive Output', () => {
             functionCount: fc.integer({ min: 1, max: 5 }),
           }),
           async ({ contractName, functionCount }) => {
-            // Generate contract with multiple functions
+            
             const contract = generateContract(contractName, functionCount, true);
 
-            // Perform analysis
+            
             const result = aiEngine.performFullAnalysis(contract);
 
-            // Property: Risk scores must be provided for functions
+            
             expect(Object.keys(result.riskScores).length).toBeGreaterThan(0);
 
-            // Each risk score must have required structure
+            
             for (const [functionName, riskScore] of Object.entries(result.riskScores)) {
               expect(riskScore).toHaveProperty('score');
               expect(riskScore).toHaveProperty('level');
               expect(riskScore).toHaveProperty('reasons');
 
-              // Validate score range (0-100)
+              
               expect(riskScore.score).toBeGreaterThanOrEqual(0);
               expect(riskScore.score).toBeLessThanOrEqual(100);
               expect(typeof riskScore.score).toBe('number');
 
-              // Validate level
+              
               expect(['low', 'medium', 'high', 'critical']).toContain(riskScore.level);
 
-              // Validate reasons array
+              
               expect(Array.isArray(riskScore.reasons)).toBe(true);
             }
           }
@@ -102,22 +92,22 @@ describe('Property 16: Contract Analysis Provides Comprehensive Output', () => {
             functionCount: fc.integer({ min: 1, max: 5 }),
           }),
           async ({ contractName, functionCount }) => {
-            // Generate contract
+            
             const contract = generateContract(contractName, functionCount, true);
 
-            // Perform analysis
+            
             const result = aiEngine.performFullAnalysis(contract);
 
-            // Property: Gas estimates must be provided for functions
+            
             expect(Object.keys(result.gasEstimates).length).toBeGreaterThan(0);
 
-            // Each gas estimate must be a positive number
+            
             for (const [functionName, gasEstimate] of Object.entries(result.gasEstimates)) {
               expect(typeof gasEstimate).toBe('number');
               expect(gasEstimate).toBeGreaterThan(0);
               expect(Number.isFinite(gasEstimate)).toBe(true);
               
-              // Gas estimates should be reasonable (at least base transaction cost)
+              
               expect(gasEstimate).toBeGreaterThanOrEqual(21000);
             }
           }
@@ -137,33 +127,33 @@ describe('Property 16: Contract Analysis Provides Comprehensive Output', () => {
             ),
           }),
           async ({ contractName, parameterTypes }) => {
-            // Generate contract with parameters
+            
             const contract = generateContractWithParameters(contractName, parameterTypes);
 
-            // Perform analysis
+            
             const result = aiEngine.performFullAnalysis(contract);
 
-            // Property: UI suggestions must be provided for parameters
-            // Note: UI suggestions are keyed by functionName.parameterName
+            
+            
             const uiSuggestionKeys = Object.keys(result.uiSuggestions);
             
             if (parameterTypes.length > 0) {
               expect(uiSuggestionKeys.length).toBeGreaterThan(0);
 
-              // Each UI suggestion must have required structure
+              
               for (const [key, suggestion] of Object.entries(result.uiSuggestions)) {
                 expect(suggestion).toHaveProperty('fieldType');
                 expect(suggestion).toHaveProperty('validation');
                 expect(suggestion).toHaveProperty('placeholder');
 
-                // Validate field types
+                
                 expect(typeof suggestion.fieldType).toBe('string');
                 expect(suggestion.fieldType.length).toBeGreaterThan(0);
 
-                // Validate validation (can be empty string)
+                
                 expect(typeof suggestion.validation).toBe('string');
 
-                // Validate placeholder (can be empty string)
+                
                 expect(typeof suggestion.placeholder).toBe('string');
               }
             }
@@ -182,36 +172,36 @@ describe('Property 16: Contract Analysis Provides Comprehensive Output', () => {
             hasPublicFunctions: fc.boolean(),
           }),
           async ({ contractName, hasPayable, hasPublicFunctions }) => {
-            // Generate contract
+            
             const contract = generateContractWithFeatures(contractName, {
               hasPayable,
               hasPublicFunctions,
             });
 
-            // Perform analysis
+            
             const result = aiEngine.performFullAnalysis(contract);
 
-            // Property: Recommendations array must exist
+            
             expect(Array.isArray(result.recommendations)).toBe(true);
 
-            // Each recommendation must have required structure
+            
             for (const recommendation of result.recommendations) {
               expect(recommendation).toHaveProperty('type');
               expect(recommendation).toHaveProperty('severity');
               expect(recommendation).toHaveProperty('message');
               expect(recommendation).toHaveProperty('location');
 
-              // Validate type
+              
               expect(['security', 'optimization', 'best-practice']).toContain(recommendation.type);
 
-              // Validate severity
+              
               expect(['info', 'warning', 'error']).toContain(recommendation.severity);
 
-              // Validate message
+              
               expect(typeof recommendation.message).toBe('string');
               expect(recommendation.message.length).toBeGreaterThan(0);
 
-              // Validate location
+              
               expect(typeof recommendation.location).toBe('string');
               expect(recommendation.location.length).toBeGreaterThan(0);
             }
@@ -229,16 +219,16 @@ describe('Property 16: Contract Analysis Provides Comprehensive Output', () => {
             functionCount: fc.integer({ min: 1, max: 3 }),
           }),
           async ({ contractName, functionCount }) => {
-            // Generate contract
+            
             const contract = generateContract(contractName, functionCount, true);
 
-            // Perform analysis
+            
             const result = aiEngine.performFullAnalysis(contract);
 
-            // Property: Recommendations should include frontend integration suggestions
+            
             expect(result.recommendations.length).toBeGreaterThan(0);
 
-            // Check that some recommendations are best-practice type (frontend suggestions)
+            
             const bestPracticeRecommendations = result.recommendations.filter(
               r => r.type === 'best-practice'
             );
@@ -257,13 +247,13 @@ describe('Property 16: Contract Analysis Provides Comprehensive Output', () => {
             functionCount: fc.integer({ min: 1, max: 3 }),
           }),
           async ({ contractName, functionCount }) => {
-            // Generate contract
+            
             const contract = generateContract(contractName, functionCount, true);
 
-            // Perform analysis
+            
             const result = aiEngine.performFullAnalysis(contract);
 
-            // Property: Result must be JSON-serializable
+            
             let jsonString: string;
             let parsed: any;
 
@@ -275,7 +265,7 @@ describe('Property 16: Contract Analysis Provides Comprehensive Output', () => {
               parsed = JSON.parse(JSON.stringify(result));
             }).not.toThrow();
 
-            // Verify structure is preserved after serialization
+            
             expect(parsed).toHaveProperty('riskScores');
             expect(parsed).toHaveProperty('gasEstimates');
             expect(parsed).toHaveProperty('uiSuggestions');
@@ -294,24 +284,24 @@ describe('Property 16: Contract Analysis Provides Comprehensive Output', () => {
             functionCount: fc.integer({ min: 1, max: 3 }),
           }),
           async ({ contractName, functionCount }) => {
-            // Generate contract
+            
             const contract = generateContract(contractName, functionCount, true);
 
-            // Perform analysis twice
+            
             const result1 = aiEngine.performFullAnalysis(contract);
             const result2 = aiEngine.performFullAnalysis(contract);
 
-            // Property: Same contract should produce identical analysis
+            
             expect(Object.keys(result1.riskScores).length).toBe(Object.keys(result2.riskScores).length);
             expect(Object.keys(result1.gasEstimates).length).toBe(Object.keys(result2.gasEstimates).length);
 
-            // Risk scores should be identical
+            
             for (const key of Object.keys(result1.riskScores)) {
               expect(result1.riskScores[key].score).toBe(result2.riskScores[key].score);
               expect(result1.riskScores[key].level).toBe(result2.riskScores[key].level);
             }
 
-            // Gas estimates should be identical
+            
             for (const key of Object.keys(result1.gasEstimates)) {
               expect(result1.gasEstimates[key]).toBe(result2.gasEstimates[key]);
             }
@@ -329,19 +319,19 @@ describe('Property 16: Contract Analysis Provides Comprehensive Output', () => {
             complexity: fc.constantFrom('simple', 'medium', 'complex'),
           }),
           async ({ contractName, complexity }) => {
-            // Generate contract with different complexity
+            
             const contract = generateContractByComplexity(contractName, complexity);
 
-            // Perform analysis
+            
             const result = aiEngine.performFullAnalysis(contract);
 
-            // Property: Analysis should work for all complexity levels
+            
             expect(result).toBeDefined();
             expect(Object.keys(result.riskScores).length).toBeGreaterThan(0);
             expect(Object.keys(result.gasEstimates).length).toBeGreaterThan(0);
             expect(Array.isArray(result.recommendations)).toBe(true);
 
-            // More complex contracts should generally have more recommendations
+            
             if (complexity === 'complex') {
               expect(result.recommendations.length).toBeGreaterThan(0);
             }
@@ -356,19 +346,19 @@ describe('Property 16: Contract Analysis Provides Comprehensive Output', () => {
         fc.asyncProperty(
           fc.stringMatching(/^[A-Z][a-zA-Z0-9]{2,20}$/),
           async (contractName) => {
-            // Generate high-risk contract
+            
             const contract = generateHighRiskContract(contractName);
 
-            // Perform analysis
+            
             const result = aiEngine.performFullAnalysis(contract);
 
-            // Property: High-risk functions should generate security recommendations
+            
             const highRiskFunctions = Object.entries(result.riskScores).filter(
               ([_, score]) => score.level === 'high' || score.level === 'critical'
             );
 
             if (highRiskFunctions.length > 0) {
-              // Should have security recommendations
+              
               const securityRecommendations = result.recommendations.filter(
                 r => r.type === 'security'
               );
@@ -382,9 +372,6 @@ describe('Property 16: Contract Analysis Provides Comprehensive Output', () => {
   });
 });
 
-/**
- * Helper function to generate a basic contract
- */
 function generateContract(
   contractName: string,
   functionCount: number,
@@ -392,14 +379,14 @@ function generateContract(
 ): string {
   let functions = '';
 
-  // Add view function
+  
   functions += `
     function getValue() public view returns (uint256) {
       return 42;
     }
   `;
 
-  // Add state-changing functions
+  
   for (let i = 1; i < functionCount; i++) {
     if (hasParameters) {
       functions += `
@@ -427,9 +414,6 @@ function generateContract(
   `;
 }
 
-/**
- * Helper function to generate contract with specific parameter types
- */
 function generateContractWithParameters(
   contractName: string,
   parameterTypes: string[]
@@ -447,9 +431,6 @@ function generateContractWithParameters(
   `;
 }
 
-/**
- * Helper function to generate contract with specific features
- */
 function generateContractWithFeatures(
   contractName: string,
   features: { hasPayable: boolean; hasPublicFunctions: boolean }
@@ -472,7 +453,7 @@ function generateContractWithFeatures(
   `;
   }
 
-  // Always add at least one function
+  
   if (!functions) {
     functions = `
     function defaultFunction() public view returns (uint256) {
@@ -492,9 +473,6 @@ function generateContractWithFeatures(
   `;
 }
 
-/**
- * Helper function to generate contract by complexity level
- */
 function generateContractByComplexity(
   contractName: string,
   complexity: 'simple' | 'medium' | 'complex'
@@ -532,7 +510,7 @@ function generateContractByComplexity(
       }
     `;
   } else {
-    // complex
+    
     return `
       pragma solidity ^0.8.0;
       
@@ -563,9 +541,6 @@ function generateContractByComplexity(
   }
 }
 
-/**
- * Helper function to generate high-risk contract
- */
 function generateHighRiskContract(contractName: string): string {
   return `
     pragma solidity ^0.8.0;

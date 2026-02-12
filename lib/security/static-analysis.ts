@@ -1,9 +1,4 @@
-/**
- * Static analysis for smart contract vulnerabilities
- * Detects common security issues in contract code
- * 
- * Validates: Requirements 7.4
- */
+
 
 export interface VulnerabilityReport {
   vulnerabilities: Vulnerability[];
@@ -30,40 +25,37 @@ export type VulnerabilityType =
   | 'uninitialized-storage'
   | 'timestamp-dependence';
 
-/**
- * Analyze Solidity contract code for vulnerabilities
- */
 export function analyzeSolidityContract(code: string): VulnerabilityReport {
   const vulnerabilities: Vulnerability[] = [];
 
-  // Detect reentrancy patterns
+  
   vulnerabilities.push(...detectReentrancy(code));
 
-  // Detect unchecked external calls
+  
   vulnerabilities.push(...detectUncheckedCalls(code));
 
-  // Detect integer overflow/underflow (for older Solidity versions)
+  
   vulnerabilities.push(...detectIntegerIssues(code));
 
-  // Detect unprotected selfdestruct
+  
   vulnerabilities.push(...detectUnprotectedSelfdestruct(code));
 
-  // Detect delegatecall usage
+  
   vulnerabilities.push(...detectDelegatecall(code));
 
-  // Detect tx.origin usage
+  
   vulnerabilities.push(...detectTxOrigin(code));
 
-  // Detect uninitialized storage
+  
   vulnerabilities.push(...detectUninitializedStorage(code));
 
-  // Detect timestamp dependence
+  
   vulnerabilities.push(...detectTimestampDependence(code));
 
-  // Calculate overall risk level
+  
   const riskLevel = calculateRiskLevel(vulnerabilities);
 
-  // Generate summary
+  
   const summary = generateSummary(vulnerabilities, riskLevel);
 
   return {
@@ -73,15 +65,11 @@ export function analyzeSolidityContract(code: string): VulnerabilityReport {
   };
 }
 
-/**
- * Detect reentrancy vulnerabilities
- * Pattern: external call followed by state change
- */
 function detectReentrancy(code: string): Vulnerability[] {
   const vulnerabilities: Vulnerability[] = [];
   const lines = code.split('\n');
 
-  // Pattern: function with external call before state changes
+  
   const functionRegex = /function\s+(\w+)/g;
   const callRegex = /\.call\{|\.transfer\(|\.send\(/g;
   const stateChangeRegex = /=\s*[^=]/g;
@@ -102,17 +90,17 @@ function detectReentrancy(code: string): Vulnerability[] {
     }
 
     if (inFunction) {
-      // Track braces to know when function ends
+      
       braceCount += (line.match(/{/g) || []).length;
       braceCount -= (line.match(/}/g) || []).length;
 
-      // Check for external calls
+      
       if (callRegex.test(line)) {
         hasExternalCall = true;
         externalCallLine = index + 1;
       }
 
-      // Check for state changes after external call
+      
       if (hasExternalCall && stateChangeRegex.test(line) && !line.includes('//')) {
         vulnerabilities.push({
           type: 'reentrancy',
@@ -121,10 +109,10 @@ function detectReentrancy(code: string): Vulnerability[] {
           description: `Potential reentrancy vulnerability: state change after external call at line ${externalCallLine}`,
           recommendation: 'Use the Checks-Effects-Interactions pattern: perform all state changes before making external calls, or use a reentrancy guard (ReentrancyGuard from OpenZeppelin)'
         });
-        hasExternalCall = false; // Reset to avoid duplicate reports
+        hasExternalCall = false; 
       }
 
-      // Function ended
+      
       if (braceCount === 0 && inFunction) {
         inFunction = false;
         currentFunction = '';
@@ -136,16 +124,12 @@ function detectReentrancy(code: string): Vulnerability[] {
   return vulnerabilities;
 }
 
-/**
- * Detect unchecked external calls
- * Pattern: .call(), .send(), .delegatecall() without checking return value
- */
 function detectUncheckedCalls(code: string): Vulnerability[] {
   const vulnerabilities: Vulnerability[] = [];
   const lines = code.split('\n');
 
   lines.forEach((line, index) => {
-    // Check for .call(), .send() without return value check
+    
     if (/\.call\{|\.send\(/.test(line) && !line.includes('require(') && !line.includes('if (') && !line.includes('bool ')) {
       vulnerabilities.push({
         type: 'unchecked-call',
@@ -156,7 +140,7 @@ function detectUncheckedCalls(code: string): Vulnerability[] {
       });
     }
 
-    // Check for low-level delegatecall
+    
     if (/\.delegatecall\(/.test(line) && !line.includes('require(') && !line.includes('if (')) {
       vulnerabilities.push({
         type: 'unchecked-call',
@@ -171,33 +155,29 @@ function detectUncheckedCalls(code: string): Vulnerability[] {
   return vulnerabilities;
 }
 
-/**
- * Detect integer overflow/underflow issues
- * Pattern: arithmetic operations in Solidity < 0.8.0 without SafeMath
- */
 function detectIntegerIssues(code: string): Vulnerability[] {
   const vulnerabilities: Vulnerability[] = [];
   const lines = code.split('\n');
 
-  // Check Solidity version
+  
   const versionMatch = code.match(/pragma\s+solidity\s+[\^]?(0\.[0-7]\.\d+)/);
   if (!versionMatch) {
-    return vulnerabilities; // Can't determine version or >= 0.8.0
+    return vulnerabilities; 
   }
 
   const version = versionMatch[1];
   const isOldVersion = version.startsWith('0.') && parseInt(version.split('.')[1]) < 8;
 
   if (!isOldVersion) {
-    return vulnerabilities; // Solidity >= 0.8.0 has built-in overflow checks
+    return vulnerabilities; 
   }
 
-  // Check if SafeMath is imported
+  
   const hasSafeMath = /import.*SafeMath/.test(code) || /using\s+SafeMath/.test(code);
 
   if (!hasSafeMath) {
     lines.forEach((line, index) => {
-      // Check for arithmetic operations
+      
       if (/[\+\-\*\/]\s*=|=\s*.*[\+\-\*\/]/.test(line) && !line.includes('//')) {
         vulnerabilities.push({
           type: line.includes('+') ? 'integer-overflow' : 'integer-underflow',
@@ -213,10 +193,6 @@ function detectIntegerIssues(code: string): Vulnerability[] {
   return vulnerabilities;
 }
 
-/**
- * Detect unprotected selfdestruct
- * Pattern: selfdestruct without access control
- */
 function detectUnprotectedSelfdestruct(code: string): Vulnerability[] {
   const vulnerabilities: Vulnerability[] = [];
   const lines = code.split('\n');
@@ -242,18 +218,18 @@ function detectUnprotectedSelfdestruct(code: string): Vulnerability[] {
       braceCount += (line.match(/{/g) || []).length;
       braceCount -= (line.match(/}/g) || []).length;
 
-      // Check for access control modifiers
+      
       if (/onlyOwner|require\(.*msg\.sender|modifier/.test(line)) {
         hasAccessControl = true;
       }
 
-      // Check for selfdestruct
+      
       if (/selfdestruct\(|suicide\(/.test(line)) {
         hasSelfDestruct = true;
         selfDestructLine = index + 1;
       }
 
-      // Function ended
+      
       if (braceCount === 0 && inFunction) {
         if (hasSelfDestruct && !hasAccessControl) {
           vulnerabilities.push({
@@ -273,10 +249,6 @@ function detectUnprotectedSelfdestruct(code: string): Vulnerability[] {
   return vulnerabilities;
 }
 
-/**
- * Detect delegatecall usage
- * Pattern: delegatecall which can be dangerous
- */
 function detectDelegatecall(code: string): Vulnerability[] {
   const vulnerabilities: Vulnerability[] = [];
   const lines = code.split('\n');
@@ -296,10 +268,6 @@ function detectDelegatecall(code: string): Vulnerability[] {
   return vulnerabilities;
 }
 
-/**
- * Detect tx.origin usage
- * Pattern: tx.origin for authentication (vulnerable to phishing)
- */
 function detectTxOrigin(code: string): Vulnerability[] {
   const vulnerabilities: Vulnerability[] = [];
   const lines = code.split('\n');
@@ -319,16 +287,12 @@ function detectTxOrigin(code: string): Vulnerability[] {
   return vulnerabilities;
 }
 
-/**
- * Detect uninitialized storage pointers
- * Pattern: storage variables without initialization
- */
 function detectUninitializedStorage(code: string): Vulnerability[] {
   const vulnerabilities: Vulnerability[] = [];
   const lines = code.split('\n');
 
   lines.forEach((line, index) => {
-    // Check for storage pointer without initialization
+    
     if (/storage\s+\w+;/.test(line) && !line.includes('=')) {
       vulnerabilities.push({
         type: 'uninitialized-storage',
@@ -343,10 +307,6 @@ function detectUninitializedStorage(code: string): Vulnerability[] {
   return vulnerabilities;
 }
 
-/**
- * Detect timestamp dependence
- * Pattern: using block.timestamp for critical logic
- */
 function detectTimestampDependence(code: string): Vulnerability[] {
   const vulnerabilities: Vulnerability[] = [];
   const lines = code.split('\n');
@@ -366,9 +326,6 @@ function detectTimestampDependence(code: string): Vulnerability[] {
   return vulnerabilities;
 }
 
-/**
- * Calculate overall risk level based on vulnerabilities
- */
 function calculateRiskLevel(vulnerabilities: Vulnerability[]): 'low' | 'medium' | 'high' | 'critical' {
   if (vulnerabilities.length === 0) {
     return 'low';
@@ -389,9 +346,6 @@ function calculateRiskLevel(vulnerabilities: Vulnerability[]): 'low' | 'medium' 
   }
 }
 
-/**
- * Generate summary of vulnerabilities
- */
 function generateSummary(vulnerabilities: Vulnerability[], riskLevel: string): string {
   if (vulnerabilities.length === 0) {
     return 'No vulnerabilities detected. Contract appears to follow security best practices.';
@@ -413,14 +367,10 @@ function generateSummary(vulnerabilities: Vulnerability[], riskLevel: string): s
   return `Found ${vulnerabilities.length} potential vulnerabilities (${parts.join(', ')}). Overall risk level: ${riskLevel}.`;
 }
 
-/**
- * Analyze Rust/Soroban contract code for vulnerabilities
- * Note: This is a basic implementation. Soroban contracts have different security concerns than EVM.
- */
 export function analyzeSorobanContract(code: string): VulnerabilityReport {
   const vulnerabilities: Vulnerability[] = [];
 
-  // Check for unsafe blocks
+  
   const unsafeMatches = code.match(/unsafe\s*{/g);
   if (unsafeMatches) {
     vulnerabilities.push({
@@ -432,7 +382,7 @@ export function analyzeSorobanContract(code: string): VulnerabilityReport {
     });
   }
 
-  // Check for unwrap() calls (can panic)
+  
   const unwrapMatches = code.match(/\.unwrap\(\)/g);
   if (unwrapMatches) {
     vulnerabilities.push({
@@ -444,7 +394,7 @@ export function analyzeSorobanContract(code: string): VulnerabilityReport {
     });
   }
 
-  // Check for expect() calls
+  
   const expectMatches = code.match(/\.expect\(/g);
   if (expectMatches) {
     vulnerabilities.push({
@@ -466,9 +416,6 @@ export function analyzeSorobanContract(code: string): VulnerabilityReport {
   };
 }
 
-/**
- * Main analysis function that routes to appropriate analyzer
- */
 export function analyzeContract(code: string, type: 'solidity' | 'rust'): VulnerabilityReport {
   if (type === 'solidity') {
     return analyzeSolidityContract(code);

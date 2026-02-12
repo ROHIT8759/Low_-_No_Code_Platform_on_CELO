@@ -123,7 +123,7 @@ describe('TempDirectoryManager', () => {
     await manager.create();
     
     await manager.cleanup();
-    await manager.cleanup(); // Should not throw
+    await manager.cleanup(); 
   });
 });
 

@@ -3,7 +3,6 @@ import { compilationService } from '@/lib/services/compilation';
 import * as fc from 'fast-check';
 import { createHash } from 'crypto';
 
-// Mock the storage module to avoid AWS SDK issues in Jest
 jest.mock('@/lib/storage', () => {
   const artifacts = new Map<string, Buffer>();
   
@@ -38,7 +37,6 @@ jest.mock('@/lib/storage', () => {
   };
 });
 
-// Mock Supabase to avoid database issues in Jest
 jest.mock('@/lib/supabase', () => ({
   supabase: null,
 }));
@@ -222,26 +220,17 @@ describe('ABI Validation', () => {
     });
   });
 
-  /**
-   * Property-Based Test: ABI Validation Occurs for All Compilations
-   * 
-   * Feature: stellar-backend-infrastructure, Property 4: ABI Validation Occurs for All Compilations
-   * 
-   * Property: For any compiled contract, the generated ABI should be validated against
-   * the appropriate blockchain-specific schema (EVM or Soroban) before being returned or stored.
-   * 
-   * **Validates: Requirements 1.7, 7.7**
-   */
+  
   describe('Property 4: ABI Validation Occurs for All Compilations', () => {
     test('EVM compilation validates ABI structure before returning results', async () => {
       await fc.assert(
         fc.asyncProperty(
-          // Generate arbitrary contract names (alphanumeric, 3-20 chars)
+          
           fc.stringMatching(/^[A-Z][a-zA-Z0-9]{2,19}$/),
-          // Generate arbitrary function names
+          
           fc.stringMatching(/^[a-z][a-zA-Z0-9]{2,15}$/),
           async (contractName, functionName) => {
-            // Create a valid Solidity contract with the generated names
+            
             const solidityCode = `
               // SPDX-License-Identifier: MIT
               pragma solidity ^0.8.0;
@@ -259,33 +248,33 @@ describe('ABI Validation', () => {
               }
             `;
 
-            // Compile the contract
+            
             const result = await compilationService.compileEVM(
               solidityCode,
               contractName,
               { optimizerRuns: 200 }
             );
 
-            // Skip if compilation failed (not testing compilation success here)
+            
             if (!result.success || !result.abi) {
               return true;
             }
 
-            // Property 1: The returned ABI must be valid according to EVM ABI schema
+            
             const validation = validateEVMABI(result.abi);
             expect(validation.valid).toBe(true);
             expect(validation.errors).toHaveLength(0);
 
-            // Property 2: The ABI must be an array
+            
             expect(Array.isArray(result.abi)).toBe(true);
 
-            // Property 3: Each ABI element must have a valid type
+            
             const validTypes = ['function', 'constructor', 'event', 'fallback', 'receive'];
             result.abi.forEach((element: any) => {
               expect(validTypes).toContain(element.type);
             });
 
-            // Property 4: Function elements must have name, inputs, and outputs
+            
             const functions = result.abi.filter((e: any) => e.type === 'function');
             functions.forEach((func: any) => {
               expect(func.name).toBeDefined();
@@ -294,7 +283,7 @@ describe('ABI Validation', () => {
               expect(Array.isArray(func.outputs)).toBe(true);
             });
 
-            // Property 5: The generated function should be present in the ABI
+            
             const generatedFunction = result.abi.find(
               (e: any) => e.type === 'function' && e.name === functionName
             );
@@ -305,10 +294,10 @@ describe('ABI Validation', () => {
         ),
         { numRuns: 20 }
       );
-    }, 30000); // 30 second timeout for property-based test
+    }, 30000); 
 
     test('Stellar compilation validates ABI structure before returning results', async () => {
-      // Check if Soroban toolchain is available
+      
       const { sorobanCompiler } = await import('@/lib/stellar/compiler');
       const toolchain = await sorobanCompiler.checkToolchain();
       
@@ -319,12 +308,12 @@ describe('ABI Validation', () => {
 
       await fc.assert(
         fc.asyncProperty(
-          // Generate arbitrary contract names (lowercase alphanumeric with underscores, 3-20 chars)
+          
           fc.stringMatching(/^[a-z][a-z0-9_]{2,19}$/),
-          // Generate arbitrary function names
+          
           fc.stringMatching(/^[a-z][a-z0-9_]{2,15}$/),
           async (contractName, functionName) => {
-            // Create a valid Soroban contract with the generated names
+            
             const rustCode = `
               #![no_std]
               use soroban_sdk::{contract, contractimpl, Env, Symbol, symbol_short};
@@ -344,46 +333,46 @@ describe('ABI Validation', () => {
               }
             `;
 
-            // Compile the contract
+            
             const result = await compilationService.compileStellar(
               rustCode,
               contractName,
               'testnet'
             );
 
-            // Skip if compilation failed (not testing compilation success here)
+            
             if (!result.success || !result.abi) {
               return true;
             }
 
-            // Property 1: The returned ABI must be valid according to Soroban ABI schema
+            
             const validation = validateSorobanABI(result.abi);
             expect(validation.valid).toBe(true);
             expect(validation.errors).toHaveLength(0);
 
-            // Property 2: The ABI must be an object (not an array)
+            
             expect(typeof result.abi).toBe('object');
             expect(result.abi).not.toBeNull();
             expect(Array.isArray(result.abi)).toBe(false);
 
-            // Property 3: If functions array exists, it must be an array
+            
             if (result.abi.functions !== undefined) {
               expect(Array.isArray(result.abi.functions)).toBe(true);
 
-              // Property 4: Each function must have a name
+              
               result.abi.functions.forEach((func: any) => {
                 expect(func.name).toBeDefined();
                 expect(typeof func.name).toBe('string');
               });
 
-              // Property 5: The generated function should be present in the ABI
+              
               const generatedFunction = result.abi.functions.find(
                 (f: any) => f.name === functionName
               );
               expect(generatedFunction).toBeDefined();
             }
 
-            // Property 6: If types array exists, it must be an array
+            
             if (result.abi.types !== undefined) {
               expect(Array.isArray(result.abi.types)).toBe(true);
             }
@@ -398,14 +387,14 @@ describe('ABI Validation', () => {
     test('validateABI function correctly routes to appropriate validator', async () => {
       await fc.assert(
         fc.asyncProperty(
-          // Generate arbitrary contract type
+          
           fc.oneof(fc.constant('evm'), fc.constant('stellar')),
           async (contractType: 'evm' | 'stellar') => {
             let abi: any;
             let expectedValid: boolean;
 
             if (contractType === 'evm') {
-              // Generate a valid EVM ABI
+              
               abi = [
                 {
                   type: 'function',
@@ -417,7 +406,7 @@ describe('ABI Validation', () => {
               ];
               expectedValid = true;
             } else {
-              // Generate a valid Soroban ABI
+              
               abi = {
                 functions: [
                   {
@@ -430,13 +419,13 @@ describe('ABI Validation', () => {
               expectedValid = true;
             }
 
-            // Property 1: validateABI should route to the correct validator
+            
             const result = validateABI(abi, contractType);
 
-            // Property 2: The validation should succeed for valid ABIs
+            
             expect(result.valid).toBe(expectedValid);
 
-            // Property 3: Valid ABIs should have no errors
+            
             if (expectedValid) {
               expect(result.errors).toHaveLength(0);
             }
@@ -453,7 +442,7 @@ describe('ABI Validation', () => {
         fc.asyncProperty(
           fc.stringMatching(/^[A-Z][a-zA-Z0-9]{2,19}$/),
           async (contractName) => {
-            // Create a Solidity contract
+            
             const solidityCode = `
               // SPDX-License-Identifier: MIT
               pragma solidity ^0.8.0;
@@ -467,29 +456,29 @@ describe('ABI Validation', () => {
               }
             `;
 
-            // Compile the contract
+            
             const result = await compilationService.compileEVM(
               solidityCode,
               contractName,
               { optimizerRuns: 200 }
             );
 
-            // Property 1: If compilation succeeds, ABI must be present
+            
             if (result.success) {
               expect(result.abi).toBeDefined();
               
-              // Property 2: The ABI must pass validation
+              
               if (result.abi) {
                 const validation = validateEVMABI(result.abi);
-                // Note: We log warnings but don't fail compilation
-                // This property verifies that validation occurs
+                
+                
                 expect(validation).toBeDefined();
                 expect(validation.valid).toBeDefined();
                 expect(Array.isArray(validation.errors)).toBe(true);
               }
             }
 
-            // Property 3: If compilation fails, error message should be present
+            
             if (!result.success) {
               expect(result.error).toBeDefined();
             }

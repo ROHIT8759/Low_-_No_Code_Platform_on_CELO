@@ -4,7 +4,6 @@ import { motion } from "framer-motion"
 import { useEffect, useState } from "react"
 import { Check, Terminal, FileCode, Layers, ArrowRight, Activity, ShieldCheck } from "lucide-react"
 
-// 1. WASM Compilation: Mock Terminal
 export function WasmCompilationVisual() {
     const [step, setStep] = useState(0)
 
@@ -50,7 +49,6 @@ export function WasmCompilationVisual() {
     )
 }
 
-// 2. State Expiration: Data Viz
 export function StateExpirationVisual() {
     return (
         <div className="flex-1 w-full h-full min-h-32 rounded-md bg-[#0B0F14] border border-[#222730] p-4 flex flex-col justify-between relative overflow-hidden">
@@ -92,13 +90,12 @@ export function StateExpirationVisual() {
     )
 }
 
-// 3. Formal Verification: Scanning
 export function FormalVerificationVisual() {
     return (
         <div className="flex-1 w-full h-full min-h-32 rounded-md bg-[#0D1117] border border-[#222730] relative overflow-hidden flex items-center justify-center">
             <div className="absolute inset-0 bg-blue-500/5" />
 
-            {/* Code lines */}
+            {}
             <div className="w-3/4 space-y-1.5 opacity-50">
                 <div className="w-full h-1.5 bg-zinc-800 rounded-sm" />
                 <div className="w-2/3 h-1.5 bg-zinc-800 rounded-sm" />
@@ -107,7 +104,7 @@ export function FormalVerificationVisual() {
                 <div className="w-full h-1.5 bg-zinc-800 rounded-sm" />
             </div>
 
-            {/* Scanner Line */}
+            {}
             <motion.div
                 className="absolute top-0 left-0 right-0 h-10 bg-linear-to-b from-primary/20 to-transparent border-t border-primary/50"
                 initial={{ top: "-20%" }}
@@ -115,7 +112,7 @@ export function FormalVerificationVisual() {
                 transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
             />
 
-            {/* Success Badge */}
+            {}
             <div className="absolute bottom-3 right-3 flex items-center gap-1 bg-[#090C10] border border-emerald-900/50 px-2 py-1 rounded-full">
                 <ShieldCheck className="w-3 h-3 text-emerald-500" />
                 <span className="text-[9px] font-mono text-emerald-500">VERIFIED</span>
@@ -124,12 +121,11 @@ export function FormalVerificationVisual() {
     )
 }
 
-// 4. Cross-Contract: Nodes
 export function CrossContractVisual() {
     return (
         <div className="flex-1 w-full h-full min-h-32 rounded-md bg-[#11151A] border border-[#222730] relative p-4 overflow-hidden">
 
-            {/* Nodes */}
+            {}
             <div className="absolute top-1/2 left-8 -translate-y-1/2 w-10 h-10 rounded bg-[#1A1F26] border border-[#30363D] flex items-center justify-center z-10">
                 <FileCode className="w-4 h-4 text-zinc-400" />
             </div>
@@ -138,7 +134,7 @@ export function CrossContractVisual() {
                 <Layers className="w-4 h-4 text-zinc-400" />
             </div>
 
-            {/* Connecting Particles */}
+            {}
             <motion.div
                 className="absolute top-1/2 left-20 w-3 h-3 bg-primary rounded-full blur-[2px]"
                 initial={{ x: 0, opacity: 0 }}

@@ -1,4 +1,4 @@
-/* eslint-disable react/no-unknown-property */
+
 "use client";
 
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
@@ -103,7 +103,7 @@ const SilkPlane = forwardRef<Mesh, SilkPlaneProps>(function SilkPlane({ uniforms
     return (
         <mesh ref={ref}>
             <planeGeometry args={[1, 1, 1, 1]} />
-            {/* @ts-ignore */}
+            {}
             <shaderMaterial uniforms={uniforms} vertexShader={vertexShader} fragmentShader={fragmentShader} />
         </mesh>
     );

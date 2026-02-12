@@ -4,7 +4,6 @@ interface FrontendFiles {
   [path: string]: string
 }
 
-// ABI helper
 function hasAbiFunction(contract: DeployedContract, name: string): boolean {
   return Array.isArray(contract.abi) && contract.abi.some((item: any) => item.type === 'function' && item.name === name)
 }
@@ -37,16 +36,16 @@ export function generateNextJsFrontend(contract: DeployedContract): FrontendFile
 function generateStellarFrontend(contract: DeployedContract): FrontendFiles {
   const files: FrontendFiles = {};
 
-  // Basic structure for Stellar dApp
+  
   files['app/layout.tsx'] = generateLayout(contract);
   files['app/globals.css'] = generateGlobalCss();
   files['app/page.tsx'] = generateStellarMainPage(contract);
 
-  // Stellar specific components and lib
+  
   files['lib/stellar.ts'] = generateStellarLib(contract);
   files['components/WalletConnect.tsx'] = generateStellarWalletComponent();
 
-  // Configs
+  
   files['package.json'] = generateStellarPackageJson(contract);
   files['next.config.js'] = generateNextConfig();
   files['tsconfig.json'] = generateTsConfig();
@@ -326,7 +325,7 @@ export async function getAlchemyProvider() {
   }
   
   // Alchemy URL for Celo network
-  const alchemyUrl = \`https://celo-mainnet.g.alchemy.com/v2/\${alchemyApiKey}\`
+  const alchemyUrl = \`https:
   return new ethers.JsonRpcProvider(alchemyUrl)
 }
 
@@ -406,7 +405,7 @@ export default function WalletConnect({ onConnect }: Props) {
       const signer = await provider.getSigner()
       const addr = await signer.getAddress()
       
-      // Switch to correct network
+      
       const network = await provider.getNetwork()
       const expectedChainId = process.env.NEXT_PUBLIC_CHAIN_ID
       
@@ -526,7 +525,7 @@ export default function ContractInteraction({ walletAddress }: Props) {
   const [success, setSuccess] = useState<string>('')
   const [txHash, setTxHash] = useState<string>('')
   
-  // Standard actions state
+  
   const [mintAmount, setMintAmount] = useState<string>('')
   const [burnAmount, setBurnAmount] = useState<string>('')
   const [transferTo, setTransferTo] = useState<string>('')
@@ -534,7 +533,7 @@ export default function ContractInteraction({ walletAddress }: Props) {
   const [approveSpender, setApproveSpender] = useState<string>('')
   const [approveAmount, setApproveAmount] = useState<string>('')
 
-  // Dynamic state for custom functions
+  
   const [functionInputs, setFunctionInputs] = useState<Record<string, string>>({})
   const [functionOutputs, setFunctionOutputs] = useState<Record<string, string>>({})
   const [expandedFunctions, setExpandedFunctions] = useState<Record<string, boolean>>({})
@@ -571,7 +570,7 @@ export default function ContractInteraction({ walletAddress }: Props) {
     }))
   }
 
-  // Generic handler for read functions
+  
   const handleRead = async (funcName: string, inputs: any[]) => {
     try {
       const provider = await getProvider()
@@ -593,7 +592,7 @@ export default function ContractInteraction({ walletAddress }: Props) {
     }
   }
 
-  // Generic handler for write functions
+  
   const handleWrite = async (funcName: string, inputs: any[]) => {
     setLoading(true)
     setError('')
@@ -606,7 +605,7 @@ export default function ContractInteraction({ walletAddress }: Props) {
       
       const args = inputs.map(input => {
         const val = functionInputs[\`\${funcName}_\${input.name}\`] || ''
-        // Basic type inference if needed, usually ethers handles string -> type conversion
+        
         return val
       })
       
@@ -624,7 +623,7 @@ export default function ContractInteraction({ walletAddress }: Props) {
     }
   }
 
-  // ... (Standard handleMint, handleBurn, etc. reused) ...
+  
   const handleTransaction = async (txFunc: () => Promise<any>, successMsg: string) => {
     setLoading(true)
     setError('')
@@ -755,7 +754,7 @@ export default function ContractInteraction({ walletAddress }: Props) {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      {/* Status Messages */}
+      {}
       {error && (
         <div className="bg-red-900/20 border border-red-500/50 text-red-200 px-4 py-3 rounded-xl backdrop-blur-sm">
           {error}
@@ -778,7 +777,7 @@ export default function ContractInteraction({ walletAddress }: Props) {
         </div>
       )}
 
-      {/* Core Actions */}
+      {}
       <div className="grid md:grid-cols-2 gap-6">
         ${canBalanceOf ? `
         <div className="card bg-slate-900/60 border-slate-800 p-6">
@@ -871,7 +870,7 @@ export default function ContractInteraction({ walletAddress }: Props) {
         </div>` : ''}
       </div>
 
-       {/* Custom Read Functions */}
+       {}
       ${customReadFunctions.length > 0 ? `
       <div className="mt-8">
         <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
@@ -926,7 +925,7 @@ export default function ContractInteraction({ walletAddress }: Props) {
         </div>
       </div>` : ''}
 
-      {/* Custom Write Functions */}
+      {}
       ${customWriteFunctions.length > 0 ? `
       <div className="mt-8">
         <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
@@ -985,7 +984,7 @@ NEXT_PUBLIC_CHAIN_ID=${contract.chainId}
 NEXT_PUBLIC_NETWORK_NAME=${contract.networkName}
 NEXT_PUBLIC_ALCHEMY_API_KEY=your_alchemy_api_key_here
 NEXT_PUBLIC_BLOCK_EXPLORER_API_KEY=your_celoscan_api_key_here
-NEXT_PUBLIC_BLOCK_EXPLORER_URL=https://celoscan.io
+NEXT_PUBLIC_BLOCK_EXPLORER_URL=https:
 `
 }
 
@@ -1027,7 +1026,7 @@ function generatePackageJson(contract: DeployedContract): string {
 }
 
 function generateNextConfig(): string {
-  return `/** @type {import('next').NextConfig} */
+  return `
 const nextConfig = {
   reactStrictMode: true,
   webpack: (config) => {
@@ -1109,7 +1108,7 @@ next-env.d.ts
 }
 
 function generateTailwindConfig(): string {
-  return `/** @type {import('tailwindcss').Config} */
+  return `
 module.exports = {
   content: [
     './app/**/*.{js,ts,jsx,tsx,mdx}',

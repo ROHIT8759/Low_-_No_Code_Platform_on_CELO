@@ -39,7 +39,7 @@ export function CodeViewer() {
   return (
     <div className="w-96 bg-[#090C10] border-l border-[#222730] flex flex-col h-full">
 
-      {/* 1. Top Meta Bar */}
+      {}
       <div className="bg-[#0B0F14] border-b border-[#222730] p-3">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-sm font-semibold text-zinc-200 flex items-center gap-2">
@@ -62,7 +62,7 @@ export function CodeViewer() {
           </div>
         </div>
 
-        {/* Meta Grid */}
+        {}
         <div className="grid grid-cols-2 gap-2">
           <div className="bg-[#11151A] p-2 rounded border border-[#222730]">
             <span className="text-[9px] text-zinc-500 uppercase block mb-1">Network</span>
@@ -81,7 +81,7 @@ export function CodeViewer() {
         </div>
       </div>
 
-      {/* 2. Contract Summary (Infrastructure) */}
+      {}
       <div className="p-3 border-b border-[#222730] bg-[#0B0F14]/50">
         <div className="flex items-center justify-between mb-2">
           <span className="text-[10px] font-mono text-zinc-500 uppercase">Contract Overview</span>
@@ -105,7 +105,7 @@ export function CodeViewer() {
         </div>
       </div>
 
-      {/* 3. Code Area */}
+      {}
       <div className="flex-1 overflow-auto bg-[#090C10] relative group">
         <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
           <button onClick={() => handleCopy(currentCode, activeTab)} className="p-1.5 bg-[#1A1F26] border border-[#222730] rounded text-zinc-400 hover:text-white">
@@ -120,7 +120,7 @@ export function CodeViewer() {
         </pre>
       </div>
 
-      {/* 4. Deploy Flow (Bottom Action) */}
+      {}
       <div className="p-4 border-t border-[#222730] bg-[#0B0F14]">
         {blocks.length > 0 ? (
           <div className="space-y-3">

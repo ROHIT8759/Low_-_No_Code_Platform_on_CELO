@@ -2,7 +2,6 @@ import { create } from "zustand"
 import { persist } from "zustand/middleware"
 import { isSupabaseAvailable } from "./supabase"
 
-// Simple UUID v4 generator
 function generateUUID(): string {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
     const r = Math.random() * 16 | 0
@@ -134,7 +133,7 @@ export const useBuilderStore = create<BuilderStore>()(
           blocks: [],
         }))
 
-        // Save to cloud if available
+        
         if (isSupabaseAvailable()) {
           import("./supabase-store").then(({ useSupabaseStore }) => {
             const supabaseStore = useSupabaseStore.getState()
@@ -168,7 +167,7 @@ export const useBuilderStore = create<BuilderStore>()(
           }
         })
 
-        // Delete from cloud if available
+        
         if (isSupabaseAvailable()) {
           import("./supabase-store").then(({ useSupabaseStore }) => {
             const supabaseStore = useSupabaseStore.getState()
@@ -188,7 +187,7 @@ export const useBuilderStore = create<BuilderStore>()(
               : state.currentProject,
         }))
 
-        // Update in cloud if available
+        
         if (isSupabaseAvailable()) {
           import("./supabase-store").then(({ useSupabaseStore }) => {
             const supabaseStore = useSupabaseStore.getState()
@@ -213,7 +212,7 @@ export const useBuilderStore = create<BuilderStore>()(
           }
         })
 
-        // Save to cloud if available
+        
         if (currentProjectId && isSupabaseAvailable()) {
           import("./supabase-store").then(({ useSupabaseStore }) => {
             const supabaseStore = useSupabaseStore.getState()
@@ -286,12 +285,12 @@ export const useBuilderStore = create<BuilderStore>()(
 
       addDeployedContract: (contract: DeployedContract) => {
         set((state) => {
-          // Keep only last 5 contracts in local storage
+          
           const newContracts = [contract, ...state.deployedContracts].slice(0, 5)
           return { deployedContracts: newContracts }
         })
 
-        // Save to cloud if available (cloud stores all contracts, not just 5)
+        
         if (isSupabaseAvailable()) {
           import("./supabase-store").then(({ useSupabaseStore }) => {
             const supabaseStore = useSupabaseStore.getState()

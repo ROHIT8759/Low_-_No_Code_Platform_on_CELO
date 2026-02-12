@@ -2,7 +2,6 @@ import { render, screen } from '@testing-library/react'
 import { Navbar } from '@/components/navbar'
 import { useBuilderStore } from '@/lib/store'
 
-// Mock zustand store
 jest.mock('@/lib/store', () => ({
     useBuilderStore: jest.fn(),
 }))

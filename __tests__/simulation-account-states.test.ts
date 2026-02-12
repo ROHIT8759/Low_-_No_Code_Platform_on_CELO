@@ -1,21 +1,8 @@
-/**
- * @jest-environment node
- */
+
 
 import { simulationService } from '@/lib/services/simulation';
 import * as fc from 'fast-check';
 
-/**
- * Property-Based Tests for Simulation with Variable Account States
- * 
- * These tests validate that when a simulation request includes specified account 
- * states and balances, the Backend_System executes the simulation using those 
- * states rather than current blockchain state.
- * 
- * Feature: stellar-backend-infrastructure, Property 14: Simulation Supports Variable Account States
- */
-
-// Mock ethers.js with account state support
 jest.mock('ethers', () => {
   const actualEthers = jest.requireActual('ethers');
   
@@ -25,15 +12,15 @@ jest.mock('ethers', () => {
       ...actualEthers.ethers,
       JsonRpcProvider: jest.fn().mockImplementation(() => ({
         estimateGas: jest.fn(async (tx: any) => {
-          // Base gas calculation
+          
           const baseGas = 21000n;
           const dataGas = tx.data ? BigInt(tx.data.length / 2) * 16n : 0n;
           
-          // If 'from' is specified (account state), adjust gas based on that
-          // This simulates using the specified account state
+          
+          
           let accountGas = 0n;
           if (tx.from) {
-            // Use a deterministic calculation based on the from address
+            
             const addressSum = tx.from.split('').reduce((sum: number, char: string) => 
               sum + char.charCodeAt(0), 0
             );
@@ -58,7 +45,7 @@ jest.mock('ethers', () => {
                 return baseGas + argGas;
               }),
               staticCall: jest.fn(async (...args: any[]) => {
-                // Return mock result
+                
                 if (item.outputs && item.outputs.length > 0) {
                   const outputType = item.outputs[0].type;
                   if (outputType.includes('uint')) {
@@ -83,7 +70,6 @@ jest.mock('ethers', () => {
   };
 });
 
-// Mock cache
 jest.mock('@/lib/cache', () => ({
   cache: {
     get: jest.fn(async () => null),
@@ -97,34 +83,32 @@ jest.mock('@/lib/cache', () => ({
   },
 }));
 
-// Track simulation requests to verify account state usage
 const simulationRequests: any[] = [];
 
-// Mock fetch for Soroban RPC calls with account state support
 global.fetch = jest.fn((url: string, options?: any) => {
   const body = options?.body ? JSON.parse(options.body) : {};
   
-  // Store the request for verification
+  
   simulationRequests.push(body);
   
   if (body.method === 'simulateTransaction') {
     const tx = body.params?.transaction || {};
     const sourceAccount = tx.source;
     
-    // Base gas calculation
+    
     let gasEstimate = 100000;
     
-    // If source account is specified (account state), adjust gas based on that
-    // This simulates using the specified account state
+    
+    
     if (sourceAccount && sourceAccount !== 'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF') {
-      // Use deterministic calculation based on source account
+      
       const accountSum = sourceAccount.split('').reduce((sum: number, char: string) => 
         sum + char.charCodeAt(0), 0
       );
       gasEstimate += accountSum % 50000;
     }
     
-    // Add gas based on transaction complexity
+    
     const txString = JSON.stringify(tx);
     for (let i = 0; i < txString.length; i++) {
       gasEstimate += txString.charCodeAt(i) % 100;
@@ -180,28 +164,22 @@ describe('Simulation with Variable Account States - Property-Based Tests', () =>
   });
 
   describe('Property 14: Simulation Supports Variable Account States', () => {
-    /**
-     * **Validates: Requirements 4.7**
-     * 
-     * Property: For any simulation request with specified account states and balances, 
-     * the Backend_System should execute the simulation using those states rather than 
-     * current blockchain state.
-     */
+    
     
     it('EVM simulation accepts and uses account state parameters', async () => {
       await fc.assert(
         fc.asyncProperty(
-          // Generate contract addresses
+          
           fc.string({ minLength: 40, maxLength: 40 }).map(s => 
             '0x' + s.split('').map(c => c.charCodeAt(0).toString(16).slice(-1)).join('').padEnd(40, '0').slice(0, 40)
           ),
-          // Generate account addresses
+          
           fc.string({ minLength: 40, maxLength: 40 }).map(s => 
             '0x' + s.split('').map(c => c.charCodeAt(0).toString(16).slice(-1)).join('').padEnd(40, '0').slice(0, 40)
           ),
-          // Generate account balances (in wei)
+          
           fc.bigInt({ min: 0n, max: 1000000000000000000n }).map(b => b.toString()),
-          // Generate function names
+          
           fc.stringMatching(/^[a-z][a-zA-Z0-9]{2,15}$/),
           async (contractAddress, accountAddress, balance, functionName) => {
             const request = {
@@ -218,14 +196,14 @@ describe('Simulation with Variable Account States - Property-Based Tests', () =>
 
             const result = await simulationService.simulate(request);
 
-            // Property: Simulation with account state should succeed
+            
             if (result.success) {
-              // Must return valid simulation results
+              
               expect(result.gasEstimate).toBeDefined();
               expect(typeof result.gasEstimate).toBe('number');
               expect(result.gasEstimate).toBeGreaterThan(0);
               
-              // Must have result structure
+              
               expect(result).toHaveProperty('result');
               expect(result).toHaveProperty('stateChanges');
               expect(result).toHaveProperty('logs');
@@ -239,13 +217,13 @@ describe('Simulation with Variable Account States - Property-Based Tests', () =>
     it('Stellar simulation accepts and uses account state parameters', async () => {
       await fc.assert(
         fc.asyncProperty(
-          // Generate Stellar contract IDs
+          
           fc.stringMatching(/^C[A-Z2-7]{55}$/),
-          // Generate Stellar account addresses
+          
           fc.stringMatching(/^G[A-Z2-7]{55}$/),
-          // Generate account balances (in stroops)
+          
           fc.bigInt({ min: 0n, max: 10000000000n }).map(b => b.toString()),
-          // Generate function names
+          
           fc.stringMatching(/^[a-z][a-z0-9_]{2,15}$/),
           async (contractAddress, accountAddress, balance, functionName) => {
             const request = {
@@ -262,14 +240,14 @@ describe('Simulation with Variable Account States - Property-Based Tests', () =>
 
             const result = await simulationService.simulate(request);
 
-            // Property: Simulation with account state should succeed
+            
             if (result.success) {
-              // Must return valid simulation results
+              
               expect(result.gasEstimate).toBeDefined();
               expect(typeof result.gasEstimate).toBe('number');
               expect(result.gasEstimate).toBeGreaterThan(0);
               
-              // Must have result structure
+              
               expect(result).toHaveProperty('result');
               expect(result).toHaveProperty('stateChanges');
               expect(result).toHaveProperty('logs');
@@ -284,7 +262,7 @@ describe('Simulation with Variable Account States - Property-Based Tests', () =>
       await fc.assert(
         fc.asyncProperty(
           fc.constantFrom('evm', 'stellar'),
-          // Generate two different account addresses
+          
           fc.tuple(
             fc.integer({ min: 1, max: 100 }),
             fc.integer({ min: 101, max: 200 })
@@ -323,7 +301,7 @@ describe('Simulation with Variable Account States - Property-Based Tests', () =>
               };
             } else {
               const contractAddress = 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC';
-              // Generate different Stellar addresses
+              
               const account1 = 'G' + 'A'.repeat(55);
               const account2 = 'G' + 'B'.repeat(55);
               
@@ -352,24 +330,24 @@ describe('Simulation with Variable Account States - Property-Based Tests', () =>
               };
             }
 
-            // Execute simulations with different account states
+            
             const result1 = await simulationService.simulate(request1);
             const result2 = await simulationService.simulate(request2);
 
-            // Property: Different account states may produce different results
-            // (This validates that account state is being used in simulation)
+            
+            
             if (result1.success && result2.success) {
-              // Both simulations should succeed
+              
               expect(result1.gasEstimate).toBeDefined();
               expect(result2.gasEstimate).toBeDefined();
               
-              // Results should be valid
+              
               expect(result1.gasEstimate).toBeGreaterThan(0);
               expect(result2.gasEstimate).toBeGreaterThan(0);
               
-              // Note: In a real implementation, different account states might
-              // produce different gas estimates or results. Our mock shows this
-              // by using the account address in gas calculation.
+              
+              
+              
             }
           }
         ),
@@ -381,7 +359,7 @@ describe('Simulation with Variable Account States - Property-Based Tests', () =>
       await fc.assert(
         fc.asyncProperty(
           fc.constantFrom('evm', 'stellar'),
-          // Generate different balance amounts
+          
           fc.tuple(
             fc.bigInt({ min: 0n, max: 1000000n }),
             fc.bigInt({ min: 1000001n, max: 10000000n })
@@ -446,16 +424,16 @@ describe('Simulation with Variable Account States - Property-Based Tests', () =>
               };
             }
 
-            // Execute simulations with different balances
+            
             const resultLow = await simulationService.simulate(requestLow);
             const resultHigh = await simulationService.simulate(requestHigh);
 
-            // Property: Simulations with different balances should both execute
-            // (Balance is part of the account state being simulated)
+            
+            
             expect(resultLow).toHaveProperty('success');
             expect(resultHigh).toHaveProperty('success');
             
-            // Both should return valid results
+            
             if (resultLow.success) {
               expect(resultLow.gasEstimate).toBeDefined();
               expect(resultLow.gasEstimate).toBeGreaterThan(0);
@@ -526,12 +504,12 @@ describe('Simulation with Variable Account States - Property-Based Tests', () =>
               };
             }
 
-            // Execute both simulations
+            
             const resultWith = await simulationService.simulate(requestWithState);
             const resultWithout = await simulationService.simulate(requestWithoutState);
 
-            // Property: Both simulations should succeed
-            // (One uses specified state, one uses default/current state)
+            
+            
             expect(resultWith).toHaveProperty('success');
             expect(resultWithout).toHaveProperty('success');
             
@@ -562,7 +540,7 @@ describe('Simulation with Variable Account States - Property-Based Tests', () =>
             let request: any;
 
             if (contractType === 'evm') {
-              // Ensure EVM address format
+              
               const evmAddress = '0x' + accountState.address.slice(0, 40).padEnd(40, '0');
               
               request = {
@@ -577,7 +555,7 @@ describe('Simulation with Variable Account States - Property-Based Tests', () =>
                 },
               };
             } else {
-              // Ensure Stellar address format
+              
               const stellarAddress = 'G' + accountState.address.slice(0, 55).toUpperCase().replace(/[^A-Z2-7]/g, 'A').padEnd(55, 'A');
               
               request = {
@@ -595,11 +573,11 @@ describe('Simulation with Variable Account States - Property-Based Tests', () =>
 
             const result = await simulationService.simulate(request);
 
-            // Property: Account state should be accepted and processed
+            
             expect(result).toHaveProperty('success');
             expect(typeof result.success).toBe('boolean');
             
-            // If successful, should return valid simulation data
+            
             if (result.success) {
               expect(result.gasEstimate).toBeDefined();
               expect(typeof result.gasEstimate).toBe('number');
@@ -616,7 +594,7 @@ describe('Simulation with Variable Account States - Property-Based Tests', () =>
           fc.stringMatching(/^G[A-Z2-7]{55}$/),
           fc.bigInt({ min: 0n, max: 10000000n }).map(b => b.toString()),
           async (accountAddress, balance) => {
-            // Clear previous requests
+            
             simulationRequests.length = 0;
 
             const request = {
@@ -633,14 +611,14 @@ describe('Simulation with Variable Account States - Property-Based Tests', () =>
 
             await simulationService.simulate(request);
 
-            // Property: Account state should be included in RPC request
+            
             expect(simulationRequests.length).toBeGreaterThan(0);
             
             const rpcRequest = simulationRequests[simulationRequests.length - 1];
             expect(rpcRequest).toHaveProperty('params');
             expect(rpcRequest.params).toHaveProperty('transaction');
             
-            // The transaction should include the source account
+            
             const tx = rpcRequest.params.transaction;
             expect(tx).toHaveProperty('source');
             expect(tx.source).toBe(accountAddress);
@@ -666,7 +644,7 @@ describe('Simulation with Variable Account States - Property-Based Tests', () =>
                 network: 'celo',
                 accountState: {
                   address: '0x' + '2'.repeat(40),
-                  // No balance specified
+                  
                 },
               };
             } else {
@@ -678,17 +656,17 @@ describe('Simulation with Variable Account States - Property-Based Tests', () =>
                 network: 'testnet',
                 accountState: {
                   address: 'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF',
-                  // No balance specified
+                  
                 },
               };
             }
 
             const result = await simulationService.simulate(request);
 
-            // Property: Account state with only address should be accepted
+            
             expect(result).toHaveProperty('success');
             
-            // Should return valid simulation results
+            
             if (result.success) {
               expect(result.gasEstimate).toBeDefined();
               expect(typeof result.gasEstimate).toBe('number');
@@ -742,12 +720,12 @@ describe('Simulation with Variable Account States - Property-Based Tests', () =>
 
             const result = await simulationService.simulate(request);
 
-            // Property: Response structure should be consistent
+            
             expect(result).toHaveProperty('success');
             expect(typeof result.success).toBe('boolean');
 
             if (result.success) {
-              // Successful responses must have these fields
+              
               expect(result).toHaveProperty('result');
               expect(result).toHaveProperty('gasEstimate');
               expect(result).toHaveProperty('stateChanges');
@@ -757,7 +735,7 @@ describe('Simulation with Variable Account States - Property-Based Tests', () =>
               expect(Array.isArray(result.stateChanges)).toBe(true);
               expect(Array.isArray(result.logs)).toBe(true);
             } else {
-              // Failed responses must have error information
+              
               expect(result).toHaveProperty('error');
               expect(typeof result.error).toBe('string');
             }

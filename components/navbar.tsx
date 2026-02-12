@@ -34,7 +34,7 @@ export function Navbar() {
           "rounded-xl"
         )}
       >
-        {/* Brand */}
+        {}
         <Link href="/" className="flex items-center gap-3 group mr-6 pr-6 border-r border-white/5 h-8">
           <div className="w-6 h-6 flex items-center justify-center bg-zinc-100 rounded-[4px] text-black font-bold text-xs group-hover:bg-white transition-colors">
             B
@@ -56,12 +56,12 @@ export function Navbar() {
           </div>
         </Link>
 
-        {/* Center Nav */}
+        {}
         <div className="hidden md:flex items-center flex-1">
           <NavLinks scrolled={scrolled} />
         </div>
 
-        {/* Right Actions */}
+        {}
         <div className="flex items-center gap-3 pl-4 ml-2">
           <div className="hidden md:flex items-center gap-1 border-r border-white/5 pr-4 mr-2">
             <Link href="/docs">

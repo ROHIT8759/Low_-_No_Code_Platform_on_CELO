@@ -2,32 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { enqueueCompilation, StellarCompilationJobData } from '@/lib/queue';
 import { supabase } from '@/lib/supabase';
 
-/**
- * POST /api/compile/stellar
- * 
- * Compile Stellar/Soroban Rust contracts to WASM
- * 
- * Request body:
- * {
- *   rustCode: string
- *   contractName: string
- *   network?: 'testnet' | 'mainnet'
- * }
- * 
- * Response:
- * {
- *   success: true
- *   jobId: string
- *   status: 'queued'
- * }
- */
 export async function POST(request: NextRequest) {
   try {
-    // Parse request body
+    
     const body = await request.json();
     const { rustCode, contractName, network = 'testnet' } = body;
 
-    // Validate required fields
+    
     if (!rustCode || typeof rustCode !== 'string') {
       return NextResponse.json(
         {
@@ -48,7 +29,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate network
+    
     if (network !== 'testnet' && network !== 'mainnet') {
       return NextResponse.json(
         {
@@ -59,7 +40,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate Rust code is not empty
+    
     if (rustCode.trim().length === 0) {
       return NextResponse.json(
         {
@@ -70,7 +51,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate contract name format (alphanumeric, hyphens, underscores)
+    
     const contractNameRegex = /^[a-zA-Z0-9_-]+$/;
     if (!contractNameRegex.test(contractName)) {
       return NextResponse.json(
@@ -82,8 +63,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate code size (max 1MB)
-    const maxCodeSize = 1024 * 1024; // 1MB
+    
+    const maxCodeSize = 1024 * 1024; 
     if (Buffer.byteLength(rustCode, 'utf-8') > maxCodeSize) {
       return NextResponse.json(
         {
@@ -94,10 +75,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate request ID for tracking
+    
     const requestId = `stellar-${Date.now()}-${Math.random().toString(36).substring(7)}`;
 
-    // Prepare job data
+    
     const jobData: StellarCompilationJobData = {
       type: 'compile-stellar',
       rustCode,
@@ -106,10 +87,10 @@ export async function POST(request: NextRequest) {
       requestId,
     };
 
-    // Enqueue compilation job
+    
     const jobId = await enqueueCompilation(jobData);
 
-    // Store compilation job record in database
+    
     if (supabase) {
       try {
         const { error } = await supabase.from('compilation_jobs').insert({
@@ -124,15 +105,15 @@ export async function POST(request: NextRequest) {
 
         if (error) {
           console.error('[API] Error storing compilation job record:', error);
-          // Don't fail the request - job is already queued
+          
         }
       } catch (error) {
         console.error('[API] Error storing compilation job record:', error);
-        // Don't fail the request - job is already queued
+        
       }
     }
 
-    // Return job ID for status polling
+    
     return NextResponse.json(
       {
         success: true,
@@ -156,11 +137,6 @@ export async function POST(request: NextRequest) {
   }
 }
 
-/**
- * GET /api/compile/stellar
- * 
- * Returns API information
- */
 export async function GET() {
   return NextResponse.json(
     {

@@ -2,19 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getJobStatus } from '@/lib/queue';
 import { supabase } from '@/lib/supabase';
 
-/**
- * GET /api/jobs/[jobId]
- * 
- * Query job status, progress, and results
- * 
- * Returns:
- * - Job status (pending, processing, completed, failed)
- * - Progress percentage (0-100)
- * - Results (artifact_id, contract details)
- * - Error messages if failed
- * 
- * Validates: Requirements 8.2
- */
 export async function GET(
   request: NextRequest,
   { params }: { params: { jobId: string } }
@@ -32,7 +19,7 @@ export async function GET(
       );
     }
 
-    // Query database for job record
+    
     if (!supabase) {
       return NextResponse.json(
         {
@@ -50,7 +37,7 @@ export async function GET(
       .single();
 
     if (dbError && dbError.code !== 'PGRST116') {
-      // PGRST116 is "not found" error
+      
       console.error('[JobStatus] Database error:', dbError);
       return NextResponse.json(
         {
@@ -62,9 +49,9 @@ export async function GET(
       );
     }
 
-    // If no database record, check BullMQ directly
+    
     if (!jobRecord) {
-      // Try to find the job in any of the queues
+      
       const queueTypes = ['compilation', 'analysis', 'deployment'] as const;
       
       for (const queueType of queueTypes) {
@@ -83,7 +70,7 @@ export async function GET(
         }
       }
 
-      // Job not found in any queue or database
+      
       return NextResponse.json(
         {
           error: 'Job not found',
@@ -93,10 +80,10 @@ export async function GET(
       );
     }
 
-    // Job found in database - get additional details from BullMQ
+    
     const bullmqStatus = await getJobStatus('compilation', jobId);
 
-    // Prepare response
+    
     const response: any = {
       success: true,
       jobId,
@@ -106,29 +93,29 @@ export async function GET(
       completedAt: jobRecord.completed_at,
     };
 
-    // Add progress from BullMQ if available
+    
     if (bullmqStatus.status !== 'unknown' && bullmqStatus.progress !== undefined) {
       response.progress = bullmqStatus.progress;
     } else {
-      // Estimate progress based on status
+      
       response.progress = getProgressFromStatus(jobRecord.status);
     }
 
-    // Add results if completed
+    
     if (jobRecord.status === 'completed' && jobRecord.artifact_id) {
       response.artifactId = jobRecord.artifact_id;
       
-      // Get result from BullMQ if available
+      
       if (bullmqStatus.result) {
         response.result = bullmqStatus.result;
       }
     }
 
-    // Add error if failed
+    
     if (jobRecord.status === 'failed') {
       response.error = jobRecord.error_message || 'Job failed';
       
-      // Get additional error details from BullMQ if available
+      
       if (bullmqStatus.error) {
         response.errorDetails = bullmqStatus.error;
       }
@@ -148,9 +135,6 @@ export async function GET(
   }
 }
 
-/**
- * Map BullMQ status to our standard status format
- */
 function mapBullMQStatus(
   bullmqStatus: 'waiting' | 'active' | 'completed' | 'failed' | 'delayed' | 'unknown'
 ): 'pending' | 'processing' | 'completed' | 'failed' {
@@ -169,9 +153,6 @@ function mapBullMQStatus(
   }
 }
 
-/**
- * Estimate progress percentage based on job status
- */
 function getProgressFromStatus(status: string): number {
   switch (status) {
     case 'pending':

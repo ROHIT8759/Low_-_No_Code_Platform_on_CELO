@@ -19,8 +19,8 @@ export const BorderBeam = ({
     duration = 15,
     anchor = 90,
     borderWidth = 1.5,
-    colorFrom = "#6366f1", // Indigo
-    colorTo = "#ec4899", // Pink
+    colorFrom = "#6366f1", 
+    colorTo = "#ec4899", 
     delay = 0,
 }: BorderBeamProps) => {
     return (

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 
-// Breakpoints matching standard "Apple" style responsiveness
 const MOBILE_BREAKPOINT = 768;
 const TABLET_BREAKPOINT = 1024;
 const DESKTOP_BREAKPOINT = 1280;
@@ -14,7 +13,7 @@ export function useDevice() {
     const [width, setWidth] = useState(0);
 
     useEffect(() => {
-        // Initial check
+        
         const checkDevice = () => {
             const w = window.innerWidth;
             setWidth(w);
@@ -24,14 +23,14 @@ export function useDevice() {
             return setDevice("desktop");
         };
 
-        // Debounced resize handler
+        
         let timeoutId: NodeJS.Timeout;
         const handleResize = () => {
             clearTimeout(timeoutId);
-            timeoutId = setTimeout(checkDevice, 150); // 150ms debounce
+            timeoutId = setTimeout(checkDevice, 150); 
         };
 
-        // Run once on mount
+        
         checkDevice();
 
         window.addEventListener("resize", handleResize);
@@ -42,9 +41,9 @@ export function useDevice() {
         device,
         width,
         isMobile: device === "mobile",
-        isTablet: device === "tablet", // iPad Vertical
-        isLaptop: device === "laptop", // MacBook Air range
-        isDesktop: device === "desktop", // Large displays
+        isTablet: device === "tablet", 
+        isLaptop: device === "laptop", 
+        isDesktop: device === "desktop", 
         isTouch: device === "mobile" || device === "tablet",
     };
 }

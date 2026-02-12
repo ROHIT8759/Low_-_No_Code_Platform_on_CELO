@@ -14,16 +14,6 @@ import { promisify } from 'util';
 const gzipAsync = promisify(gzip);
 const gunzipAsync = promisify(gunzip);
 
-/**
- * S3 Artifact Storage Service
- * 
- * Provides storage operations for:
- * - EVM bytecode (compressed)
- * - Stellar WASM files
- * - Artifact metadata
- */
-
-// S3 client configuration
 const s3Config: S3ClientConfig = {
   region: process.env.AWS_REGION || 'us-east-1',
   credentials: process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY
@@ -32,33 +22,22 @@ const s3Config: S3ClientConfig = {
         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
       }
     : undefined,
-  endpoint: process.env.S3_ENDPOINT, // For S3-compatible services like MinIO
-  forcePathStyle: process.env.S3_FORCE_PATH_STYLE === 'true', // Required for MinIO
+  endpoint: process.env.S3_ENDPOINT, 
+  forcePathStyle: process.env.S3_FORCE_PATH_STYLE === 'true', 
 };
 
-// S3 client instance
 const s3Client = new S3Client(s3Config);
 
-// Bucket name from environment
 const BUCKET_NAME = process.env.S3_BUCKET_NAME || 'contract-artifacts';
 
-/**
- * Artifact types
- */
 export type ArtifactType = 'evm' | 'stellar' | 'metadata';
 
-/**
- * Storage paths for different artifact types
- */
 const STORAGE_PATHS = {
   evm: 'artifacts/evm/',
   stellar: 'artifacts/stellar/',
   metadata: 'artifacts/metadata/',
 } as const;
 
-/**
- * Artifact Storage Service
- */
 export class ArtifactStorage {
   private bucket: string;
 
@@ -66,39 +45,31 @@ export class ArtifactStorage {
     this.bucket = bucketName || BUCKET_NAME;
   }
 
-  /**
-   * Compute SHA-256 hash of content
-   */
+  
   private computeHash(content: Buffer): string {
     return createHash('sha256').update(content).digest('hex');
   }
 
-  /**
-   * Get storage key for artifact
-   */
+  
   private getStorageKey(type: ArtifactType, identifier: string, extension: string): string {
     const path = STORAGE_PATHS[type];
     return `${path}${identifier}.${extension}`;
   }
 
-  /**
-   * Store EVM bytecode (compressed)
-   * @param bytecode Hex string of bytecode
-   * @returns Object with artifactId (hash) and storage key
-   */
+  
   async storeEVMBytecode(bytecode: string): Promise<{ artifactId: string; key: string }> {
     try {
-      // Remove 0x prefix if present
+      
       const cleanBytecode = bytecode.startsWith('0x') ? bytecode.slice(2) : bytecode;
       const bytecodeBuffer = Buffer.from(cleanBytecode, 'hex');
 
-      // Compute hash before compression
+      
       const hash = this.computeHash(bytecodeBuffer);
 
-      // Compress bytecode
+      
       const compressed = await gzipAsync(bytecodeBuffer);
 
-      // Store in S3
+      
       const key = this.getStorageKey('evm', hash, 'bytecode.gz');
       const command = new PutObjectCommand({
         Bucket: this.bucket,
@@ -122,11 +93,7 @@ export class ArtifactStorage {
     }
   }
 
-  /**
-   * Retrieve EVM bytecode (decompressed)
-   * @param artifactId Hash of the bytecode
-   * @returns Hex string of bytecode
-   */
+  
   async retrieveEVMBytecode(artifactId: string): Promise<string> {
     try {
       const key = this.getStorageKey('evm', artifactId, 'bytecode.gz');
@@ -141,13 +108,13 @@ export class ArtifactStorage {
         throw new Error('Empty response body');
       }
 
-      // Convert stream to buffer
+      
       const compressed = await this.streamToBuffer(response.Body);
 
-      // Decompress
+      
       const decompressed = await gunzipAsync(compressed);
 
-      // Return as hex string with 0x prefix
+      
       return '0x' + decompressed.toString('hex');
     } catch (error) {
       console.error(`[Storage] Error retrieving EVM bytecode ${artifactId}:`, error);
@@ -155,17 +122,13 @@ export class ArtifactStorage {
     }
   }
 
-  /**
-   * Store Stellar WASM file
-   * @param wasm WASM binary data
-   * @returns Object with artifactId (hash) and storage key
-   */
+  
   async storeStellarWASM(wasm: Buffer): Promise<{ artifactId: string; key: string }> {
     try {
-      // Compute hash
+      
       const hash = this.computeHash(wasm);
 
-      // Store in S3
+      
       const key = this.getStorageKey('stellar', hash, 'wasm');
       const command = new PutObjectCommand({
         Bucket: this.bucket,
@@ -187,11 +150,7 @@ export class ArtifactStorage {
     }
   }
 
-  /**
-   * Retrieve Stellar WASM file
-   * @param artifactId Hash of the WASM
-   * @returns WASM binary data
-   */
+  
   async retrieveStellarWASM(artifactId: string): Promise<Buffer> {
     try {
       const key = this.getStorageKey('stellar', artifactId, 'wasm');
@@ -213,11 +172,7 @@ export class ArtifactStorage {
     }
   }
 
-  /**
-   * Store artifact metadata
-   * @param artifactId Artifact identifier
-   * @param metadata Metadata object
-   */
+  
   async storeMetadata(artifactId: string, metadata: any): Promise<string> {
     try {
       const key = this.getStorageKey('metadata', artifactId, 'json');
@@ -237,11 +192,7 @@ export class ArtifactStorage {
     }
   }
 
-  /**
-   * Retrieve artifact metadata
-   * @param artifactId Artifact identifier
-   * @returns Metadata object
-   */
+  
   async retrieveMetadata(artifactId: string): Promise<any> {
     try {
       const key = this.getStorageKey('metadata', artifactId, 'json');
@@ -264,13 +215,7 @@ export class ArtifactStorage {
     }
   }
 
-  /**
-   * Generate signed URL for artifact retrieval
-   * @param artifactId Artifact identifier
-   * @param type Artifact type
-   * @param expiresIn Expiration time in seconds (default: 3600 = 1 hour)
-   * @returns Signed URL
-   */
+  
   async generateSignedUrl(
     artifactId: string,
     type: ArtifactType,
@@ -293,11 +238,7 @@ export class ArtifactStorage {
     }
   }
 
-  /**
-   * Delete artifact
-   * @param artifactId Artifact identifier
-   * @param type Artifact type
-   */
+  
   async deleteArtifact(artifactId: string, type: ArtifactType): Promise<void> {
     try {
       const extension = type === 'evm' ? 'bytecode.gz' : type === 'stellar' ? 'wasm' : 'json';
@@ -315,12 +256,7 @@ export class ArtifactStorage {
     }
   }
 
-  /**
-   * Check if artifact exists
-   * @param artifactId Artifact identifier
-   * @param type Artifact type
-   * @returns True if artifact exists
-   */
+  
   async exists(artifactId: string, type: ArtifactType): Promise<boolean> {
     try {
       const extension = type === 'evm' ? 'bytecode.gz' : type === 'stellar' ? 'wasm' : 'json';
@@ -342,9 +278,7 @@ export class ArtifactStorage {
     }
   }
 
-  /**
-   * Helper: Convert stream to buffer
-   */
+  
   private async streamToBuffer(stream: any): Promise<Buffer> {
     const chunks: Uint8Array[] = [];
     
@@ -355,12 +289,7 @@ export class ArtifactStorage {
     return Buffer.concat(chunks);
   }
 
-  /**
-   * Store generic artifact (auto-detects type)
-   * @param content Artifact content (Buffer or string)
-   * @param type Artifact type
-   * @returns Artifact ID
-   */
+  
   async store(content: Buffer | string, type: ArtifactType): Promise<string> {
     if (type === 'evm') {
       const bytecode = typeof content === 'string' ? content : content.toString('hex');
@@ -375,12 +304,7 @@ export class ArtifactStorage {
     }
   }
 
-  /**
-   * Retrieve generic artifact
-   * @param artifactId Artifact identifier
-   * @param type Artifact type
-   * @returns Artifact content
-   */
+  
   async retrieve(artifactId: string, type: ArtifactType): Promise<Buffer | string> {
     if (type === 'evm') {
       return await this.retrieveEVMBytecode(artifactId);
@@ -394,21 +318,17 @@ export class ArtifactStorage {
     }
   }
 
-  /**
-   * Retrieve EVM artifact with metadata
-   * @param artifactId Artifact identifier
-   * @returns Object with bytecode and metadata
-   */
+  
   async retrieveEVMArtifact(artifactId: string): Promise<{ bytecode: string; metadata?: any } | null> {
     try {
       const bytecode = await this.retrieveEVMBytecode(artifactId);
       
-      // Try to retrieve metadata if it exists
+      
       let metadata;
       try {
         metadata = await this.retrieveMetadata(artifactId);
       } catch (error) {
-        // Metadata is optional
+        
         metadata = undefined;
       }
 
@@ -419,21 +339,17 @@ export class ArtifactStorage {
     }
   }
 
-  /**
-   * Retrieve Stellar artifact with metadata
-   * @param artifactId Artifact identifier
-   * @returns Object with WASM and metadata
-   */
+  
   async retrieveStellarArtifact(artifactId: string): Promise<{ wasm: Buffer; metadata?: any } | null> {
     try {
       const wasm = await this.retrieveStellarWASM(artifactId);
       
-      // Try to retrieve metadata if it exists
+      
       let metadata;
       try {
         metadata = await this.retrieveMetadata(artifactId);
       } catch (error) {
-        // Metadata is optional
+        
         metadata = undefined;
       }
 
@@ -445,8 +361,6 @@ export class ArtifactStorage {
   }
 }
 
-// Export singleton instance
 export const storage = new ArtifactStorage();
 
-// Export utility functions
 export { s3Client };

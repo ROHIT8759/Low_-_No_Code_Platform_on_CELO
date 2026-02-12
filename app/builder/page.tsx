@@ -38,11 +38,11 @@ export default function BuilderPage() {
   return (
     <div className="flex flex-col h-screen bg-[#0B0F14] overflow-hidden relative selection:bg-indigo-500/30 selection:text-indigo-200">
 
-      {/* Structural Layout */}
+      {}
       <div className="relative z-10 flex flex-col h-full">
         <BuilderNavbar />
         <div className="flex flex-1 overflow-hidden flex-col md:flex-row border-t border-[#222730]">
-          {/* Mobile: Horizontal scrollable blocks, Desktop: Sidebar */}
+          {}
           <div className="md:hidden">
             <BlockSidebar />
           </div>
@@ -52,7 +52,7 @@ export default function BuilderPage() {
 
           <Canvas />
 
-          {/* CodeViewer hidden on mobile, shown on desktop */}
+          {}
           <div className="hidden lg:block h-full">
             <CodeViewer />
           </div>

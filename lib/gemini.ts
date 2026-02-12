@@ -1,6 +1,8 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
+import { STELLAR_NETWORKS } from './stellar/stellar-config'
 
-const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY || '')
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY || ''
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY)
 
 export async function generateFrontendWithGemini(
   contractCode: string,
@@ -37,12 +39,12 @@ ${contractCode}
 1. Create a modern, responsive Next.js application using:
    - TypeScript
    - Tailwind CSS for styling
-   - ethers.js v6 for blockchain interaction
+   - @stellar/stellar-sdk for blockchain interaction
    - React hooks for state management
 
 2. Include the following features:
-   - Wallet connection (MetaMask)
-   - Network detection and switching to Celo
+   - Wallet connection (Freighter for Stellar)
+   - Network detection and switching to Stellar Testnet/Mainnet
    - Display contract information
    - Interactive UI for all contract functions (${features})
    - Transaction status notifications
@@ -50,11 +52,12 @@ ${contractCode}
    - Loading states
    - Responsive design with beautiful gradients
 
-3. For each contract function, create:
-   - Input fields for parameters
-   - Call button with loading state
-   - Success/error notifications
-   - Transaction hash display
+3. Use Stellar SDK (@stellar/stellar-sdk) for blockchain interaction:
+   - Connect to Stellar network
+   - Use network passphrase: "Test SDF Network ; September 2015" for testnet or "Public Global Stellar Network ; September 2015" for mainnet
+   - Handle XLM transactions
+   - Support contract ID format for Soroban contracts
+   - Use Freighter wallet for signing
 
 4. Use modern UI patterns:
    - Card-based layout

@@ -1,6 +1,7 @@
 import { storage } from '../storage';
 import { supabase } from '../supabase';
 import * as StellarSdk from '@stellar/stellar-sdk';
+import { deploymentLogger as logger } from '../logger';
 
 export interface StellarDeploymentOptions {
   artifactId: string;
@@ -73,7 +74,7 @@ export class DeploymentService {
         envelopeXDR,
       };
     } catch (error: any) {
-      console.error('[DeploymentService] Stellar deployment error:', error);
+      logger.error('Stellar deployment error', error, { artifactId: options.artifactId, network: options.network });
       return {
         success: false,
         error: 'Deployment preparation failed',
@@ -109,7 +110,7 @@ export class DeploymentService {
 
       return transaction.toXDR();
     } catch (error: any) {
-      console.error('[DeploymentService] Error creating Stellar envelope:', error);
+      logger.error('Error creating Stellar envelope', error, { sourceAccount });
       throw new Error(`Failed to create deployment envelope: ${error.message}`);
     }
   }
@@ -129,9 +130,9 @@ export class DeploymentService {
         networkConfig.networkPassphrase
       ) as StellarSdk.Transaction;
 
-      console.log('[DeploymentService] Submitting Stellar transaction...');
+      logger.info('Submitting Stellar transaction...');
       const response = await server.submitTransaction(transaction);
-      console.log(`[DeploymentService] Transaction submitted: ${response.hash}`);
+      logger.info('Transaction submitted', { txHash: response.hash });
 
       const result = await this.pollForStellarTransaction(response.hash, server);
 
@@ -170,7 +171,7 @@ export class DeploymentService {
         network: `stellar-${network}`,
       };
     } catch (error: any) {
-      console.error('[DeploymentService] Stellar transaction submission error:', error);
+      logger.error('Stellar transaction submission error', error, { network, artifactId });
       return {
         success: false,
         error: 'Transaction submission failed',

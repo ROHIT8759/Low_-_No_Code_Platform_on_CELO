@@ -4,6 +4,7 @@ import { ProductWindow } from "@/components/infrastructure/product-window"
 import { BentoGrid, BentoGridItem } from "@/components/reactbits/BentoGrid"
 import { SpotlightCard } from "@/components/reactbits/SpotlightCard"
 import { Navbar } from "@/components/navbar"
+import { WasmCompilationVisual, StateExpirationVisual, FormalVerificationVisual, CrossContractVisual } from "@/components/infrastructure/bento-visuals"
 import { motion } from "framer-motion"
 import { ArrowRight, Shield, Zap, Database, Server, Cpu, Lock, Terminal, Activity, FileCheck, Layers } from "lucide-react"
 import Link from "next/link"
@@ -12,54 +13,29 @@ const INFRASTRUCTURE_FEATURES = [
   {
     title: "Native WASM Compilation",
     description: "Direct Rust-to-WASM pipeline optimized for Soroban's runtime environment. Ensures minimal bytecode size and maximum execution efficiency.",
-    header: <div className="flex flex-1 w-full h-full min-h-24 rounded-md bg-linear-to-br from-[#1A1F26] to-[#0B0F14] border border-[#222730] relative overflow-hidden group">
-      <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-20" />
-      <div className="absolute bottom-2 right-2 p-2 bg-[#0B0F14] border border-[#222730] rounded shadow-lg">
-        <span className="text-[10px] font-mono text-emerald-500">REL: OPTIMIZED</span>
-      </div>
-      <Terminal className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 text-zinc-600 group-hover:text-primary transition-colors" />
-    </div>,
+    header: <WasmCompilationVisual />,
     icon: <Cpu className="h-4 w-4 text-zinc-500" />,
     className: "md:col-span-2",
   },
   {
     title: "State Expiration Handling",
-    description: "Automated ledger entry TTL management preventing state bloat and ensuring sustainable storage economics.",
-    header: <div className="flex flex-1 w-full h-full min-h-24 rounded-md bg-[#11151A] border border-[#222730] p-4 flex flex-col justify-end">
-      <div className="w-full bg-[#1A1F26] h-1.5 rounded-full overflow-hidden">
-        <div className="bg-primary w-3/4 h-full" />
-      </div>
-      <div className="flex justify-between mt-1">
-        <span className="text-[9px] font-mono text-zinc-500">TTL</span>
-        <span className="text-[9px] font-mono text-zinc-300">120,500 ledgers</span>
-      </div>
-    </div>,
+    description: "Automated ledger entry TTL management preventing state bloat and sustainable storage.",
+    header: <StateExpirationVisual />,
     icon: <Database className="h-4 w-4 text-zinc-500" />,
     className: "md:col-span-1",
   },
   {
     title: "Formal Verification",
     description: "Integrated Proptest and symbolic execution for contract logic validation before deployment.",
-    header: <div className="flex flex-1 w-full h-full min-h-24 rounded-md bg-[#11151A] border border-[#222730] flex items-center justify-center">
-      <div className="grid grid-cols-2 gap-2">
-        {[1, 2, 3, 4].map(i => (
-          <div key={i} className="w-8 h-8 rounded-sm bg-[#1A1F26] border border-[#222730] flex items-center justify-center">
-            <FileCheck className="w-3 h-3 text-emerald-500/50" />
-          </div>
-        ))}
-      </div>
-    </div>,
+    header: <FormalVerificationVisual />,
     icon: <Shield className="h-4 w-4 text-zinc-500" />,
     className: "md:col-span-1",
   },
   {
     title: "Cross-Contract Calls",
     description: "Composable architecture allowing seamless invocation between deployed logic modules.",
-    header: <div className="flex flex-1 w-full h-full min-h-24 rounded-md bg-[#11151A] border border-[#222730] relative">
-      <Layers className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 text-zinc-700 opacity-50" />
-      <div className="absolute inset-0 bg-linear-to-t from-[#11151A] to-transparent" />
-    </div>,
-    icon: <Server className="h-4 w-4 text-zinc-500" />,
+    header: <CrossContractVisual />,
+    icon: <Layers className="h-4 w-4 text-zinc-500" />,
     className: "md:col-span-2",
   },
 ]

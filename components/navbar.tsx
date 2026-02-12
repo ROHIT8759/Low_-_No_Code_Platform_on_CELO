@@ -41,7 +41,7 @@ export function Navbar() {
         }}
       >
         {}
-        <Link href="/" className="flex items-center gap-3 group mr-6 pr-6 border-r border-white/5 h-8">
+        <Link href="/" className="flex items-center gap-3 group mr-6 pr-6 border-r border-[var(--border-outer)] h-8">
           <div className="w-6 h-6 flex items-center justify-center bg-zinc-100 rounded-[4px] text-black font-bold text-xs group-hover:bg-white transition-colors">
             B
           </div>
@@ -69,20 +69,20 @@ export function Navbar() {
 
         {}
         <div className="flex items-center gap-3 pl-4 ml-2">
-          <div className="hidden md:flex items-center gap-1 border-r border-white/5 pr-4 mr-2">
+          <div className="hidden md:flex items-center gap-1 border-r border-[var(--border-outer)] pr-4 mr-2">
             <Link href="/docs">
-              <button className="p-1.5 text-zinc-500 hover:text-zinc-300 transition-colors rounded hover:bg-white/5">
+              <button className="p-1.5 text-zinc-500 hover:text-zinc-300 transition-infrastructure rounded hover:bg-white/5">
                 <BookOpen className="w-3.5 h-3.5" />
               </button>
             </Link>
-            <button className="p-1.5 text-zinc-500 hover:text-zinc-300 transition-colors rounded hover:bg-white/5">
+            <button className="p-1.5 text-zinc-500 hover:text-zinc-300 transition-infrastructure rounded hover:bg-white/5">
               <Terminal className="w-3.5 h-3.5" />
             </button>
           </div>
 
           <Link href="/builder">
             <button className={cn(
-              "flex items-center gap-2 bg-[#0055eb] hover:bg-[#0044c2] text-white text-xs font-semibold rounded-[6px] transition-all active:translate-y-px",
+              "flex items-center gap-2 bg-[#0055eb] hover:bg-[#0044c2] text-white text-xs font-semibold rounded-[6px] transition-infrastructure active:translate-y-px",
               scrolled ? "px-3 py-1.5" : "px-4 py-2"
             )}>
               <span>Launch App</span>
@@ -120,10 +120,10 @@ function NavLinks({ scrolled }: { scrolled: boolean }) {
     <div className="flex items-center gap-6">
       {links.map((link) => (
         <Link key={link.label} href={link.href} className="group relative py-1">
-          <span className="text-xs font-medium text-zinc-400 group-hover:text-zinc-100 transition-colors">
+          <span className="text-xs font-medium text-zinc-400 group-hover:text-zinc-100 transition-infrastructure">
             {link.label}
           </span>
-          <span className="absolute bottom-0 left-0 w-full h-px bg-white transform scale-x-0 group-hover:scale-x-100 transition-transform duration-200 origin-left opacity-30" />
+          <span className="absolute bottom-0 left-0 w-full h-px bg-white transform scale-x-0 group-hover:scale-x-100 transition-infrastructure origin-left opacity-30" />
         </Link>
       ))}
     </div>

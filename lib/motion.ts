@@ -30,8 +30,12 @@ export function prefersReducedMotion(): boolean {
     return false;
   }
   
-  const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-  return mediaQuery.matches;
+  try {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    return mediaQuery.matches;
+  } catch {
+    return false;
+  }
 }
 
 /**

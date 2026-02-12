@@ -186,14 +186,14 @@ Each task builds incrementally, with early validation through property-based tes
     - _Requirements: 11.1, 11.2, 11.5_
 
 - [ ] 10. Implement motion system
-  - [-] 10.1 Create motion utility functions and constants
+  - [x] 10.1 Create motion utility functions and constants
     - Define motion duration constants (fast: 140ms, normal: 180ms, slow: 200ms)
     - Define easing function constant (cubic-bezier(0.16, 1, 0.3, 1))
     - Create motion variants for common animations (slideUp, fadeIn, subtle)
     - Implement prefers-reduced-motion detection
     - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5, 12.6, 12.7_
 
-  - [ ] 10.2 Apply motion system to all components
+  - [-] 10.2 Apply motion system to all components
     - Update Navbar animations
     - Update Hero section reveal animations
     - Update BentoGrid card animations

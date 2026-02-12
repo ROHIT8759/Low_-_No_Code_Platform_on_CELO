@@ -7,6 +7,7 @@ import { useState, useEffect } from "react"
 import { useScroll, useMotionValueEvent, AnimatePresence, motion } from "framer-motion"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
+import { MOTION_DURATION, MOTION_EASING } from "@/lib/motion"
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
@@ -28,7 +29,7 @@ export function Navbar() {
           paddingBottom: scrolled ? "0.5rem" : "0.75rem",
         }}
         transition={{ 
-          duration: 0.18, 
+          duration: MOTION_DURATION.normal / 1000, 
           ease: [0.16, 1, 0.3, 1]
         }}
         className={cn(
@@ -98,7 +99,7 @@ export function Navbar() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: MOTION_DURATION.normal / 1000, ease: [0.16, 1, 0.3, 1] }}
               className="absolute bottom-0 left-0 right-0 h-px bg-[var(--border-outer)]"
               data-testid="navbar-divider"
             />

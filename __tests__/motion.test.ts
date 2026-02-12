@@ -65,12 +65,15 @@ describe('prefersReducedMotion', () => {
 
   it('should return false in server-side environment', () => {
     const originalWindow = global.window;
+    const originalMatchMedia = window.matchMedia;
+    
     // @ts-ignore
     delete global.window;
 
     expect(prefersReducedMotion()).toBe(false);
 
     global.window = originalWindow;
+    window.matchMedia = originalMatchMedia;
   });
 });
 
@@ -335,12 +338,26 @@ describe('createTransitionStyle', () => {
 });
 
 describe('Edge Cases', () => {
+  let matchMediaMock: jest.Mock;
+
+  beforeEach(() => {
+    matchMediaMock = jest.fn();
+    Object.defineProperty(window, 'matchMedia', {
+      writable: true,
+      value: matchMediaMock,
+    });
+  });
+
   it('should handle empty properties array', () => {
+    matchMediaMock.mockReturnValue({ matches: false });
+    
     const transition = buildTransition([]);
     expect(transition).toBe('');
   });
 
   it('should handle properties with hyphens', () => {
+    matchMediaMock.mockReturnValue({ matches: false });
+    
     const transition = buildTransition(['background-color', 'border-radius']);
     expect(transition).toContain('background-color');
     expect(transition).toContain('border-radius');

@@ -9,6 +9,7 @@ import { motion } from "framer-motion"
 import { ArrowRight, Shield, Zap, Database, Server, Cpu, Lock, Terminal, Activity, FileCheck, Layers, GitCommit, CheckCircle, Code2, Workflow, Box } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
+import { MOTION_DURATION, MOTION_TRANSFORMS, motionVariants } from "@/lib/motion"
 
 import { BorderBeam } from "@/components/reactbits/BorderBeam"
 import Silk from "@/components/reactbits/Silk"
@@ -124,9 +125,9 @@ export default function Home() {
         
         {/* Left: Content */}
         <motion.div
-          initial={{ opacity: 0, y: 8 }}
+          initial={{ opacity: 0, y: MOTION_TRANSFORMS.slideUp }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: MOTION_DURATION.normal / 1000, ease: [0.16, 1, 0.3, 1] }}
           className="lg:col-span-5 flex flex-col items-start text-left"
         >
           <h1 className="text-4xl lg:text-5xl font-semibold text-white tracking-tight mb-3 leading-[1.15]">
@@ -167,9 +168,9 @@ export default function Home() {
         {/* Right: Product Window */}
         <div className="hidden lg:block lg:col-span-7 relative">
           <motion.div
-            initial={{ opacity: 0, scale: 0.98, y: 12 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+            initial={{ opacity: 0, y: MOTION_TRANSFORMS.slideUp }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: MOTION_DURATION.slow / 1000, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
             className="relative rounded-lg"
           >
             <ProductWindow />

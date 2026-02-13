@@ -1,4 +1,4 @@
-<div align="center">
+﻿<div align="center">
   
   <!-- Use banner for full-width display or logo for centered display -->
   <img src="./public/assets/banner.svg" alt="Block Builder Banner" width="100%"/>
@@ -51,7 +51,7 @@ See Block Builder in action! This video demonstrates:
 
 ---
 
-## � Screenshots
+##  Screenshots
 
 <div align="center">
 
@@ -81,7 +81,7 @@ _Manage deployed contracts and generate frontends_
 
 ---
 
-## �📖 About
+##  About
 
 **Block Builder** is an intelligent no-code/low-code platform that automatically generates fully-functional Next.js dApps from your smart contract ABIs. Deploy a contract, paste the ABI, and get a production-ready frontend with wallet integration, transaction handling, and beautiful UI.
 
@@ -170,6 +170,42 @@ _Manage deployed contracts and generate frontends_
 - Smooth transitions and hover effects
 
 </details>
+
+---
+
+## 🗺️ User Journey: From Idea to DApp
+
+**Block Builder** streamlines the web3 development process into a simple, linear flow. Go from a concept to a live application in minutes.
+
+```mermaid
+graph LR
+    Step1(🏁 Start) --> Step2[🦊 Connect Wallet]
+    Step2 --> Step3[🏗️ Drag & Drop Blocks]
+    Step3 --> Step4[⚙️ Configure Features]
+    Step4 --> Step5[📜 Generate Contract]
+    Step5 --> Step6[🚀 Deploy to Celo]
+    Step6 --> Step7[💻 Download DApp]
+    Step7 --> Step8(🎉 Launch Product)
+    
+    style Step1 fill:#1e293b,stroke:#0f172a,stroke-width:2px,color:#fff
+    style Step2 fill:#fff,stroke:#333,stroke-width:2px
+    style Step3 fill:#fff,stroke:#333,stroke-width:2px
+    style Step4 fill:#fff,stroke:#333,stroke-width:2px
+    style Step5 fill:#fff,stroke:#333,stroke-width:2px
+    style Step6 fill:#fff,stroke:#333,stroke-width:2px
+    style Step7 fill:#fff,stroke:#333,stroke-width:2px
+    style Step8 fill:#1e293b,stroke:#0f172a,stroke-width:2px,color:#fff
+```
+
+### 🛣️ The Roadmap
+
+1.  **Connect & Authenticate**: Link your Celo-compatible wallet (MetaMask, Valora, etc.) to get started.
+2.  **Visual Building**: Use the drag-and-drop interface to assemble your smart contract logic. Select from 17+ pre-built blocks like *ERC20*, *NFT*, *Staking*, and *Governance*.
+3.  **Configuration**: Customize your contract's parameters—name, symbol, supply, and feature-specific settings.
+4.  **Auto-Generation**: watch as **Block Builder** writes the Solidity code for you in real-time.
+5.  **One-Click Deploy**: Deploy your contract directly to the Celo Blockchain (Mainnet or Alfajores Testnet) without touching the terminal.
+6.  **Frontend Creation**: Automatically generate a full Next.js application tailored to your specific contract ABI.
+7.  **Launch**: Download your production-ready source code and launch your DApp to the world!
 
 ---
 
@@ -305,65 +341,44 @@ NEXT_PUBLIC_BLOCK_EXPLORER_URL=https://celoscan.io
 
 ### 🏗️ System Architecture
 
-```
-┌────────────────────────────────────────────────────────────────────────────────┐
-│                              USER INTERFACE LAYER                               │
-├────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                 │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐                │
-│  │   Landing Page  │  │  Builder Page   │  │   Docs Page     │                │
-│  │   (app/page)    │  │(app/builder)    │  │  (app/docs)     │                │
-│  └────────┬────────┘  └────────┬────────┘  └─────────────────┘                │
-│           │                    │                                               │
-│           └──────────┬─────────┘                                              │
-│                      ▼                                                         │
-│  ┌───────────────────────────────────────────────────────────────────────┐    │
-│  │                        COMPONENT LAYER                                 │    │
-│  ├───────────────────────────────────────────────────────────────────────┤    │
-│  │ • Navbar          • BlockSidebar      • Canvas         • CodeViewer   │    │
-│  │ • DeployModal     • PreviewModal      • ProjectManager • FaucetInfo   │    │
-│  │ • ContractPreviewModal                                                 │    │
-│  └───────────────────────────────────────────────────────────────────────┘    │
-│                                                                                 │
-└────────────────────────────────────────────────────────────────────────────────┘
-                                      │
-                                      ▼
-┌────────────────────────────────────────────────────────────────────────────────┐
-│                              BUSINESS LOGIC LAYER                               │
-├────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                 │
-│  ┌─────────────────────────────────────────────────────────────────────────┐  │
-│  │                     STATE MANAGEMENT (Zustand)                           │  │
-│  │  store.ts         │  supabase-store.ts                                   │  │
-│  │  • blocks[]       │  • user                                              │  │
-│  │  • projects[]     │  • syncProjects()                                    │  │
-│  │  • deployedContracts[]  • syncDeployedContracts()                        │  │
-│  │  • walletAddress  │  • saveToCloud()                                     │  │
-│  └─────────────────────────────────────────────────────────────────────────┘  │
-│                                                                                 │
-│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐           │
-│  │  Code Generator  │  │ Frontend Gen     │  │ Solidity Templates│           │
-│  │ code-generator   │  │ frontend-gen     │  │ solidity-templates│           │
-│  │ • buildContract()│  │ • generateFiles()│  │ • ERC20Template   │           │
-│  │ • addFeatures()  │  │ • generateABI()  │  │ • NFTTemplate     │           │
-│  └──────────────────┘  └──────────────────┘  └──────────────────┘           │
-│                                                                                 │
-└────────────────────────────────────────────────────────────────────────────────┘
-                                      │
-                                      ▼
-┌────────────────────────────────────────────────────────────────────────────────┐
-│                              DATA & NETWORK LAYER                               │
-├────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                 │
-│  ┌─────────────────────┐  ┌─────────────────────┐  ┌─────────────────────┐   │
-│  │      Supabase       │  │     Celo Network    │  │   External APIs     │   │
-│  │  (PostgreSQL DB)    │  │                     │  │                     │   │
-│  │  • users            │  │ • Mainnet (42220)   │  │ • Celoscan API      │   │
-│  │  • projects         │  │ • Alfajores (44787) │  │ • Alchemy RPC       │   │
-│  │  • deployed_contracts│  │ • Sepolia Testnet   │  │ • Solc Compiler     │   │
-│  └─────────────────────┘  └─────────────────────┘  └─────────────────────┘   │
-│                                                                                 │
-└────────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    subgraph Client [User Interface Layer]
+        UI[Web Dashboard]
+        Code[Code Generator]
+        Wallet[Wallet Interface]
+    end
+
+    subgraph Server [Backend Services]
+        API[Next.js API Routes]
+        Compiler[Solc Compiler]
+    end
+
+    subgraph Data [Data Layer]
+        Supabase[(Supabase DB)]
+        Local[Local Storage]
+    end
+
+    subgraph Blockchain [Celo Network]
+        RPC[RPC Nodes]
+        Contracts[Smart Contracts]
+    end
+
+    User((User)) -->|Interacts| UI
+    UI -->|Updates State| Local
+    UI -->|Syncs Data| Supabase
+    
+    UI -->|Request Compile| API
+    API -->|Compiles| Compiler
+    
+    Wallet -->|Signs Tx| Contracts
+    UI -->|Reads Data| RPC
+    RPC --> Contracts
+    
+    style Client fill:#fff,stroke:#333,stroke-width:2px
+    style Server fill:#fff,stroke:#333,stroke-width:2px
+    style Data fill:#fff,stroke:#333,stroke-width:2px
+    style Blockchain fill:#fff,stroke:#333,stroke-width:2px
 ```
 
 ---

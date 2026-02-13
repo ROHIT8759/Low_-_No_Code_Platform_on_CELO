@@ -217,7 +217,11 @@ npm run dev
 
 ## 🏗️ Architecture
 
-### System Overview
+For a detailed deep-dive into the technical architecture, security layers, data flow diagrams, and internal components, please refer to the dedicated documentation:
+
+👉 **[Read Full Architecture Documentation](./ARCHITECTURE.md)**
+
+### System Overview (High-Level)
 
 ```mermaid
 %%{init: {'theme':'base', 'themeVariables': {'primaryColor':'#fff','primaryTextColor':'#000','primaryBorderColor':'#000','lineColor':'#000','secondaryColor':'#fff','tertiaryColor':'#fff'}}}%%
@@ -243,98 +247,14 @@ graph TD
         SC[Smart Contracts]
     end
 
-    User([User]) -->|Interact| UI
-    UI -->|State| Cache
-    UI -->|Persist| DB
-    UI -->|Compile| API
-    API -->|Solc| Compiler
-    Wallet -->|Sign Tx| SC
-    UI -->|Read| RPC
-    RPC --> SC
+    Client -->|Interact| Server
+    Server -->|Persist| Data
+    Client -->|Transact| Blockchain
     
     style Client fill:#fff,stroke:#000,stroke-width:2px
     style Server fill:#fff,stroke:#000,stroke-width:2px
     style Data fill:#fff,stroke:#000,stroke-width:2px
     style Blockchain fill:#fff,stroke:#000,stroke-width:2px
-    style User fill:#000,stroke:#000,stroke-width:2px,color:#fff
-```
-
----
-
-### 🔐 Security Architecture
-
-```mermaid
-%%{init: {'theme':'base', 'themeVariables': {'primaryColor':'#fff','primaryTextColor':'#000','primaryBorderColor':'#000','lineColor':'#000','secondaryColor':'#fff','tertiaryColor':'#fff'}}}%%
-graph TB
-    User([User Request])
-    
-    subgraph L1["Layer 1: Client Security"]
-        Auth[MetaMask Signature]
-        Verify[Transaction Confirmation]
-        Network[Network Validation]
-    end
-    
-    subgraph L2["Layer 2: Database Security"]
-        RLS[Row Level Security]
-        Identity[Wallet Identity]
-        Scope[User-Scoped Access]
-    end
-    
-    subgraph L3["Layer 3: Contract Security"]
-        Owner[onlyOwner Modifier]
-        Pause[Pausable Functions]
-        Access[Access Control]
-        Time[Timelocks]
-    end
-    
-    User --> L1
-    L1 --> L2
-    L2 --> L3
-    
-    style User fill:#000,stroke:#000,stroke-width:2px,color:#fff
-    style L1 fill:#fff,stroke:#000,stroke-width:2px
-    style L2 fill:#fff,stroke:#000,stroke-width:2px
-    style L3 fill:#fff,stroke:#000,stroke-width:2px
-    style Auth fill:#fff,stroke:#000,stroke-width:1px
-    style Verify fill:#fff,stroke:#000,stroke-width:1px
-    style Network fill:#fff,stroke:#000,stroke-width:1px
-    style RLS fill:#fff,stroke:#000,stroke-width:1px
-    style Identity fill:#fff,stroke:#000,stroke-width:1px
-    style Scope fill:#fff,stroke:#000,stroke-width:1px
-    style Owner fill:#fff,stroke:#000,stroke-width:1px
-    style Pause fill:#fff,stroke:#000,stroke-width:1px
-    style Access fill:#fff,stroke:#000,stroke-width:1px
-    style Time fill:#fff,stroke:#000,stroke-width:1px
-```
-
----
-
-### 🚀 Deployment Pipeline
-
-```mermaid
-%%{init: {'theme':'base', 'themeVariables': {'primaryColor':'#fff','primaryTextColor':'#000','primaryBorderColor':'#000','lineColor':'#000','secondaryColor':'#fff','tertiaryColor':'#fff'}}}%%
-graph LR
-    A([Build Contract]) --> B[Generate Solidity]
-    B --> C[Compile Code]
-    C --> D{Valid?}
-    D -->|Yes| E[Estimate Gas]
-    D -->|No| B
-    E --> F[Deploy to Celo]
-    F --> G[Verify on Explorer]
-    G --> H[Generate Frontend]
-    H --> I[Save Metadata]
-    I --> J([Complete])
-    
-    style A fill:#000,stroke:#000,stroke-width:2px,color:#fff
-    style B fill:#fff,stroke:#000,stroke-width:2px
-    style C fill:#fff,stroke:#000,stroke-width:2px
-    style D fill:#fff,stroke:#000,stroke-width:2px
-    style E fill:#fff,stroke:#000,stroke-width:2px
-    style F fill:#fff,stroke:#000,stroke-width:2px
-    style G fill:#fff,stroke:#000,stroke-width:2px
-    style H fill:#fff,stroke:#000,stroke-width:2px
-    style I fill:#fff,stroke:#000,stroke-width:2px
-    style J fill:#000,stroke:#000,stroke-width:2px,color:#fff
 ```
 
 ---
@@ -407,35 +327,6 @@ All 17 smart contract block types:
 - Simple mint button
 - NFT balance counter
 - Metadata viewer
-
----
-
-## 📊 Data Flow
-
-### Contract Building
-
-```mermaid
-%%{init: {'theme':'base', 'themeVariables': {'primaryColor':'#fff','primaryTextColor':'#000','primaryBorderColor':'#000','lineColor':'#000','secondaryColor':'#fff','tertiaryColor':'#fff'}}}%%
-sequenceDiagram
-    participant User
-    participant UI as Dashboard
-    participant Store as State
-    participant Gen as Generator
-    participant Celo as Blockchain
-
-    User->>UI: Drag Block
-    UI->>Store: addBlock()
-    Store->>Gen: Regenerate Code
-    Gen-->>UI: Update Preview
-    
-    User->>UI: Click Deploy
-    UI->>Gen: Compile Contract
-    Gen->>Celo: Deploy Transaction
-    Celo-->>Store: Save Metadata
-    Store-->>UI: Update UI
-    
-    style User fill:#000,stroke:#000,color:#fff
-```
 
 ---
 

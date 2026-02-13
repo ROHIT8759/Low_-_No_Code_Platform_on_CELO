@@ -19,21 +19,21 @@ const securityMetrics: SecurityMetric[] = [
 
 export function SecurityLayers() {
   return (
-    <div className="relative h-[500px] w-full flex items-center justify-center">
+    <div suppressHydrationWarning className="relative h-[500px] w-full flex items-center justify-center">
       <div className="relative w-full max-w-md">
         {/* Background Layer 3 - Furthest back */}
         <div 
-          className="absolute top-24 left-8 right-8 h-40 bg-[#0F141B] border border-white/[0.04] rounded-xl transform scale-95 opacity-30 z-0"
+          className="absolute top-24 left-8 right-8 h-40 bg-[var(--surface-1)] border border-white/[0.04] rounded-xl transform scale-95 opacity-30 z-0"
           aria-hidden="true"
         />
 
         {/* Background Layer 2 - Middle */}
         <div 
-          className="absolute top-12 left-4 right-4 h-40 bg-[#0F141B] border border-white/[0.06] rounded-xl transform scale-[0.97] opacity-50 z-10 flex items-center justify-between px-6"
+          className="absolute top-12 left-4 right-4 h-40 bg-[var(--surface-1)] border border-white/[0.06] rounded-xl transform scale-[0.97] opacity-50 z-10 flex items-center justify-between px-6"
           aria-hidden="true"
         >
           <span className="text-xs font-mono text-zinc-600">LAYER_02</span>
-          <div className="h-1 w-12 bg-blue-500/20 rounded-full" />
+          <div className="h-1 w-12 bg-primary/20 rounded-full" />
         </div>
 
         {/* Primary Security Report Card - Front */}
@@ -41,7 +41,7 @@ export function SecurityLayers() {
           initial={{ y: MOTION_TRANSFORMS.slideUp, opacity: 0 }}
           whileInView={{ y: 0, opacity: 1 }}
           transition={{ duration: MOTION_DURATION.normal / 1000, ease: [0.16, 1, 0.3, 1] }}
-          className="relative h-auto bg-[#11151A] border border-white/[0.06] rounded-xl p-8 z-20"
+          className="relative h-auto bg-[var(--surface-1)] border border-white/[0.08] rounded-xl p-8 z-20"
         >
           {/* Top accent strip */}
           <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent" />

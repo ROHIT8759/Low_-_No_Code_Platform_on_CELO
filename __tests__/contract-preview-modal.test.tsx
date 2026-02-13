@@ -45,7 +45,7 @@ describe('ContractPreviewModal', () => {
             />
         )
 
-        expect(screen.getByText('TestToken Preview')).toBeInTheDocument()
+        expect(screen.getByText('Feature Unavailable')).toBeInTheDocument()
     })
 
     test('does not render when closed', () => {
@@ -61,7 +61,7 @@ describe('ContractPreviewModal', () => {
         expect(container).toBeEmptyDOMElement()
     })
 
-    test('displays contract information', () => {
+    test('displays the deprecation message', () => {
         render(
             <ContractPreviewModal
                 isOpen={true}
@@ -71,11 +71,10 @@ describe('ContractPreviewModal', () => {
             />
         )
 
-        expect(screen.getByText('Celo Sepolia Testnet')).toBeInTheDocument()
-        expect(screen.getByText('ERC20')).toBeInTheDocument()
+        expect(screen.getByText('EVM Preview Deprecated')).toBeInTheDocument()
     })
 
-    test('has preview and code view modes', () => {
+    test('shows a close action', () => {
         render(
             <ContractPreviewModal
                 isOpen={true}
@@ -85,22 +84,6 @@ describe('ContractPreviewModal', () => {
             />
         )
 
-        expect(screen.getByText('Preview')).toBeInTheDocument()
-        expect(screen.getByText('Code')).toBeInTheDocument()
-    })
-
-    test('displays features from blocks', () => {
-        render(
-            <ContractPreviewModal
-                isOpen={true}
-                onClose={jest.fn()}
-                contract={mockContract}
-                walletAddress="0xABC"
-            />
-        )
-
-        
-        const iframe = screen.getByTitle('Contract dApp Preview')
-        expect(iframe).toBeInTheDocument()
+        expect(screen.getByRole('button', { name: /close/i })).toBeInTheDocument()
     })
 })

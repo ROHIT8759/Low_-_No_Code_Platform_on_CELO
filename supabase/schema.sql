@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS deployed_contracts (
     contract_name TEXT NOT NULL,
     token_name TEXT,
     token_symbol TEXT,
-    network TEXT NOT NULL CHECK (network IN ('sepolia', 'mainnet')),
+    network TEXT NOT NULL CHECK (network IN ('testnet', 'mainnet', 'futurenet')),
     network_name TEXT NOT NULL,
     chain_id INTEGER NOT NULL,
     deployer TEXT NOT NULL,

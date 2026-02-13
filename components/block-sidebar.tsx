@@ -13,7 +13,7 @@ const CATEGORY_STYLES: Record<string, { accent: string; text: string; icon: Reac
   "Base Standards": { accent: "bg-blue-500", text: "text-blue-400", icon: <Database className="w-3 h-3" /> },
   "Token Logic": { accent: "bg-teal-500", text: "text-teal-400", icon: <Coins className="w-3 h-3" /> },
   "Security Modules": { accent: "bg-orange-500", text: "text-orange-400", icon: <Shield className="w-3 h-3" /> },
-  "Governance & Advanced": { accent: "bg-purple-500", text: "text-purple-400", icon: <Vote className="w-3 h-3" /> },
+  "Governance & Advanced": { accent: "bg-amber-400", text: "text-amber-400", icon: <Vote className="w-3 h-3" /> },
 }
 
 const BLOCKS_BY_CATEGORY = {
@@ -138,7 +138,7 @@ export function BlockSidebar() {
   return (
     <div className="w-full h-full flex flex-col">
       {/* Header */}
-      <div className="p-4 border-b border-white/[0.06] bg-[#0B0F14]">
+      <div className="p-4 border-b border-white/[0.06] bg-[var(--surface-0)]">
         <div className="flex items-center gap-2 mb-1">
           <Box className="w-3.5 h-3.5 text-primary" />
           <h2 className="text-sm font-semibold text-zinc-200 tracking-tight">Contract Modules</h2>
@@ -152,7 +152,7 @@ export function BlockSidebar() {
       <div className="px-3 pt-3">
         <button
           onClick={() => setShowTemplates(!showTemplates)}
-          className="w-full flex items-center justify-between p-2 text-xs font-medium text-zinc-400 hover:text-zinc-200 bg-[#11151A] hover:bg-[#1A1F26] border border-white/[0.06] rounded transition-all"
+          className="w-full flex items-center justify-between p-2 text-xs font-medium text-zinc-400 hover:text-zinc-200 bg-[var(--surface-1)] hover:bg-[var(--surface-2)] border border-white/[0.06] rounded transition-all"
         >
           <div className="flex items-center gap-2">
             <LayoutTemplate className="w-3.5 h-3.5 text-primary" />
@@ -167,7 +167,7 @@ export function BlockSidebar() {
               <button
                 key={template.id}
                 onClick={() => applyTemplate(template)}
-                className="w-full p-2.5 bg-[#11151A] border border-white/[0.06] rounded hover:border-primary/30 hover:bg-[#161B22] transition-all text-left group"
+                className="w-full p-2.5 bg-[var(--surface-1)] border border-white/[0.06] rounded hover:border-primary/30 hover:bg-[var(--surface-2)] transition-all text-left group"
               >
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-[11px] font-medium text-zinc-300 group-hover:text-white">{template.name}</span>
@@ -182,7 +182,7 @@ export function BlockSidebar() {
 
       {/* Guided base selection notice */}
       {!hasBaseStandard && !showTemplates && (
-        <div className="mx-3 mt-3 p-3 rounded bg-[#1A1F26] border border-primary/20">
+        <div className="mx-3 mt-3 p-3 rounded bg-[var(--surface-2)] border border-primary/20">
           <div className="flex items-start gap-2">
             <ArrowRight className="w-3.5 h-3.5 text-primary mt-0.5 flex-shrink-0" />
             <div>
@@ -209,7 +209,7 @@ export function BlockSidebar() {
                   w-full flex items-center justify-between p-2 text-xs font-medium transition-all rounded mb-1 group
                   ${shouldHighlight
                     ? 'text-zinc-200 bg-primary/10 hover:bg-primary/15 border border-primary/30'
-                    : 'text-zinc-400 hover:text-zinc-200 bg-[#0B0F14]/50 hover:bg-[#1A1F26]'
+                    : 'text-zinc-400 hover:text-zinc-200 bg-[var(--surface-0)]/50 hover:bg-[var(--surface-2)]'
                   }
                 `}
               >
@@ -242,8 +242,8 @@ export function BlockSidebar() {
                         className={`
                           group relative w-full p-3 rounded border transition-all cursor-grab active:cursor-grabbing
                           ${isAdded
-                            ? 'bg-[#1A1F26] border-white/[0.08]'
-                            : 'bg-[#11151A] border-white/[0.06] hover:bg-[#161B22] hover:border-white/[0.08]'
+                            ? 'bg-[var(--surface-2)] border-white/[0.08]'
+                            : 'bg-[var(--surface-1)] border-white/[0.06] hover:bg-[var(--surface-2)] hover:border-white/[0.08]'
                           }
                         `}
                       >
@@ -263,7 +263,7 @@ export function BlockSidebar() {
                               w-5 h-5 rounded flex items-center justify-center border
                               ${isAdded
                                 ? `bg-${style?.accent?.replace('bg-', '')}/10 border-${style?.accent?.replace('bg-', '')}/30`
-                                : 'bg-[#1A1F26] border-white/[0.04]'
+                                : 'bg-[var(--surface-2)] border-white/[0.04]'
                               }
                             `}>
                               <span className={`${isAdded ? style?.text : 'text-zinc-500 group-hover:text-zinc-300'} transition-colors`}>

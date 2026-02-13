@@ -360,6 +360,12 @@ export async function saveDeployedContract(userId: string, contract: any) {
     return null
   }
 
+  const normalizedNetwork = contract.network === "mainnet"
+    ? "mainnet"
+    : contract.network === "futurenet"
+      ? "futurenet"
+      : "testnet"
+
   const { data, error } = await supabase
     .from('deployed_contracts')
     .insert({
@@ -369,7 +375,7 @@ export async function saveDeployedContract(userId: string, contract: any) {
       contract_name: contract.contractName,
       token_name: contract.tokenName,
       token_symbol: contract.tokenSymbol,
-      network: contract.network,
+      network: normalizedNetwork,
       network_name: contract.networkName,
       chain_id: contract.chainId,
       deployer: contract.deployer,
@@ -387,7 +393,9 @@ export async function saveDeployedContract(userId: string, contract: any) {
     .single()
 
   if (error) {
-    console.error('Error saving deployed contract:', error)
+    const errorDetails = error?.message || error?.details || JSON.stringify(error)
+    console.error('Error saving deployed contract:', errorDetails)
+    // Return null on error, will be handled in UI
     return null
   }
 

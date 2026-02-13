@@ -23,11 +23,11 @@ describe('WorkstationHeader Component', () => {
     const { rerender } = render(<WorkstationHeader currentStage="compile" />);
     
     const compileStage = screen.getByText('Compile').closest('div');
-    expect(compileStage).toHaveClass('bg-blue-500/10');
+    expect(compileStage).toHaveClass('bg-primary/10');
     
     rerender(<WorkstationHeader currentStage="deploy" />);
     const deployStage = screen.getByText('Deploy').closest('div');
-    expect(deployStage).toHaveClass('bg-blue-500/10');
+    expect(deployStage).toHaveClass('bg-primary/10');
   });
 
   it('displays contract overview information', () => {
@@ -94,8 +94,8 @@ describe('WorkstationHeader Component', () => {
     const { container } = render(<WorkstationHeader />);
     
     const header = container.firstChild;
-    expect(header).toHaveClass('border-white/[0.06]');
-    expect(header).toHaveClass('bg-[#0B0F14]');
+    expect(header).toHaveClass('border-white/[0.08]');
+    expect(header).toHaveClass('bg-[var(--surface-0)]');
   });
 
   it('uses monospace fonts for technical labels', () => {

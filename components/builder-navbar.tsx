@@ -94,9 +94,9 @@ export function BuilderNavbar() {
 
     return (
         <>
-            <nav className="border-b border-zinc-800 bg-[#0B0F14] px-4 py-3 flex items-center justify-between">
+            <nav className="border-b border-white/[0.06] bg-[var(--surface-0)] px-4 py-3 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2 group cursor-pointer bg-[#1A1F26] hover:bg-[#222730] border border-[#222730] rounded-lg px-2 py-1 transition-colors">
+                    <div className="flex items-center gap-2 group cursor-pointer bg-[var(--surface-2)] hover:bg-[var(--surface-3)] border border-white/[0.08] rounded-lg px-2 py-1 transition-colors">
                         <span className="text-primary font-bold">B</span>
                         <span className="text-sm font-semibold text-zinc-200">Block Builder</span>
                     </div>
@@ -109,7 +109,7 @@ export function BuilderNavbar() {
                     {}
                     {walletAddress ? (
                         <div className="flex items-center gap-2">
-                            <div className="group relative px-3 py-1.5 bg-zinc-800/50 border border-zinc-700/50 rounded-lg text-zinc-300 text-xs font-medium flex items-center gap-2 hover:bg-zinc-800 hover:border-zinc-600 cursor-default transition-all">
+                            <div className="group relative px-3 py-1.5 bg-[var(--surface-2)]/70 border border-white/[0.08] rounded-lg text-zinc-300 text-xs font-medium flex items-center gap-2 hover:bg-[var(--surface-3)] cursor-default transition-all">
                                 <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
                                 {formatAddress(walletAddress)}
                             </div>
@@ -125,20 +125,20 @@ export function BuilderNavbar() {
                         <button
                             onClick={connectWallet}
                             disabled={connectingWallet}
-                            className="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg text-xs font-medium transition-all border border-zinc-700 flex items-center gap-2"
+                            className="px-3 py-1.5 bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-zinc-300 rounded-lg text-xs font-medium transition-all border border-white/[0.08] flex items-center gap-2"
                         >
                             <Wallet size={14} />
                             {connectingWallet ? "Connecting..." : "Connect Wallet"}
                         </button>
                     )}
 
-                    <div className="h-4 w-px bg-zinc-800 mx-1"></div>
+                        <div className="h-4 w-px bg-white/[0.08] mx-1"></div>
 
                     {}
                     <div className="flex items-center gap-1">
                         <button
                             onClick={() => setProjectManagerOpen(true)}
-                            className="p-2 text-zinc-400 hover:text-white hover:bg-[#1A1F26] rounded-lg transition-all"
+                            className="p-2 text-zinc-400 hover:text-white hover:bg-[var(--surface-2)] rounded-lg transition-all"
                             title="Projects"
                         >
                             <FolderOpen size={16} />
@@ -146,7 +146,7 @@ export function BuilderNavbar() {
                         <button
                             onClick={() => setPreviewOpen(true)}
                             disabled={blocks.length === 0}
-                            className="p-2 text-zinc-400 hover:text-white hover:bg-[#1A1F26] rounded-lg transition-all disabled:opacity-30"
+                            className="p-2 text-zinc-400 hover:text-white hover:bg-[var(--surface-2)] rounded-lg transition-all disabled:opacity-30"
                             title="Preview"
                         >
                             <Eye size={16} />
@@ -154,7 +154,7 @@ export function BuilderNavbar() {
                         <button
                             onClick={handleExportProject}
                             disabled={blocks.length === 0}
-                            className="p-2 text-zinc-400 hover:text-white hover:bg-[#1A1F26] rounded-lg transition-all disabled:opacity-30"
+                            className="p-2 text-zinc-400 hover:text-white hover:bg-[var(--surface-2)] rounded-lg transition-all disabled:opacity-30"
                             title="Export"
                         >
                             <Download size={16} />
@@ -187,7 +187,7 @@ export function BuilderNavbar() {
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
-                        className="fixed inset-x-0 top-16 mx-4 p-4 z-40 bg-zinc-900/95 backdrop-blur-xl border border-zinc-800 rounded-lg shadow-2xl lg:hidden flex flex-col gap-4"
+                        className="fixed inset-x-0 top-16 mx-4 p-4 z-40 bg-[var(--surface-1)]/95 backdrop-blur-xl border border-white/[0.08] rounded-lg shadow-2xl lg:hidden flex flex-col gap-4"
                     >
                         <NetworkSwitcher />
                         <button

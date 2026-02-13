@@ -152,7 +152,7 @@ export const useSupabaseStore = create<SupabaseStore>()(
             blocks: project.blocks,
             contractType: project.blocks.find((b) => b.type === "erc20" || b.type === "nft")?.type || "erc20",
             config: {},
-            solidityCode: project.generatedCode?.solidity,
+            solidityCode: null, // EVM no longer supported - Stellar-only platform
             frontendCode: project.generatedCode?.frontend,
           })
 

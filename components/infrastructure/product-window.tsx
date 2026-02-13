@@ -8,24 +8,24 @@ export function ProductWindow() {
     return (
         <div className="w-full h-full relative group">
             {}
-            <div className="relative w-full aspect-16/10 bg-[#0B0F14] rounded-lg border border-[#222730] shadow-2xl overflow-hidden flex flex-col">
+            <div className="relative w-full aspect-16/10 bg-[var(--surface-0)] rounded-lg border border-white/[0.1] shadow-2xl overflow-hidden flex flex-col">
 
                 {}
-                <div className="h-9 bg-[#11151A] border-b border-[#222730] flex items-center px-3 justify-between shrink-0">
+                <div className="h-9 bg-[var(--surface-1)] border-b border-white/[0.08] flex items-center px-3 justify-between shrink-0">
                     <div className="flex items-center gap-2">
                         <div className="flex gap-1.5">
-                            <div className="w-2.5 h-2.5 rounded-full bg-[#222730]" />
-                            <div className="w-2.5 h-2.5 rounded-full bg-[#222730]" />
-                            <div className="w-2.5 h-2.5 rounded-full bg-[#222730]" />
+                            <div className="w-2.5 h-2.5 rounded-full bg-[var(--surface-3)]" />
+                            <div className="w-2.5 h-2.5 rounded-full bg-[var(--surface-3)]" />
+                            <div className="w-2.5 h-2.5 rounded-full bg-[var(--surface-3)]" />
                         </div>
-                        <div className="h-4 w-px bg-[#222730] mx-2" />
+                        <div className="h-4 w-px bg-white/[0.08] mx-2" />
                         <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
                             <Activity className="w-3 h-3" />
                             Soroban_Context_v4.rs
                         </span>
                     </div>
                     <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#0B0F14] border border-[#222730]">
+                        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-[var(--surface-0)] border border-white/[0.08]">
                             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                             <span className="text-[9px] font-mono text-zinc-400">Mainnet Connected</span>
                         </div>
@@ -39,28 +39,28 @@ export function ProductWindow() {
                 <div className="flex-1 flex overflow-hidden">
 
                     {}
-                    <div className="w-12 border-r border-[#222730] bg-[#11151A]/50 flex flex-col items-center py-3 gap-3">
+                    <div className="w-12 border-r border-white/[0.08] bg-[var(--surface-1)]/70 flex flex-col items-center py-3 gap-3">
                         <Box className="w-4 h-4 text-zinc-500 hover:text-white transition-colors cursor-pointer" />
                         <Shield className="w-4 h-4 text-zinc-500 hover:text-white transition-colors cursor-pointer" />
                         <Terminal className="w-4 h-4 text-white cursor-pointer" />
                     </div>
 
                     {}
-                    <div className="flex-1 bg-[#0B0F14] p-4 font-mono text-[11px] leading-relaxed text-zinc-400 overflow-hidden relative">
-                        <div className="absolute top-0 bottom-0 left-0 w-8 border-r border-[#222730]/50 bg-[#0B0F14] flex flex-col items-end pr-2 pt-4 text-zinc-700 select-none">
+                    <div className="flex-1 bg-[var(--surface-0)] p-4 font-mono text-[11px] leading-relaxed text-zinc-400 overflow-hidden relative">
+                        <div className="absolute top-0 bottom-0 left-0 w-8 border-r border-white/[0.06] bg-[var(--surface-0)] flex flex-col items-end pr-2 pt-4 text-zinc-700 select-none">
                             <div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div>
                         </div>
                         <div className="pl-10 h-full">
-                            <span className="text-purple-400">pub trait</span> <span className="text-yellow-100">SorobanToken</span> {"{"}
+                            <span className="text-amber-300">pub trait</span> <span className="text-amber-200">SorobanToken</span> {"{"}
                             <br />
                             &nbsp;&nbsp;<span className="text-zinc-500">// Token initialization</span>
                             <br />
-                            &nbsp;&nbsp;<span className="text-purple-400">fn</span> <span className="text-blue-400">initialize</span>(e: Env, admin: Address, decimal: u32);
+                            &nbsp;&nbsp;<span className="text-amber-300">fn</span> <span className="text-sky-300">initialize</span>(e: Env, admin: Address, decimal: u32);
                             <br />
                             <br />
                             &nbsp;&nbsp;<span className="text-zinc-500">// Minting function</span>
                             <br />
-                            &nbsp;&nbsp;<span className="text-purple-400">fn</span> <span className="text-blue-400">mint</span>(e: Env, to: Address, amount: i128) {"{"}
+                            &nbsp;&nbsp;<span className="text-amber-300">fn</span> <span className="text-sky-300">mint</span>(e: Env, to: Address, amount: i128) {"{"}
                             <br />
                             &nbsp;&nbsp;&nbsp;&nbsp;admin.require_auth();
                             <br />
@@ -73,7 +73,7 @@ export function ProductWindow() {
                             <br />
                             &nbsp;&nbsp;<span className="text-zinc-500">// State verification</span>
                             <br />
-                            &nbsp;&nbsp;<span className="text-purple-400">fn</span> <span className="text-blue-400">verify_state</span>(e: Env) -&gt; State;
+                            &nbsp;&nbsp;<span className="text-amber-300">fn</span> <span className="text-sky-300">verify_state</span>(e: Env) -&gt; State;
                             <br />
                             {"}"}
                         </div>
@@ -82,8 +82,8 @@ export function ProductWindow() {
                 </div>
 
                 {}
-                <div className="h-20 border-t border-[#222730] bg-[#11151A]/50 p-3 font-mono text-[10px] overflow-hidden">
-                    <div className="flex items-center gap-2 text-zinc-500 mb-1 border-b border-[#222730]/50 pb-1">
+                <div className="h-20 border-t border-white/[0.08] bg-[var(--surface-1)]/70 p-3 font-mono text-[10px] overflow-hidden">
+                    <div className="flex items-center gap-2 text-zinc-500 mb-1 border-b border-white/[0.06] pb-1">
                         <Terminal className="w-3 h-3" />
                         <span>Output</span>
                     </div>
@@ -108,8 +108,8 @@ export function ProductWindow() {
 
             {}
             <div className="absolute -z-10 top-[-20%] right-[-10%] w-[120%] h-[140%] opacity-20 pointer-events-none">
-                <div className="absolute top-10 right-10 w-px h-[400px] bg-linear-to-b from-transparent via-[#3B82F6] to-transparent" />
-                <div className="absolute top-[200px] right-0 w-[400px] h-px bg-linear-to-r from-transparent via-[#3B82F6] to-transparent" />
+                <div className="absolute top-10 right-10 w-px h-[400px] bg-linear-to-b from-transparent via-[#4C8DFF] to-transparent" />
+                <div className="absolute top-[200px] right-0 w-[400px] h-px bg-linear-to-r from-transparent via-[#4C8DFF] to-transparent" />
             </div>
 
         </div>

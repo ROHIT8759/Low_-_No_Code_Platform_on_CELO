@@ -291,10 +291,38 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
         .build()
 
       addLog("wallet", "info", "Awaiting Freighter signature...")
-      const signedXdr = await signSorobanTransaction(
-        transaction.toXDR(),
+      
+      // Log the transaction XDR we're sending to be signed
+      const originalXdr = transaction.toXDR()
+      addLog("wallet", "info", `Original XDR length: ${originalXdr.length} chars`)
+      
+      const signedResult = await signSorobanTransaction(
+        originalXdr,
         networkConfig.networkPassphrase
       )
+      
+      // Debug: log what we got back (truncated for safety)
+      addLog("wallet", "info", `Signed result type: ${typeof signedResult}`)
+      addLog("wallet", "info", `Signed result length: ${signedResult.length} chars`)
+      addLog("wallet", "info", `First 50 chars: ${signedResult.slice(0, 50)}...`)
+      
+      // Validate signed XDR
+      if (!signedResult || typeof signedResult !== 'string' || signedResult.trim() === '') {
+        addLog("wallet", "error", "Failed to obtain signed transaction from wallet")
+        setStepStatus("wallet", "error")
+        throw new Error("Wallet returned invalid signed transaction. Please try signing again.")
+      }
+      
+      // Additional validation: check if it looks like valid XDR (base64)
+      const base64Regex = /^[A-Za-z0-9+/]*={0,2}$/
+      if (!base64Regex.test(signedResult)) {
+        addLog("wallet", "error", "Signed transaction contains invalid characters (not valid base64/XDR)")
+        setStepStatus("wallet", "error")
+        throw new Error("Wallet returned malformed transaction data. Please try signing again.")
+      }
+      
+      const signedXdr = signedResult
+      
       addLog("wallet", "success", "Transaction signed by wallet")
       setStepStatus("wallet", "success", {
         "Signer": `${walletAddress.slice(0, 8)}...${walletAddress.slice(-4)}`,
@@ -306,10 +334,17 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
       addLog("network", "info", "Broadcasting signed transaction...")
       await sleep(300)
 
-      const signedTransaction = StellarSdk.TransactionBuilder.fromXDR(
-        signedXdr,
-        networkConfig.networkPassphrase
-      ) as StellarSdk.Transaction
+      let signedTransaction: StellarSdk.Transaction
+      try {
+        signedTransaction = StellarSdk.TransactionBuilder.fromXDR(
+          signedXdr,
+          networkConfig.networkPassphrase
+        ) as StellarSdk.Transaction
+      } catch (xdrError: any) {
+        addLog("network", "error", `Failed to parse signed transaction: ${xdrError.message}`)
+        setStepStatus("network", "error")
+        throw new Error(`Invalid transaction XDR from wallet: ${xdrError.message}. Please try signing again.`)
+      }
 
       const response = await server.submitTransaction(signedTransaction)
       addLog("network", "success", `Transaction submitted: ${response.hash.slice(0, 16)}...`)
@@ -348,6 +383,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
       // Save deployed contract
       const deployedContractInfo = {
         id: Date.now().toString(),
+        projectId: currentProject?.id || "unknown",
         contractAddress: response.hash,
         contractName,
         tokenName,
@@ -355,21 +391,33 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
         network,
         networkType: "stellar" as const,
         networkName: networkConfig.name,
+        chainId: 0, // Stellar testnet
         deployer: walletAddress,
         deployedAt: new Date().toISOString(),
         transactionHash: response.hash,
         contractType: baseBlock.type as "erc20" | "nft" | "soroban",
+        abi: {}, // Placeholder ABI
+        solidityCode: generateSolidityCode(blocks), // Use existing generator
         blocks: [...blocks],
         explorerUrl,
+        frontendUrl: "", // To be generated
+        githubRepo: "", // To be generated
       }
 
       addDeployedContract(deployedContractInfo)
 
       if (currentUser?.id) {
         try {
-          await saveDeployedContract(currentUser.id, deployedContractInfo)
+          const saved = await saveDeployedContract(currentUser.id, deployedContractInfo)
+          if (saved) {
+            addLog("success", "info", "Contract saved to database")
+          } else {
+            addLog("success", "warning", "Contract deployed but database save failed")
+          }
           await syncDeployedContracts()
-        } catch (e) {
+        } catch (e: any) {
+          // Don't fail the deployment if database save fails
+          addLog("success", "warning", `Database sync error: ${e?.message || 'Unknown'}`)
           console.error("Failed to save to Supabase:", e)
         }
       }
@@ -422,7 +470,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
       case "success": return <CheckCircle className="w-4 h-4 text-emerald-500" />
       case "warning": return <AlertTriangle className="w-4 h-4 text-amber-500" />
       case "error": return <AlertCircle className="w-4 h-4 text-red-500" />
-      case "running": return <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+      case "running": return <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
       default: return <div className="w-4 h-4 rounded-full border-2 border-zinc-700" />
     }
   }
@@ -446,22 +494,22 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
         transition={{ duration: 0.2 }}
-        className="bg-[#0B0F14] rounded-lg border border-white/[0.08] w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl"
+        className="bg-[var(--surface-0)] rounded-lg border border-white/[0.08] w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-3 border-b border-white/[0.06] bg-[#090C10]">
+        <div className="flex items-center justify-between px-5 py-3 border-b border-white/[0.08] bg-[var(--surface-1)]">
           <div className="flex items-center gap-3">
             <Terminal className="w-4 h-4 text-primary" />
             <h2 className="text-sm font-semibold text-zinc-200">Deployment Console</h2>
             {phase === "pipeline" && (
-              <span className="text-[10px] font-mono text-zinc-500 bg-[#1A1F26] px-2 py-0.5 rounded">
+              <span className="text-[10px] font-mono text-zinc-500 bg-[var(--surface-2)] px-2 py-0.5 rounded">
                 {completedSteps}/{totalSteps} steps
               </span>
             )}
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 hover:bg-[#1A1F26] rounded transition-colors text-zinc-500 hover:text-zinc-300"
+            className="p-1.5 hover:bg-[var(--surface-2)] rounded transition-colors text-zinc-500 hover:text-zinc-300"
           >
             <X size={16} />
           </button>
@@ -471,7 +519,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
         {phase === "configure" && (
           <div className="flex-1 overflow-auto p-5 space-y-5">
             {/* Wallet Connection */}
-            <div className="p-4 bg-[#11151A] border border-white/[0.06] rounded-md">
+            <div className="p-4 bg-[var(--surface-1)] border border-white/[0.08] rounded-md">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <Wallet className="w-4 h-4 text-primary" />
@@ -511,7 +559,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
               ) : (
                 <button
                   onClick={handleConnectWallet}
-                  className="w-full py-2.5 bg-[#1A1F26] hover:bg-[#222730] border border-white/[0.06] rounded text-xs font-medium text-zinc-300 transition-all flex items-center justify-center gap-2"
+                  className="w-full py-2.5 bg-[var(--surface-2)] hover:bg-[var(--surface-3)] border border-white/[0.08] rounded text-xs font-medium text-zinc-300 transition-all flex items-center justify-center gap-2"
                 >
                   <Wallet className="w-3.5 h-3.5" />
                   Connect Freighter Wallet
@@ -529,7 +577,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
                     type="text"
                     value={contractName}
                     onChange={(e) => setContractName(e.target.value)}
-                    className="w-full px-3 py-2 bg-[#11151A] border border-white/[0.06] rounded text-xs text-zinc-200 focus:outline-none focus:border-primary/50 font-mono"
+                    className="w-full px-3 py-2 bg-[var(--surface-1)] border border-white/[0.08] rounded text-xs text-zinc-200 focus:outline-none focus:border-primary/50 font-mono"
                     placeholder="GeneratedToken"
                   />
                 </div>
@@ -539,7 +587,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
                     type="number"
                     value={initialSupply}
                     onChange={(e) => setInitialSupply(e.target.value)}
-                    className="w-full px-3 py-2 bg-[#11151A] border border-white/[0.06] rounded text-xs text-zinc-200 focus:outline-none focus:border-primary/50 font-mono"
+                    className="w-full px-3 py-2 bg-[var(--surface-1)] border border-white/[0.08] rounded text-xs text-zinc-200 focus:outline-none focus:border-primary/50 font-mono"
                     placeholder="1000000"
                   />
                 </div>
@@ -549,7 +597,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
                     type="text"
                     value={tokenName}
                     onChange={(e) => setTokenName(e.target.value)}
-                    className="w-full px-3 py-2 bg-[#11151A] border border-white/[0.06] rounded text-xs text-zinc-200 focus:outline-none focus:border-primary/50 font-mono"
+                    className="w-full px-3 py-2 bg-[var(--surface-1)] border border-white/[0.08] rounded text-xs text-zinc-200 focus:outline-none focus:border-primary/50 font-mono"
                     placeholder="My Token"
                   />
                 </div>
@@ -559,7 +607,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
                     type="text"
                     value={tokenSymbol}
                     onChange={(e) => setTokenSymbol(e.target.value)}
-                    className="w-full px-3 py-2 bg-[#11151A] border border-white/[0.06] rounded text-xs text-zinc-200 focus:outline-none focus:border-primary/50 font-mono"
+                    className="w-full px-3 py-2 bg-[var(--surface-1)] border border-white/[0.08] rounded text-xs text-zinc-200 focus:outline-none focus:border-primary/50 font-mono"
                     placeholder="MTK"
                   />
                 </div>
@@ -567,7 +615,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
             </div>
 
             {/* Contract Structure Preview */}
-            <div className="p-4 bg-[#11151A] border border-white/[0.06] rounded-md">
+            <div className="p-4 bg-[var(--surface-1)] border border-white/[0.08] rounded-md">
               <h3 className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider mb-3">Contract Structure</h3>
               <div className="font-mono text-[11px] space-y-1">
                 <div className="text-zinc-200">{contractName}.sol</div>
@@ -625,7 +673,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
         {(phase === "pipeline" || phase === "success" || phase === "error") && (
           <div className="flex-1 flex overflow-hidden">
             {/* Left: Pipeline Timeline */}
-            <div className="w-64 border-r border-white/[0.06] bg-[#090C10] overflow-auto flex-shrink-0">
+            <div className="w-64 border-r border-white/[0.08] bg-[var(--surface-1)] overflow-auto flex-shrink-0">
               <div className="p-3">
                 <div className="text-[10px] font-mono text-zinc-600 uppercase tracking-wider mb-3">Pipeline</div>
                 <div className="space-y-1">
@@ -635,8 +683,8 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
                       onClick={() => toggleStep(step.id)}
                       className={`w-full flex items-center gap-2.5 px-3 py-2 rounded text-left transition-all ${
                         expandedSteps.has(step.id)
-                          ? "bg-[#1A1F26] border border-white/[0.06]"
-                          : "hover:bg-[#11151A]"
+                          ? "bg-[var(--surface-2)] border border-white/[0.08]"
+                          : "hover:bg-[var(--surface-2)]"
                       }`}
                     >
                       {getStepIcon(step.status)}
@@ -649,12 +697,12 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
                 </div>
 
                 {/* Progress bar */}
-                <div className="mt-4 pt-3 border-t border-white/[0.06]">
+                <div className="mt-4 pt-3 border-t border-white/[0.08]">
                   <div className="flex justify-between text-[9px] text-zinc-600 mb-1.5">
                     <span>Progress</span>
                     <span>{Math.round((completedSteps / totalSteps) * 100)}%</span>
                   </div>
-                  <div className="h-1 bg-[#1A1F26] rounded-full overflow-hidden">
+                  <div className="h-1 bg-[var(--surface-2)] rounded-full overflow-hidden">
                     <motion.div
                       className="h-full bg-primary rounded-full"
                       initial={{ width: 0 }}
@@ -666,14 +714,14 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
 
                 {/* Metadata for completed steps */}
                 {phase === "success" && txHash && (
-                  <div className="mt-4 pt-3 border-t border-white/[0.06] space-y-2">
+                  <div className="mt-4 pt-3 border-t border-white/[0.08] space-y-2">
                     <div className="text-[10px] font-mono text-zinc-600 uppercase tracking-wider mb-2">Result</div>
                     <div className="space-y-1.5">
                       <div>
                         <span className="text-[9px] text-zinc-600">Tx Hash</span>
                         <div className="flex items-center gap-1">
                           <span className="text-[10px] font-mono text-zinc-300 truncate">{txHash.slice(0, 20)}...</span>
-                          <button onClick={() => handleCopy(txHash, "tx")} className="p-0.5 hover:bg-[#1A1F26] rounded">
+                          <button onClick={() => handleCopy(txHash, "tx")} className="p-0.5 hover:bg-[var(--surface-2)] rounded">
                             {copied === "tx" ? <Check className="w-2.5 h-2.5 text-emerald-500" /> : <Copy className="w-2.5 h-2.5 text-zinc-600" />}
                           </button>
                         </div>
@@ -690,12 +738,12 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
 
             {/* Right: Logs Panel */}
             <div className="flex-1 flex flex-col overflow-hidden">
-              <div className="px-4 py-2 border-b border-white/[0.06] bg-[#0B0F14] flex items-center gap-2">
+              <div className="px-4 py-2 border-b border-white/[0.08] bg-[var(--surface-0)] flex items-center gap-2">
                 <FileCode className="w-3.5 h-3.5 text-zinc-500" />
                 <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider">Build Output</span>
               </div>
 
-              <div className="flex-1 overflow-auto bg-[#0A0D12] p-4 font-mono text-[11px] leading-relaxed">
+              <div className="flex-1 overflow-auto bg-[var(--surface-0)] p-4 font-mono text-[11px] leading-relaxed">
                 {pipelineSteps.map(step => {
                   if (step.logs.length === 0) return null
                   return (
@@ -750,12 +798,12 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
               </div>
 
               {/* Bottom Actions */}
-              <div className="px-4 py-3 border-t border-white/[0.06] bg-[#0B0F14] flex items-center gap-2">
+              <div className="px-4 py-3 border-t border-white/[0.08] bg-[var(--surface-0)] flex items-center gap-2">
                 {phase === "success" && txHash && (
                   <>
                     <button
                       onClick={() => window.open(`${STELLAR_NETWORKS[network].explorerUrl}/tx/${txHash}`, "_blank")}
-                      className="px-3 py-1.5 bg-[#1A1F26] hover:bg-[#222730] border border-white/[0.06] rounded text-[11px] text-zinc-300 font-medium transition-all flex items-center gap-1.5"
+                      className="px-3 py-1.5 bg-[var(--surface-2)] hover:bg-[var(--surface-3)] border border-white/[0.08] rounded text-[11px] text-zinc-300 font-medium transition-all flex items-center gap-1.5"
                     >
                       <Globe className="w-3 h-3" />
                       Explorer
@@ -794,7 +842,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
                   <>
                     <button
                       onClick={() => { setPhase("configure"); setError(null) }}
-                      className="px-3 py-1.5 bg-[#1A1F26] hover:bg-[#222730] border border-white/[0.06] rounded text-[11px] text-zinc-300 font-medium transition-all"
+                      className="px-3 py-1.5 bg-[var(--surface-2)] hover:bg-[var(--surface-3)] border border-white/[0.08] rounded text-[11px] text-zinc-300 font-medium transition-all"
                     >
                       Back to Config
                     </button>
@@ -807,7 +855,7 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
                     <div className="flex-1" />
                     <button
                       onClick={onClose}
-                      className="px-4 py-1.5 bg-[#1A1F26] hover:bg-[#222730] border border-white/[0.06] rounded text-[11px] text-zinc-300 font-medium transition-all"
+                      className="px-4 py-1.5 bg-[var(--surface-2)] hover:bg-[var(--surface-3)] border border-white/[0.08] rounded text-[11px] text-zinc-300 font-medium transition-all"
                     >
                       Close
                     </button>

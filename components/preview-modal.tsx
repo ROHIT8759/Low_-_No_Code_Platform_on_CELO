@@ -58,6 +58,18 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
         <script src="https://cdn.tailwindcss.com"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
         <title>${contractName} dApp Preview</title>
+        <style>
+          body { background: #0A0D10 !important; color: #E8EEF4 !important; }
+          .bg-slate-900 { background-color: #0A0D10 !important; }
+          .bg-slate-900\/50 { background-color: rgba(10, 13, 16, 0.5) !important; }
+          .bg-slate-800 { background-color: #12171B !important; }
+          .bg-slate-800\/50 { background-color: rgba(18, 23, 27, 0.5) !important; }
+          .border-slate-700 { border-color: rgba(255, 255, 255, 0.08) !important; }
+          .border-slate-600 { border-color: rgba(255, 255, 255, 0.12) !important; }
+          .text-slate-500 { color: rgba(232, 238, 244, 0.5) !important; }
+          .text-slate-400 { color: rgba(232, 238, 244, 0.62) !important; }
+          .text-slate-300 { color: rgba(232, 238, 244, 0.78) !important; }
+        </style>
       </head>
       <body class="bg-gradient-to-br from-slate-900 to-slate-800">
         <script>
@@ -1002,24 +1014,24 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-card rounded-lg border border-border w-full max-w-6xl h-[90vh] flex flex-col">
-        <div className="flex items-center justify-between p-4 border-b border-border">
+      <div className="bg-[var(--surface-0)] rounded-lg border border-white/[0.08] w-full max-w-6xl h-[90vh] flex flex-col">
+        <div className="flex items-center justify-between p-4 border-b border-white/[0.08] bg-[var(--surface-1)]">
           <div className="flex items-center gap-2">
             <h2 className="text-lg font-semibold text-foreground">
               {baseBlock?.config?.name || "Contract"} Preview
             </h2>
-            <span className="text-xs px-2 py-1 bg-green-500/10 text-green-500 rounded-full">
+            <span className="text-xs px-2 py-1 bg-emerald-500/10 text-emerald-400 rounded-full">
               Live Preview
             </span>
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="flex bg-background rounded-lg p-1">
+            <div className="flex bg-[var(--surface-2)] rounded-lg p-1">
               <button
                 onClick={() => setViewMode("preview")}
                 className={`px-3 py-1.5 rounded text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "preview"
-                  ? "bg-primary text-background"
-                  : "text-muted hover:text-foreground"
+                  ? "bg-primary text-white"
+                  : "text-zinc-400 hover:text-white"
                   }`}
               >
                 <Eye size={16} />
@@ -1028,8 +1040,8 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
               <button
                 onClick={() => setViewMode("code")}
                 className={`px-3 py-1.5 rounded text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "code"
-                  ? "bg-primary text-background"
-                  : "text-muted hover:text-foreground"
+                  ? "bg-primary text-white"
+                  : "text-zinc-400 hover:text-white"
                   }`}
               >
                 <Code size={16} />
@@ -1039,7 +1051,7 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
 
             <button
               onClick={onClose}
-              className="p-2 hover:bg-background rounded-lg transition-colors text-muted hover:text-foreground"
+              className="p-2 hover:bg-[var(--surface-2)] rounded-lg transition-colors text-zinc-400 hover:text-white"
               title="Close preview"
             >
               <X size={20} />
@@ -1058,23 +1070,23 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
             />
           ) : (
             <div className="h-full overflow-auto">
-              <pre className="p-6 text-sm text-foreground bg-slate-900 h-full overflow-auto">
+              <pre className="p-6 text-sm text-foreground bg-[var(--surface-0)] h-full overflow-auto">
                 <code>{solidityCode}</code>
               </pre>
             </div>
           )}
         </div>
 
-        <div className="p-4 border-t border-border flex gap-2 justify-between">
+        <div className="p-4 border-t border-white/[0.08] bg-[var(--surface-1)] flex gap-2 justify-between">
           <div className="flex gap-2">
             <button
               onClick={() => setIframeKey((k) => k + 1)}
-              className="px-4 py-2 bg-background hover:bg-border rounded text-sm font-medium text-muted hover:text-foreground transition-colors"
+              className="px-4 py-2 bg-[var(--surface-2)] hover:bg-[var(--surface-3)] rounded text-sm font-medium text-zinc-300 hover:text-white transition-colors"
             >
               🔄 Refresh
             </button>
             {blocks.length > 0 && (
-              <div className="px-4 py-2 bg-green-500/10 rounded text-sm font-medium text-green-500">
+              <div className="px-4 py-2 bg-emerald-500/10 rounded text-sm font-medium text-emerald-400">
                 ✨ {blocks.length} blocks • {blocks.filter(b => b.type !== 'erc20' && b.type !== 'nft').length} features
               </div>
             )}
@@ -1082,7 +1094,7 @@ export function PreviewModal({ isOpen, onClose }: PreviewModalProps) {
 
           <button
             onClick={onClose}
-            className="px-6 py-2 bg-primary hover:bg-primary-dark text-background rounded text-sm font-medium transition-colors"
+            className="px-6 py-2 bg-primary hover:bg-primary/90 text-white rounded text-sm font-medium transition-colors"
           >
             Close
           </button>

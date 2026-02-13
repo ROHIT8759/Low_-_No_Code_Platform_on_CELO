@@ -12,7 +12,7 @@ import { ToastProvider, useToast } from "@/components/toast"
 import { Keyboard, X } from "lucide-react"
 
 const Canvas = dynamic(() => import("@/components/canvas").then(mod => ({ default: mod.Canvas })), {
-  loading: () => <div className="w-full h-full bg-[#0B0F14] flex items-center justify-center">
+  loading: () => <div className="w-full h-full bg-[var(--surface-0)] flex items-center justify-center">
     <div className="text-zinc-500 text-sm font-mono">Loading canvas...</div>
   </div>,
   ssr: false
@@ -34,13 +34,13 @@ function ShortcutsOverlay({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center" onClick={onClose}>
-      <div className="bg-[#0B0F14] border border-white/[0.08] rounded-lg p-6 w-80 shadow-2xl" onClick={e => e.stopPropagation()}>
+      <div className="bg-[var(--surface-1)] border border-white/[0.08] rounded-lg p-6 w-80 shadow-2xl" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Keyboard className="w-4 h-4 text-primary" />
             <h3 className="text-sm font-semibold text-zinc-200">Keyboard Shortcuts</h3>
           </div>
-          <button onClick={onClose} className="p-1 hover:bg-[#1A1F26] rounded text-zinc-500 hover:text-zinc-300">
+          <button onClick={onClose} className="p-1 hover:bg-[var(--surface-2)] rounded text-zinc-500 hover:text-zinc-300">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -51,7 +51,7 @@ function ShortcutsOverlay({ onClose }: { onClose: () => void }) {
               <div className="flex items-center gap-1">
                 {s.keys.map((k, j) => (
                   <span key={j}>
-                    <kbd className="px-1.5 py-0.5 bg-[#1A1F26] border border-white/[0.08] rounded text-[10px] font-mono text-zinc-400">{k}</kbd>
+                    <kbd className="px-1.5 py-0.5 bg-[var(--surface-2)] border border-white/[0.08] rounded text-[10px] font-mono text-zinc-400">{k}</kbd>
                     {j < s.keys.length - 1 && <span className="text-zinc-700 mx-0.5">+</span>}
                   </span>
                 ))}
@@ -198,7 +198,7 @@ function BuilderContent() {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-[#0B0F14] overflow-hidden relative selection:bg-indigo-500/30 selection:text-indigo-200">
+    <div suppressHydrationWarning className="flex flex-col h-screen bg-[var(--surface-0)] overflow-hidden relative selection:bg-emerald-400/20 selection:text-emerald-100">
       {showOnboarding && (
         <OnboardingFlow
           onComplete={handleOnboardingComplete}
@@ -213,7 +213,7 @@ function BuilderContent() {
 
         <div className="flex flex-1 overflow-hidden border-t border-white/[0.06]">
           <div className={`
-            md:block w-[280px] h-full bg-[#090C10] border-r border-white/[0.06]
+            md:block w-[280px] h-full bg-[var(--surface-1)] border-r border-white/[0.06]
             md:relative absolute inset-y-0 left-0 z-20 transform transition-transform duration-200
             ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
           `}>
@@ -236,12 +236,12 @@ function BuilderContent() {
             </svg>
           </button>
 
-          <div className="flex-1 h-full bg-[#0B0F14] border-r border-white/[0.06] flex flex-col lg:flex-row">
+          <div className="flex-1 h-full bg-[var(--surface-0)] border-r border-white/[0.06] flex flex-col lg:flex-row">
             <div className="flex-1 overflow-auto">
               <Canvas />
             </div>
 
-            <div className="lg:w-[400px] w-full h-64 lg:h-full bg-[#11151A] border-t lg:border-t-0 lg:border-l border-white/[0.06]">
+            <div className="lg:w-[400px] w-full h-64 lg:h-full bg-[var(--surface-1)] border-t lg:border-t-0 lg:border-l border-white/[0.06]">
               <CodeViewer />
             </div>
           </div>
@@ -251,7 +251,7 @@ function BuilderContent() {
         <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20">
           <button
             onClick={() => setShowShortcuts(true)}
-            className="flex items-center gap-1.5 px-3 py-1 bg-[#090C10]/80 border border-white/[0.06] rounded-full text-[10px] text-zinc-600 hover:text-zinc-400 transition-colors backdrop-blur-sm"
+            className="flex items-center gap-1.5 px-3 py-1 bg-[var(--surface-1)]/80 border border-white/[0.08] rounded-full text-[10px] text-zinc-500 hover:text-zinc-300 transition-colors backdrop-blur-sm"
           >
             <Keyboard className="w-3 h-3" />
             <span>Press <kbd className="font-mono text-zinc-500">?</kbd> for shortcuts</span>

@@ -19,24 +19,24 @@ import { SecurityLayers } from "@/components/infrastructure/security-layers"
 
 // Lazy load heavy components for better performance
 const ProductWindow = dynamic(() => import("@/components/infrastructure/product-window").then(mod => ({ default: mod.ProductWindow })), {
-  loading: () => <div className="w-full aspect-[16/10] bg-[#0B0F14] rounded-lg border border-[#222730] animate-pulse" />,
+  loading: () => <div className="w-full aspect-[16/10] bg-[var(--surface-1)] rounded-lg border border-white/[0.08] animate-pulse" />,
   ssr: false
 })
 
 const WasmCompilationVisual = dynamic(() => import("@/components/infrastructure/bento-visuals").then(mod => ({ default: mod.WasmCompilationVisual })), {
-  loading: () => <div className="w-full h-32 bg-[#0B0F14] rounded animate-pulse" />
+  loading: () => <div className="w-full h-32 bg-[var(--surface-1)] rounded animate-pulse" />
 })
 
 const StateExpirationVisual = dynamic(() => import("@/components/infrastructure/bento-visuals").then(mod => ({ default: mod.StateExpirationVisual })), {
-  loading: () => <div className="w-full h-32 bg-[#0B0F14] rounded animate-pulse" />
+  loading: () => <div className="w-full h-32 bg-[var(--surface-1)] rounded animate-pulse" />
 })
 
 const FormalVerificationVisual = dynamic(() => import("@/components/infrastructure/bento-visuals").then(mod => ({ default: mod.FormalVerificationVisual })), {
-  loading: () => <div className="w-full h-32 bg-[#0B0F14] rounded animate-pulse" />
+  loading: () => <div className="w-full h-32 bg-[var(--surface-1)] rounded animate-pulse" />
 })
 
 const CrossContractVisual = dynamic(() => import("@/components/infrastructure/bento-visuals").then(mod => ({ default: mod.CrossContractVisual })), {
-  loading: () => <div className="w-full h-32 bg-[#0B0F14] rounded animate-pulse" />
+  loading: () => <div className="w-full h-32 bg-[var(--surface-1)] rounded animate-pulse" />
 })
 
 const INFRASTRUCTURE_FEATURES = [
@@ -84,7 +84,7 @@ const INFRASTRUCTURE_FEATURES = [
     header: <FormalVerificationVisual />,
     icon: <Shield className="h-4 w-4 text-zinc-500" />,
     className: "md:col-span-1",
-    accentColor: "purple" as const,
+    accentColor: "amber" as const,
   },
   {
     title: "Cross-Contract Calls",
@@ -132,7 +132,7 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-[#0B0F14] text-zinc-300 antialiased overflow-hidden selection:bg-indigo-500/30 selection:text-indigo-200">
+    <main suppressHydrationWarning className="min-h-screen bg-[var(--surface-0)] text-[var(--text-secondary)] antialiased overflow-hidden selection:bg-emerald-400/20 selection:text-emerald-100">
 
       {/* 1. LAYERED BACKGROUND SYSTEM */}
       {/* Micro noise texture at 1-2% opacity with radial vignette */}
@@ -152,7 +152,7 @@ export default function Home() {
         <div 
           className="absolute inset-0" 
           style={{
-            background: 'radial-gradient(ellipse at center, transparent 20%, rgba(0,0,0,0.3) 100%)'
+            background: "radial-gradient(900px 420px at 12% 10%, rgba(46, 200, 146, 0.16), transparent 65%), radial-gradient(800px 520px at 82% 12%, rgba(76, 141, 255, 0.12), transparent 70%), radial-gradient(900px 540px at 50% 100%, rgba(244, 183, 64, 0.08), transparent 70%), radial-gradient(ellipse at center, transparent 20%, rgba(0,0,0,0.35) 100%)"
           }}
         />
       </div>
@@ -182,15 +182,15 @@ export default function Home() {
           <motion.h1 
             variants={itemVariants}
             id="hero-heading"
-            className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-white tracking-tight mb-3 leading-[1.15]"
+            className="text-4xl sm:text-5xl lg:text-6xl font-semibold text-white tracking-tight mb-3 leading-[1.08]"
           >
             Deterministic <br />
-            <span className="text-zinc-500">Contract Infrastructure</span>
+            <span className="bg-gradient-to-r from-emerald-300 via-cyan-300 to-sky-400 bg-clip-text text-transparent">Contract Infrastructure</span>
           </motion.h1>
 
           <motion.p 
             variants={itemVariants}
-            className="text-lg sm:text-xl text-zinc-400/90 font-light mb-1"
+            className="text-lg sm:text-xl text-zinc-300/90 font-light mb-1"
           >
             For Soroban Deployments
           </motion.p>
@@ -202,7 +202,7 @@ export default function Home() {
 
           <motion.p 
             variants={itemVariants}
-            className="text-xs sm:text-sm font-mono text-emerald-500/80 uppercase tracking-widest mb-6"
+            className="text-xs sm:text-sm font-mono text-emerald-400/90 uppercase tracking-widest mb-6"
           >
             Production-grade WASM <span className="text-zinc-700 px-2">·</span> Architecture-first tooling
           </motion.p>
@@ -213,13 +213,13 @@ export default function Home() {
           >
             <Link
               href="/builder"
-              className="h-10 px-6 bg-[#0055eb] hover:bg-[#0044c2] text-white text-sm font-medium rounded transition-all shadow-none flex items-center justify-center gap-2"
+              className="h-10 px-6 bg-primary hover:bg-primary/90 text-white text-sm font-medium rounded transition-all shadow-none flex items-center justify-center gap-2"
               aria-label="Initialize Workbench - Start building contracts"
             >
               Initialize Workbench <ArrowRight className="w-4 h-4" aria-hidden="true" />
             </Link>
             <button 
-              className="h-10 px-6 border border-[#222730] hover:border-zinc-500 hover:bg-[#11151A] text-zinc-300 text-sm font-medium rounded transition-all"
+              className="h-10 px-6 border border-white/[0.1] hover:border-white/[0.2] hover:bg-[var(--surface-1)] text-zinc-300 text-sm font-medium rounded transition-all"
               aria-label="Read Documentation"
             >
               Read Documentation
@@ -249,36 +249,63 @@ export default function Home() {
               transition={{ duration: MOTION_DURATION.slow / 1000, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
               className="relative rounded-lg"
             >
-              <Suspense fallback={<div className="w-full aspect-[16/10] bg-[#0B0F14] rounded-lg border border-[#222730] animate-pulse" />}>
+              <Suspense fallback={<div className="w-full aspect-[16/10] bg-[var(--surface-1)] rounded-lg border border-white/[0.08] animate-pulse" />}>
                 <ProductWindow />
               </Suspense>
-              <BorderBeam duration={10} delay={5} borderWidth={1.5} size={300} colorFrom="#3b82f6" colorTo="#06b6d4" />
+              <BorderBeam duration={10} delay={5} borderWidth={1.5} size={300} colorFrom="#2EC892" colorTo="#4C8DFF" />
             </motion.div>
           </div>
         )}
       </section>
 
-      {/* 3. ENGINEERING PRINCIPLES STRIP */}
-      <section className="border-y border-[#1A1F26] bg-[#090C10] py-4 md:py-6 mb-12 md:mb-16" aria-label="Engineering principles">
-        <div className="max-w-7xl mx-auto px-6 flex flex-wrap justify-center md:justify-between items-center gap-4 md:gap-6 text-xs md:text-sm font-mono text-zinc-500 uppercase tracking-wider">
-          <div className="flex items-center gap-2">
-            <CheckCircle className="w-3 md:w-4 h-3 md:h-4 text-zinc-600" aria-hidden="true" /> 
-            <span className="hidden sm:inline">Deterministic by Default</span>
-            <span className="sm:hidden">Deterministic</span>
+      {/* 3. ENGINEERING PRINCIPLES STRIP - LOOPING MARQUEE */}
+      <section className="border-y border-white/[0.06] bg-[var(--surface-1)] py-4 md:py-5 overflow-hidden" aria-label="Engineering principles">
+        <div className="relative max-w-7xl mx-auto">
+          {/* Marquee container with gradient fade edges */}
+          <div className="relative flex overflow-hidden">
+            {/* Left gradient fade */}
+            <div className="absolute left-0 top-0 bottom-0 w-8 md:w-16 bg-gradient-to-r from-[var(--surface-1)] to-transparent z-10 pointer-events-none" />
+            {/* Right gradient fade */}
+            <div className="absolute right-0 top-0 bottom-0 w-8 md:w-16 bg-gradient-to-l from-[var(--surface-1)] to-transparent z-10 pointer-events-none" />
+            
+            {/* Scrolling content */}
+            <motion.div
+              className="flex shrink-0 gap-6 md:gap-12 items-center text-xs md:text-sm font-mono text-zinc-500 uppercase tracking-wider whitespace-nowrap"
+              animate={{ x: ["0%", "-50%"] }}
+              transition={{
+                x: {
+                  repeat: Infinity,
+                  repeatType: "loop",
+                  duration: 20,
+                  ease: "linear",
+                },
+              }}
+            >
+              {/* Duplicate content for seamless loop */}
+              {[...Array(2)].map((_, setIndex) => (
+                <div key={setIndex} className="flex shrink-0 gap-6 md:gap-12 items-center">
+                  <div className="flex items-center gap-2 shrink-0">
+                    <CheckCircle className="w-3 md:w-4 h-3 md:h-4 text-zinc-600" aria-hidden="true" />
+                    <span className="hidden sm:inline">Deterministic by Default</span>
+                    <span className="sm:hidden">Deterministic</span>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Workflow className="w-3 md:w-4 h-3 md:h-4 text-zinc-600" />
+                    <span className="hidden sm:inline">Architecture-First</span>
+                    <span className="sm:hidden">Architecture</span>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Code2 className="w-3 md:w-4 h-3 md:h-4 text-zinc-600" /> WASM-Native
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <GitCommit className="w-3 md:w-4 h-3 md:h-4 text-zinc-600" /> Deployment Parity
+                  </div>
+                  {/* Separator dot */}
+                  <span className="w-1 h-1 rounded-full bg-zinc-700 shrink-0" />
+                </div>
+              ))}
+            </motion.div>
           </div>
-          <div className="flex items-center gap-2">
-            <Workflow className="w-3 md:w-4 h-3 md:h-4 text-zinc-600" /> 
-            <span className="hidden sm:inline">Architecture-First</span>
-            <span className="sm:hidden">Architecture</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Code2 className="w-3 md:w-4 h-3 md:h-4 text-zinc-600" /> WASM-Native
-          </div>
-          {!isMobile && (
-            <div className="flex items-center gap-2">
-              <GitCommit className="w-3 md:w-4 h-3 md:h-4 text-zinc-600" /> Deployment Parity
-            </div>
-          )}
         </div>
       </section>
 
@@ -315,7 +342,7 @@ export default function Home() {
       </section>
 
       {/* 5. SYSTEM ARCHITECTURE / BUILD PIPELINE */}
-      <section className="py-16 md:py-24 lg:py-32 border-t border-[#1A1F26] bg-[#0B0F14] relative overflow-hidden" aria-labelledby="pipeline-heading">
+      <section className="py-16 md:py-24 lg:py-32 border-t border-white/[0.06] bg-[var(--surface-0)] relative overflow-hidden" aria-labelledby="pipeline-heading">
         <div className="max-w-7xl mx-auto px-6 relative z-10">
           <div className="text-center mb-12 md:mb-16 lg:mb-20">
             <h2 id="pipeline-heading" className="text-2xl md:text-3xl font-semibold text-white mb-3">Build Pipeline</h2>
@@ -377,7 +404,7 @@ export default function Home() {
       </section>
 
       {/* 6. SECURITY & COMPLIANCE - DEFENSE IN DEPTH SPLIT */}
-      <section className="relative py-16 md:py-24 lg:py-32 px-6 border-t border-[#1A1F26] bg-[#090C10]" aria-labelledby="security-heading">
+      <section className="relative py-16 md:py-24 lg:py-32 px-6 border-t border-white/[0.06] bg-[var(--surface-1)]" aria-labelledby="security-heading">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-16 lg:gap-20 items-center">
 
           {/* Left: Copy Column */}
@@ -426,7 +453,7 @@ export default function Home() {
       </section>
 
       {}
-      <footer className="border-t border-[#1A1F26] bg-[#0B0F14] py-12 px-6" role="contentinfo">
+      <footer className="border-t border-white/[0.06] bg-[var(--surface-0)] py-12 px-6" role="contentinfo">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-2 opacity-50 grayscale hover:grayscale-0 transition-all">
             <div className="w-6 h-6 bg-zinc-800 rounded flex items-center justify-center text-[10px] font-bold" aria-hidden="true">B</div>

@@ -51,8 +51,8 @@ const FEATURE_RECOMMENDATIONS: Record<string, FeatureRecommendation[]> = {
     { type: "pausable", label: "Pausable", description: "Emergency stop mechanism for all transfers", recommended: true, category: "Security", categoryColor: "text-orange-400" },
     { type: "whitelist", label: "Whitelist", description: "Restrict transfers to approved addresses", recommended: false, category: "Security", categoryColor: "text-orange-400" },
     { type: "blacklist", label: "Blacklist", description: "Block malicious addresses from transfers", recommended: false, category: "Security", categoryColor: "text-orange-400" },
-    { type: "snapshot", label: "Snapshot", description: "Record historical balances at specific points", recommended: false, category: "Governance", categoryColor: "text-purple-400" },
-    { type: "voting", label: "Voting", description: "On-chain governance with token-weighted votes", recommended: false, category: "Governance", categoryColor: "text-purple-400" },
+    { type: "snapshot", label: "Snapshot", description: "Record historical balances at specific points", recommended: false, category: "Governance", categoryColor: "text-amber-400" },
+    { type: "voting", label: "Voting", description: "On-chain governance with token-weighted votes", recommended: false, category: "Governance", categoryColor: "text-amber-400" },
     { type: "permit", label: "Permit", description: "Gasless approvals via EIP-2612 signatures", recommended: false, category: "Advanced", categoryColor: "text-blue-400" },
     { type: "timelock", label: "Time Lock", description: "Delayed execution for critical operations", recommended: false, category: "Security", categoryColor: "text-orange-400" },
   ],
@@ -179,24 +179,24 @@ export function OnboardingFlow({ onComplete, onDismiss }: OnboardingFlowProps) {
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="bg-[#0B0F14] border border-white/[0.08] rounded-lg w-full max-w-3xl max-h-[85vh] overflow-hidden flex flex-col shadow-2xl"
+        className="bg-[var(--surface-0)] border border-white/[0.08] rounded-lg w-full max-w-3xl max-h-[85vh] overflow-hidden flex flex-col shadow-2xl"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-3 border-b border-white/[0.06] bg-[#090C10]">
+        <div className="flex items-center justify-between px-5 py-3 border-b border-white/[0.08] bg-[var(--surface-1)]">
           <div className="flex items-center gap-3">
             <Sparkles className="w-4 h-4 text-primary" />
             <h2 className="text-sm font-semibold text-zinc-200">Guided Build Mode</h2>
-            <span className="text-[10px] font-mono text-zinc-500 bg-[#1A1F26] px-2 py-0.5 rounded">
+            <span className="text-[10px] font-mono text-zinc-500 bg-[var(--surface-2)] px-2 py-0.5 rounded">
               Step {stepIndex + 1}/{totalSteps}
             </span>
           </div>
-          <button onClick={onDismiss} className="p-1.5 hover:bg-[#1A1F26] rounded text-zinc-500 hover:text-zinc-300">
+          <button onClick={onDismiss} className="p-1.5 hover:bg-[var(--surface-2)] rounded text-zinc-500 hover:text-zinc-300">
             <X size={16} />
           </button>
         </div>
 
         {/* Progress bar */}
-        <div className="h-0.5 bg-[#1A1F26]">
+        <div className="h-0.5 bg-[var(--surface-2)]">
           <motion.div
             className="h-full bg-primary"
             animate={{ width: `${((stepIndex + 1) / totalSteps) * 100}%` }}
@@ -226,7 +226,7 @@ export function OnboardingFlow({ onComplete, onDismiss }: OnboardingFlowProps) {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <button
                     onClick={() => setStep("base")}
-                    className="group p-5 bg-[#11151A] border border-white/[0.06] rounded-md hover:border-primary/40 hover:bg-[#161B22] transition-all text-left"
+                    className="group p-5 bg-[var(--surface-1)] border border-white/[0.08] rounded-md hover:border-primary/40 hover:bg-[var(--surface-2)] transition-all text-left"
                   >
                     <div className="w-10 h-10 rounded bg-primary/10 flex items-center justify-center mb-3 group-hover:bg-primary/20 transition-colors">
                       <ArrowRight className="w-5 h-5 text-primary" />
@@ -239,7 +239,7 @@ export function OnboardingFlow({ onComplete, onDismiss }: OnboardingFlowProps) {
 
                   <button
                     onClick={() => setStep("base")}
-                    className="group p-5 bg-[#11151A] border border-white/[0.06] rounded-md hover:border-teal-500/40 hover:bg-[#161B22] transition-all text-left"
+                    className="group p-5 bg-[var(--surface-1)] border border-white/[0.08] rounded-md hover:border-teal-500/40 hover:bg-[var(--surface-2)] transition-all text-left"
                   >
                     <div className="w-10 h-10 rounded bg-teal-500/10 flex items-center justify-center mb-3 group-hover:bg-teal-500/20 transition-colors">
                       <Zap className="w-5 h-5 text-teal-400" />
@@ -252,7 +252,7 @@ export function OnboardingFlow({ onComplete, onDismiss }: OnboardingFlowProps) {
 
                   <button
                     onClick={onDismiss}
-                    className="group p-5 bg-[#11151A] border border-white/[0.06] rounded-md hover:border-zinc-600 hover:bg-[#161B22] transition-all text-left"
+                    className="group p-5 bg-[var(--surface-1)] border border-white/[0.08] rounded-md hover:border-zinc-600 hover:bg-[var(--surface-2)] transition-all text-left"
                   >
                     <div className="w-10 h-10 rounded bg-zinc-800 flex items-center justify-center mb-3 group-hover:bg-zinc-700 transition-colors">
                       <FileCode className="w-5 h-5 text-zinc-400" />
@@ -272,10 +272,10 @@ export function OnboardingFlow({ onComplete, onDismiss }: OnboardingFlowProps) {
                       <button
                         key={template.id}
                         onClick={() => applyTemplate(template)}
-                        className="group flex items-center gap-3 p-3 bg-[#11151A] border border-white/[0.06] rounded hover:border-white/[0.12] hover:bg-[#161B22] transition-all text-left"
+                        className="group flex items-center gap-3 p-3 bg-[var(--surface-1)] border border-white/[0.08] rounded hover:border-white/[0.16] hover:bg-[var(--surface-2)] transition-all text-left"
                       >
-                        <div className="w-8 h-8 rounded bg-[#1A1F26] flex items-center justify-center border border-white/[0.04] flex-shrink-0">
-                          {template.base === "erc20" ? <Coins className="w-4 h-4 text-teal-400" /> : <Layers className="w-4 h-4 text-purple-400" />}
+                        <div className="w-8 h-8 rounded bg-[var(--surface-2)] flex items-center justify-center border border-white/[0.08] flex-shrink-0">
+                          {template.base === "erc20" ? <Coins className="w-4 h-4 text-teal-400" /> : <Layers className="w-4 h-4 text-amber-400" />}
                         </div>
                         <div className="min-w-0">
                           <div className="text-xs font-medium text-zinc-300 group-hover:text-white truncate">{template.name}</div>
@@ -311,14 +311,14 @@ export function OnboardingFlow({ onComplete, onDismiss }: OnboardingFlowProps) {
                       className={`group p-5 rounded-md border transition-all text-left ${
                         selectedBase === option.type
                           ? "bg-primary/5 border-primary/40"
-                          : "bg-[#11151A] border-white/[0.06] hover:border-white/[0.12] hover:bg-[#161B22]"
+                          : "bg-[var(--surface-1)] border-white/[0.08] hover:border-white/[0.16] hover:bg-[var(--surface-2)]"
                       }`}
                     >
                       <div className="flex items-start gap-4">
                         <div className={`w-12 h-12 rounded-md flex items-center justify-center flex-shrink-0 ${
                           selectedBase === option.type
                             ? "bg-primary/15 text-primary"
-                            : "bg-[#1A1F26] text-zinc-400 group-hover:text-zinc-200"
+                            : "bg-[var(--surface-2)] text-zinc-400 group-hover:text-zinc-200"
                         }`}>
                           {option.icon}
                         </div>
@@ -332,7 +332,7 @@ export function OnboardingFlow({ onComplete, onDismiss }: OnboardingFlowProps) {
                           <p className="text-[11px] text-zinc-500 leading-relaxed mb-3">{option.description}</p>
                           <div className="flex flex-wrap gap-1.5">
                             {option.features.map(f => (
-                              <span key={f} className="text-[9px] font-mono text-zinc-500 bg-[#1A1F26] px-1.5 py-0.5 rounded">
+                              <span key={f} className="text-[9px] font-mono text-zinc-500 bg-[var(--surface-2)] px-1.5 py-0.5 rounded">
                                 {f}
                               </span>
                             ))}
@@ -382,7 +382,7 @@ export function OnboardingFlow({ onComplete, onDismiss }: OnboardingFlowProps) {
                               className={`flex items-center gap-3 p-3 rounded border transition-all text-left ${
                                 isSelected
                                   ? "bg-primary/5 border-primary/30"
-                                  : "bg-[#11151A] border-white/[0.06] hover:border-white/[0.12]"
+                                  : "bg-[var(--surface-1)] border-white/[0.08] hover:border-white/[0.16]"
                               }`}
                             >
                               <div className={`w-5 h-5 rounded flex items-center justify-center flex-shrink-0 border ${
@@ -436,7 +436,7 @@ export function OnboardingFlow({ onComplete, onDismiss }: OnboardingFlowProps) {
                       type="text"
                       value={contractName}
                       onChange={(e) => setContractName(e.target.value.replace(/[^a-zA-Z0-9]/g, ""))}
-                      className="w-full px-3 py-2.5 bg-[#11151A] border border-white/[0.06] rounded text-sm text-zinc-200 focus:outline-none focus:border-primary/50 font-mono"
+                      className="w-full px-3 py-2.5 bg-[var(--surface-1)] border border-white/[0.08] rounded text-sm text-zinc-200 focus:outline-none focus:border-primary/50 font-mono"
                       placeholder="MyToken"
                     />
                     {contractName && !/^[A-Z]/.test(contractName) && (
@@ -451,7 +451,7 @@ export function OnboardingFlow({ onComplete, onDismiss }: OnboardingFlowProps) {
                         type="text"
                         value={tokenSymbol}
                         onChange={(e) => setTokenSymbol(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6))}
-                        className="w-full px-3 py-2.5 bg-[#11151A] border border-white/[0.06] rounded text-sm text-zinc-200 focus:outline-none focus:border-primary/50 font-mono"
+                        className="w-full px-3 py-2.5 bg-[var(--surface-1)] border border-white/[0.08] rounded text-sm text-zinc-200 focus:outline-none focus:border-primary/50 font-mono"
                         placeholder="MTK"
                       />
                       <p className="text-[10px] text-zinc-600 mt-1">{tokenSymbol.length}/6 characters</p>
@@ -463,7 +463,7 @@ export function OnboardingFlow({ onComplete, onDismiss }: OnboardingFlowProps) {
                           type="number"
                           value={initialSupply}
                           onChange={(e) => setInitialSupply(e.target.value)}
-                          className="w-full px-3 py-2.5 bg-[#11151A] border border-white/[0.06] rounded text-sm text-zinc-200 focus:outline-none focus:border-primary/50 font-mono"
+                          className="w-full px-3 py-2.5 bg-[var(--surface-1)] border border-white/[0.08] rounded text-sm text-zinc-200 focus:outline-none focus:border-primary/50 font-mono"
                           placeholder="1000000"
                         />
                         {Number(initialSupply) > 0 && (
@@ -493,7 +493,7 @@ export function OnboardingFlow({ onComplete, onDismiss }: OnboardingFlowProps) {
                 </div>
 
                 {/* Tree view */}
-                <div className="p-4 bg-[#11151A] border border-white/[0.06] rounded-md">
+                <div className="p-4 bg-[var(--surface-1)] border border-white/[0.08] rounded-md">
                   <div className="font-mono text-[12px] space-y-1.5">
                     <div className="text-zinc-200 font-medium">{contractName}.sol</div>
                     <div className="text-zinc-400 pl-4">
@@ -522,15 +522,15 @@ export function OnboardingFlow({ onComplete, onDismiss }: OnboardingFlowProps) {
 
                 {/* Summary stats */}
                 <div className="grid grid-cols-3 gap-3">
-                  <div className="p-3 bg-[#11151A] border border-white/[0.06] rounded">
+                  <div className="p-3 bg-[var(--surface-1)] border border-white/[0.08] rounded">
                     <div className="text-[9px] text-zinc-600 font-mono uppercase mb-1">Modules</div>
                     <div className="text-lg font-semibold text-zinc-200">{selectedFeatures.size + 1}</div>
                   </div>
-                  <div className="p-3 bg-[#11151A] border border-white/[0.06] rounded">
+                  <div className="p-3 bg-[var(--surface-1)] border border-white/[0.08] rounded">
                     <div className="text-[9px] text-zinc-600 font-mono uppercase mb-1">Est. Functions</div>
                     <div className="text-lg font-semibold text-zinc-200">{(selectedFeatures.size + 1) * 3 + 2}</div>
                   </div>
-                  <div className="p-3 bg-[#11151A] border border-white/[0.06] rounded">
+                  <div className="p-3 bg-[var(--surface-1)] border border-white/[0.08] rounded">
                     <div className="text-[9px] text-zinc-600 font-mono uppercase mb-1">Security</div>
                     <div className="text-lg font-semibold text-emerald-400">
                       {selectedFeatures.has("pausable") ? "High" : "Standard"}
@@ -539,7 +539,7 @@ export function OnboardingFlow({ onComplete, onDismiss }: OnboardingFlowProps) {
                 </div>
 
                 {/* Config summary */}
-                <div className="p-3 bg-[#11151A] border border-white/[0.06] rounded-md">
+                <div className="p-3 bg-[var(--surface-1)] border border-white/[0.08] rounded-md">
                   <div className="text-[10px] font-mono text-zinc-600 uppercase tracking-wider mb-2">Parameters</div>
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div>
@@ -568,7 +568,7 @@ export function OnboardingFlow({ onComplete, onDismiss }: OnboardingFlowProps) {
         </div>
 
         {/* Footer Navigation */}
-        <div className="px-5 py-3 border-t border-white/[0.06] bg-[#090C10] flex items-center justify-between">
+        <div className="px-5 py-3 border-t border-white/[0.08] bg-[var(--surface-1)] flex items-center justify-between">
           <button
             onClick={() => {
               const steps: OnboardingStep[] = ["welcome", "base", "features", "configure", "preview"]
@@ -618,7 +618,7 @@ export function OnboardingFlow({ onComplete, onDismiss }: OnboardingFlowProps) {
                 }
               }}
               disabled={step === "base" && !selectedBase}
-              className="px-4 py-1.5 bg-[#1A1F26] hover:bg-[#222730] border border-white/[0.06] text-[11px] text-zinc-300 font-medium rounded transition-all flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="px-4 py-1.5 bg-[var(--surface-2)] hover:bg-[var(--surface-3)] border border-white/[0.08] text-[11px] text-zinc-300 font-medium rounded transition-all flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               Next
               <ArrowRight className="w-3 h-3" />

@@ -5,14 +5,14 @@ import { Activity, Cpu, Database, Zap } from "lucide-react";
 
 export function TelemetryMicrobar() {
   return (
-    <div className="w-full h-7 bg-[#090C10] border-b border-[#222730] flex items-center px-3 gap-4 text-[9px] font-mono">
+    <div className="w-full h-7 bg-[var(--surface-1)] border-b border-white/[0.08] flex items-center px-3 gap-4 text-[9px] font-mono">
       {/* System Status */}
       <div className="flex items-center gap-1.5">
         <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
         <span className="text-zinc-500 uppercase tracking-wider">Live</span>
       </div>
 
-      <div className="h-3 w-px bg-[#222730]" />
+      <div className="h-3 w-px bg-white/[0.08]" />
 
       {/* CPU Usage */}
       <div className="flex items-center gap-1.5">
@@ -35,7 +35,7 @@ export function TelemetryMicrobar() {
         <span className="text-zinc-400">42ms</span>
       </div>
 
-      <div className="h-3 w-px bg-[#222730]" />
+      <div className="h-3 w-px bg-white/[0.08]" />
 
       {/* Network */}
       <div className="flex items-center gap-1.5">

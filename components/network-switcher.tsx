@@ -8,13 +8,13 @@ export function NetworkSwitcher() {
     const { stellarNetwork, setStellarNetwork } = useNetwork();
 
     return (
-        <div className="flex items-center gap-1 p-0.5 bg-[#1A1F26] rounded-lg border border-white/[0.06]">
+        <div className="flex items-center gap-1 p-0.5 bg-[var(--surface-2)] rounded-lg border border-white/[0.08]">
             <button
                 onClick={() => setStellarNetwork("testnet")}
                 className={cn(
                     "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all",
                     stellarNetwork === "testnet"
-                        ? "bg-[#222730] text-white border border-primary/30"
+                        ? "bg-[var(--surface-3)] text-white border border-primary/40"
                         : "text-zinc-500 hover:text-zinc-300"
                 )}
             >
@@ -27,7 +27,7 @@ export function NetworkSwitcher() {
                 className={cn(
                     "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all",
                     stellarNetwork === "mainnet"
-                        ? "bg-[#222730] text-white border border-emerald-500/30"
+                        ? "bg-[var(--surface-3)] text-white border border-emerald-500/40"
                         : "text-zinc-500 hover:text-zinc-300"
                 )}
             >

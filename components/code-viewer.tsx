@@ -20,7 +20,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   base: "text-blue-400",
   token: "text-teal-400",
   security: "text-orange-400",
-  governance: "text-purple-400",
+  governance: "text-amber-400",
   defi: "text-emerald-400",
 }
 
@@ -115,7 +115,7 @@ export function CodeViewer() {
   return (
     <div className="w-full h-full flex flex-col">
       {/* Header */}
-      <div className="bg-[#0B0F14] border-b border-white/[0.06] p-3">
+      <div className="bg-[var(--surface-0)] border-b border-white/[0.08] p-3">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-sm font-semibold text-zinc-200 flex items-center gap-2">
             <Code2 className="w-4 h-4 text-primary" />
@@ -124,7 +124,7 @@ export function CodeViewer() {
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex gap-1 bg-[#1A1F26] p-0.5 rounded border border-white/[0.06] mb-3">
+        <div className="flex gap-1 bg-[var(--surface-2)] p-0.5 rounded border border-white/[0.08] mb-3">
           {([
             { key: "code", label: "Code" },
             { key: "structure", label: "Structure" },
@@ -136,7 +136,7 @@ export function CodeViewer() {
               className={cn(
                 "flex-1 px-3 py-1.5 text-[10px] font-medium rounded transition-all duration-[180ms]",
                 activeTab === tab.key
-                  ? "bg-[#222730] text-white border-t-2 border-t-blue-500/50"
+                  ? "bg-[var(--surface-3)] text-white border-t-2 border-t-primary/60"
                   : "text-zinc-500 hover:text-zinc-300"
               )}
             >
@@ -147,12 +147,12 @@ export function CodeViewer() {
 
         {/* Code Sub-tabs */}
         {activeTab === "code" && (
-          <div className="flex gap-1 bg-[#1A1F26] p-0.5 rounded border border-white/[0.06] mb-3">
+          <div className="flex gap-1 bg-[var(--surface-2)] p-0.5 rounded border border-white/[0.08] mb-3">
             <button
               onClick={() => setCodeSubTab("solidity")}
               className={cn(
                 "flex-1 px-2 py-1 text-[10px] font-medium rounded transition-all duration-[180ms]",
-                codeSubTab === "solidity" ? "bg-[#222730] text-white" : "text-zinc-500 hover:text-zinc-300"
+                codeSubTab === "solidity" ? "bg-[var(--surface-3)] text-white" : "text-zinc-500 hover:text-zinc-300"
               )}
             >
               Contract
@@ -161,7 +161,7 @@ export function CodeViewer() {
               onClick={() => setCodeSubTab("frontend")}
               className={cn(
                 "flex-1 px-2 py-1 text-[10px] font-medium rounded transition-all duration-[180ms]",
-                codeSubTab === "frontend" ? "bg-[#222730] text-white" : "text-zinc-500 hover:text-zinc-300"
+                codeSubTab === "frontend" ? "bg-[var(--surface-3)] text-white" : "text-zinc-500 hover:text-zinc-300"
               )}
             >
               Frontend
@@ -171,14 +171,14 @@ export function CodeViewer() {
 
         {/* Metadata grid */}
         <div className="grid grid-cols-2 gap-2">
-          <div className="bg-[#1A1F26] p-2 rounded border border-white/[0.06]">
+          <div className="bg-[var(--surface-2)] p-2 rounded border border-white/[0.08]">
             <span className="text-[9px] text-zinc-500 uppercase block mb-1">Network</span>
             <div className="flex items-center gap-1.5">
               <Server className="w-3 h-3 text-zinc-400" />
               <span className="text-[10px] text-zinc-300 font-mono">Stellar Testnet</span>
             </div>
           </div>
-          <div className="bg-[#1A1F26] p-2 rounded border border-white/[0.06]">
+          <div className="bg-[var(--surface-2)] p-2 rounded border border-white/[0.08]">
             <span className="text-[9px] text-zinc-500 uppercase block mb-1">Security</span>
             <div className="flex items-center gap-1.5">
               <Shield className={`w-3 h-3 ${
@@ -197,7 +197,7 @@ export function CodeViewer() {
       </div>
 
       {/* Contract Overview */}
-      <div className="p-3 border-b border-white/[0.06] bg-[#0B0F14]/50">
+      <div className="p-3 border-b border-white/[0.08] bg-[var(--surface-0)]/60">
         <div className="flex items-center justify-between mb-2">
           <span className="text-[10px] font-mono text-zinc-500 uppercase">Contract Overview</span>
           <span className={`text-[10px] font-mono flex items-center gap-1 ${
@@ -242,13 +242,13 @@ export function CodeViewer() {
             <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
               <button
                 onClick={() => handleCopy(currentCode, "code")}
-                className="p-1.5 bg-[#1A1F26] border border-white/[0.06] rounded text-zinc-400 hover:text-white"
+                className="p-1.5 bg-[var(--surface-2)] border border-white/[0.08] rounded text-zinc-400 hover:text-white"
               >
                 {copied === "code" ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
               </button>
               <button
                 onClick={() => handleDownload(currentCode, filename)}
-                className="p-1.5 bg-[#1A1F26] border border-white/[0.06] rounded text-zinc-400 hover:text-white"
+                className="p-1.5 bg-[var(--surface-2)] border border-white/[0.08] rounded text-zinc-400 hover:text-white"
               >
                 <Download className="w-3 h-3" />
               </button>
@@ -274,7 +274,7 @@ export function CodeViewer() {
               </button>
 
               {treeExpanded && (
-                <div className="font-mono text-[11px] space-y-1 pl-2 border-l border-white/[0.06]">
+                <div className="font-mono text-[11px] space-y-1 pl-2 border-l border-white/[0.08]">
                   <div className="text-zinc-200 font-medium pl-2">
                     {currentProject?.name || "Contract"}.sol
                   </div>
@@ -348,12 +348,12 @@ export function CodeViewer() {
               <h4 className="text-[10px] font-mono text-zinc-600 uppercase tracking-wider mb-3">Gas Estimation</h4>
               <div className="space-y-3">
                 {/* Deploy gas */}
-                <div className="p-3 bg-[#11151A] border border-white/[0.06] rounded">
+                <div className="p-3 bg-[var(--surface-1)] border border-white/[0.08] rounded">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-[11px] text-zinc-300 font-medium">Deployment</span>
                     <span className="text-[11px] font-mono text-zinc-200">{analysis.deployGas.toLocaleString()} gas</span>
                   </div>
-                  <div className="h-1.5 bg-[#1A1F26] rounded-full overflow-hidden">
+                  <div className="h-1.5 bg-[var(--surface-2)] rounded-full overflow-hidden">
                     <div
                       className="h-full bg-blue-500/60 rounded-full"
                       style={{ width: `${Math.min((analysis.deployGas / 500000) * 100, 100)}%` }}
@@ -366,24 +366,24 @@ export function CodeViewer() {
                 </div>
 
                 {/* Transfer gas */}
-                <div className="p-3 bg-[#11151A] border border-white/[0.06] rounded">
+                <div className="p-3 bg-[var(--surface-1)] border border-white/[0.08] rounded">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-[11px] text-zinc-300 font-medium">Transfer</span>
                     <span className="text-[11px] font-mono text-zinc-200">~{analysis.transferGas.toLocaleString()} gas</span>
                   </div>
-                  <div className="h-1.5 bg-[#1A1F26] rounded-full overflow-hidden">
+                  <div className="h-1.5 bg-[var(--surface-2)] rounded-full overflow-hidden">
                     <div className="h-full bg-teal-500/60 rounded-full" style={{ width: "15%" }} />
                   </div>
                 </div>
 
                 {/* Mint gas */}
                 {analysis.mintGas > 0 && (
-                  <div className="p-3 bg-[#11151A] border border-white/[0.06] rounded">
+                  <div className="p-3 bg-[var(--surface-1)] border border-white/[0.08] rounded">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-[11px] text-zinc-300 font-medium">Mint</span>
                       <span className="text-[11px] font-mono text-zinc-200">~{analysis.mintGas.toLocaleString()} gas</span>
                     </div>
-                    <div className="h-1.5 bg-[#1A1F26] rounded-full overflow-hidden">
+                    <div className="h-1.5 bg-[var(--surface-2)] rounded-full overflow-hidden">
                       <div className="h-full bg-emerald-500/60 rounded-full" style={{ width: "25%" }} />
                     </div>
                   </div>
@@ -392,14 +392,14 @@ export function CodeViewer() {
             </div>
 
             {/* Efficiency score */}
-            <div className="p-3 bg-[#11151A] border border-white/[0.06] rounded">
+            <div className="p-3 bg-[var(--surface-1)] border border-white/[0.08] rounded">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[10px] font-mono text-zinc-600 uppercase">Efficiency Score</span>
                 <span className="text-sm font-semibold text-emerald-400">
                   {Math.min(96, 80 + blocks.length * 2)}/100
                 </span>
               </div>
-              <div className="h-2 bg-[#1A1F26] rounded-full overflow-hidden">
+              <div className="h-2 bg-[var(--surface-2)] rounded-full overflow-hidden">
                 <div
                   className="h-full bg-emerald-500/50 rounded-full transition-all"
                   style={{ width: `${Math.min(96, 80 + blocks.length * 2)}%` }}
@@ -434,7 +434,7 @@ export function CodeViewer() {
       </div>
 
       {/* Deploy footer */}
-      <div className="p-3 border-t border-white/[0.06] bg-[#0B0F14]">
+      <div className="p-3 border-t border-white/[0.08] bg-[var(--surface-0)]">
         {blocks.length > 0 ? (
           <div className="space-y-2">
             <div className="flex justify-between items-center text-[10px] text-zinc-500">

@@ -38,13 +38,13 @@ export const BentoGridItem = ({
     description?: string | React.ReactNode;
     header?: React.ReactNode;
     icon?: React.ReactNode;
-    accentColor?: "blue" | "emerald" | "purple" | "zinc";
+    accentColor?: "blue" | "emerald" | "amber" | "zinc";
 }) => {
     // Map accent colors to border classes
     const accentStripClass = {
         blue: "border-t-[rgba(59,130,246,0.5)]",
         emerald: "border-t-[rgba(16,185,129,0.5)]",
-        purple: "border-t-[rgba(139,92,246,0.5)]",
+        amber: "border-t-[rgba(244,183,64,0.55)]",
         zinc: "border-t-[rgba(113,113,122,0.5)]",
     }[accentColor];
 
@@ -57,11 +57,11 @@ export const BentoGridItem = ({
                 "border-t-2",
                 accentStripClass,
                 // Surface and border system
-                "bg-[#11151A] border-x border-b border-[rgba(255,255,255,0.06)]",
+                "bg-[var(--surface-1)] border-x border-b border-white/[0.06]",
                 // Increased information density (reduced padding from p-4 to p-3)
                 "p-3",
                 // Hover state: background shift only (no translateY)
-                "hover:bg-[#161B22]",
+                "hover:bg-[var(--surface-2)]",
                 // Layout
                 "justify-between flex flex-col space-y-3",
                 className

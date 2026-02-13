@@ -33,54 +33,54 @@ describe('CodeViewer', () => {
   })
 
   describe('Tab Navigation', () => {
-    it('should render all three main tabs: Code, ABI, Metadata', () => {
+    it('should render all three main tabs: Code, Structure, Gas', () => {
       render(<CodeViewer />)
       
       expect(screen.getByRole('button', { name: /code/i })).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: /abi/i })).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: /metadata/i })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /structure/i })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /gas/i })).toBeInTheDocument()
     })
 
     it('should default to Code tab being active', () => {
       render(<CodeViewer />)
       
       const codeTab = screen.getByRole('button', { name: /^code$/i })
-      expect(codeTab).toHaveClass('bg-[#222730]')
+      expect(codeTab).toHaveClass('bg-[var(--surface-3)]')
       expect(codeTab).toHaveClass('text-white')
     })
 
-    it('should switch to ABI tab when clicked', () => {
+    it('should switch to Structure tab when clicked', () => {
       render(<CodeViewer />)
       
-      const abiTab = screen.getByRole('button', { name: /abi/i })
-      fireEvent.click(abiTab)
+      const structureTab = screen.getByRole('button', { name: /structure/i })
+      fireEvent.click(structureTab)
       
-      expect(abiTab).toHaveClass('bg-[#222730]')
-      expect(abiTab).toHaveClass('text-white')
+      expect(structureTab).toHaveClass('bg-[var(--surface-3)]')
+      expect(structureTab).toHaveClass('text-white')
     })
 
-    it('should switch to Metadata tab when clicked', () => {
+    it('should switch to Gas tab when clicked', () => {
       render(<CodeViewer />)
       
-      const metadataTab = screen.getByRole('button', { name: /metadata/i })
-      fireEvent.click(metadataTab)
+      const gasTab = screen.getByRole('button', { name: /gas/i })
+      fireEvent.click(gasTab)
       
-      expect(metadataTab).toHaveClass('bg-[#222730]')
-      expect(metadataTab).toHaveClass('text-white')
+      expect(gasTab).toHaveClass('bg-[var(--surface-3)]')
+      expect(gasTab).toHaveClass('text-white')
     })
 
     it('should show code sub-tabs only when Code tab is active', () => {
       render(<CodeViewer />)
       
       // Code tab is active by default, sub-tabs should be visible
-      expect(screen.getByRole('button', { name: /rust\/wasm/i })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /contract/i })).toBeInTheDocument()
       expect(screen.getByRole('button', { name: /frontend/i })).toBeInTheDocument()
       
-      // Switch to ABI tab
-      fireEvent.click(screen.getByRole('button', { name: /abi/i }))
+      // Switch to Structure tab
+      fireEvent.click(screen.getByRole('button', { name: /structure/i }))
       
       // Sub-tabs should not be visible
-      expect(screen.queryByRole('button', { name: /rust\/wasm/i })).not.toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: /contract/i })).not.toBeInTheDocument()
       expect(screen.queryByRole('button', { name: /frontend/i })).not.toBeInTheDocument()
     })
   })
@@ -91,16 +91,16 @@ describe('CodeViewer', () => {
       
       const codeTab = screen.getByRole('button', { name: /^code$/i })
       
-      // Active tab should use Surface 3 (#222730) and accent border
-      expect(codeTab).toHaveClass('bg-[#222730]')
-      expect(codeTab).toHaveClass('border-t-blue-500/50')
+      // Active tab should use Surface 3 token and accent border
+      expect(codeTab).toHaveClass('bg-[var(--surface-3)]')
+      expect(codeTab).toHaveClass('border-t-primary/60')
     })
 
     it('should use correct border opacity for containers', () => {
       const { container } = render(<CodeViewer />)
       
-      // Check for border-white/[0.06] which is the design system token
-      const borderedElements = container.querySelectorAll('[class*="border-white/\\[0.06\\]"]')
+      // Check for border-white/[0.08] which is the design system token
+      const borderedElements = container.querySelectorAll('[class*="border-white/\\[0.08\\]"]')
       expect(borderedElements.length).toBeGreaterThan(0)
     })
 
@@ -114,18 +114,15 @@ describe('CodeViewer', () => {
     it('should use monospace font for technical labels', () => {
       render(<CodeViewer />)
       
-      // Network and Compiler labels should use monospace
-      const monoElements = screen.getAllByText(/stellar testnet|soroban-sdk v20/i)
-      monoElements.forEach(element => {
-        expect(element).toHaveClass('font-mono')
-      })
+      const networkLabel = screen.getByText(/stellar testnet/i)
+      expect(networkLabel).toHaveClass('font-mono')
     })
 
     it('should use motion system timing (180ms) for tab transitions', () => {
       render(<CodeViewer />)
       
       const codeTab = screen.getByRole('button', { name: /^code$/i })
-      const abiTab = screen.getByRole('button', { name: /abi/i })
+      const abiTab = screen.getByRole('button', { name: /structure/i })
       
       // Verify tabs have the correct transition duration
       expect(codeTab).toHaveClass('duration-[180ms]')
@@ -140,26 +137,20 @@ describe('CodeViewer', () => {
       expect(screen.getByText('mock solidity code')).toBeInTheDocument()
     })
 
-    it('should display ABI content when ABI tab is active', () => {
+    it('should display structure content when Structure tab is active', () => {
       render(<CodeViewer />)
       
-      fireEvent.click(screen.getByRole('button', { name: /abi/i }))
+      fireEvent.click(screen.getByRole('button', { name: /structure/i }))
       
-      // ABI content should be JSON formatted
-      const codeElement = screen.getByText(/BlockBuilderContract/i)
-      expect(codeElement).toBeInTheDocument()
+      expect(screen.getByText(/contract tree/i)).toBeInTheDocument()
     })
 
-    it('should display metadata content when Metadata tab is active', () => {
+    it('should display gas content when Gas tab is active', () => {
       render(<CodeViewer />)
       
-      fireEvent.click(screen.getByRole('button', { name: /metadata/i }))
+      fireEvent.click(screen.getByRole('button', { name: /gas/i }))
       
-      // Metadata should contain compiler info - use getAllByText since it appears in header too
-      const codeElements = screen.getAllByText(/soroban-sdk/i)
-      expect(codeElements.length).toBeGreaterThan(0)
-      // Verify the JSON metadata content is present
-      expect(screen.getByText(/"compiler":/i)).toBeInTheDocument()
+      expect(screen.getByText(/gas estimation/i)).toBeInTheDocument()
     })
 
     it('should switch between Rust/WASM and Frontend code', () => {
@@ -218,7 +209,7 @@ describe('CodeViewer', () => {
       render(<CodeViewer />)
       
       const codeTab = screen.getByRole('button', { name: /^code$/i })
-      const abiTab = screen.getByRole('button', { name: /abi/i })
+      const abiTab = screen.getByRole('button', { name: /structure/i })
       
       codeTab.focus()
       expect(document.activeElement).toBe(codeTab)

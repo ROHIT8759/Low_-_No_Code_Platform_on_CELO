@@ -9,7 +9,7 @@ interface SecurityFeatureProps {
 export function SecurityFeature({ icon, title, description }: SecurityFeatureProps) {
   return (
     <div className="flex items-start gap-4">
-      <div className="w-6 h-6 rounded bg-[#1A1F26] flex items-center justify-center mt-0.5 shrink-0 border border-white/[0.04]">
+      <div className="w-6 h-6 rounded bg-[var(--surface-2)] flex items-center justify-center mt-0.5 shrink-0 border border-white/[0.06]">
         {icon}
       </div>
       <div>

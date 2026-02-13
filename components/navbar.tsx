@@ -18,7 +18,7 @@ export function Navbar() {
   })
 
   return (
-    <div className="fixed top-0 inset-x-0 z-50 flex justify-center pointer-events-none pt-4">
+    <div suppressHydrationWarning className="fixed top-0 inset-x-0 z-50 flex justify-center pointer-events-none pt-4">
       <motion.nav
         initial={{ y: -20, opacity: 0 }}
         animate={{
@@ -34,7 +34,7 @@ export function Navbar() {
         }}
         className={cn(
           "pointer-events-auto flex items-center justify-between px-4 relative",
-          "bg-[#0F141B]/80 backdrop-blur-md border border-[var(--border-outer)]",
+          "bg-[var(--surface-1)]/80 backdrop-blur-md border border-white/[0.08]",
           "rounded-[var(--radius-md)] transition-infrastructure"
         )}
         style={{
@@ -43,7 +43,7 @@ export function Navbar() {
       >
         {}
         <Link href="/" className="flex items-center gap-3 group mr-6 pr-6 border-r border-[var(--border-outer)] h-8">
-          <div className="w-6 h-6 flex items-center justify-center bg-zinc-100 rounded-[4px] text-black font-bold text-xs group-hover:bg-white transition-colors">
+          <div className="w-6 h-6 flex items-center justify-center bg-[var(--surface-2)] rounded-[4px] text-white font-bold text-xs group-hover:bg-[var(--surface-3)] transition-colors">
             B
           </div>
           <div className="flex flex-col">
@@ -72,18 +72,18 @@ export function Navbar() {
         <div className="flex items-center gap-3 pl-4 ml-2">
           <div className="hidden md:flex items-center gap-1 border-r border-[var(--border-outer)] pr-4 mr-2">
             <Link href="/docs">
-              <button className="p-1.5 text-zinc-500 hover:text-zinc-300 transition-infrastructure rounded hover:bg-white/5">
+              <button className="p-1.5 text-zinc-500 hover:text-zinc-300 transition-infrastructure rounded hover:bg-[var(--surface-2)]">
                 <BookOpen className="w-3.5 h-3.5" />
               </button>
             </Link>
-            <button className="p-1.5 text-zinc-500 hover:text-zinc-300 transition-infrastructure rounded hover:bg-white/5">
+            <button className="p-1.5 text-zinc-500 hover:text-zinc-300 transition-infrastructure rounded hover:bg-[var(--surface-2)]">
               <Terminal className="w-3.5 h-3.5" />
             </button>
           </div>
 
           <Link href="/builder">
             <button className={cn(
-              "flex items-center gap-2 bg-[#0055eb] hover:bg-[#0044c2] text-white text-xs font-semibold rounded-[6px] transition-all shadow-sm active:translate-y-px",
+              "flex items-center gap-2 bg-primary hover:bg-primary/90 text-white text-xs font-semibold rounded-[6px] transition-all shadow-sm active:translate-y-px",
               scrolled ? "px-3 py-1.5" : "px-4 py-2"
             )}>
               <span>Launch App</span>

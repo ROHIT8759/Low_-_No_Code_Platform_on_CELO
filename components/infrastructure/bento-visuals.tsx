@@ -4,6 +4,13 @@ import { motion } from "framer-motion"
 import { useEffect, useState } from "react"
 import { Check, Terminal, FileCode, Layers, ArrowRight, Activity, ShieldCheck } from "lucide-react"
 
+// Hook to ensure component only renders on client (prevents hydration mismatches)
+function useIsClient() {
+  const [isClient, setIsClient] = useState(false)
+  useEffect(() => setIsClient(true), [])
+  return isClient
+}
+
 export function WasmCompilationVisual() {
     const [step, setStep] = useState(0)
 
@@ -22,8 +29,8 @@ export function WasmCompilationVisual() {
     ]
 
     return (
-        <div className="flex-1 w-full h-full min-h-32 rounded-md bg-[#0D1117] border border-[#222730] p-3 font-mono text-[10px] flex flex-col relative overflow-hidden group">
-            <div className="absolute top-0 left-0 right-0 h-6 bg-[#161B22] border-b border-[#222730] flex items-center px-2 gap-1.5">
+        <div suppressHydrationWarning className="flex-1 w-full h-full min-h-32 rounded-md bg-[var(--surface-1)] border border-white/[0.08] p-3 font-mono text-[10px] flex flex-col relative overflow-hidden group">
+            <div className="absolute top-0 left-0 right-0 h-6 bg-[var(--surface-2)] border-b border-white/[0.08] flex items-center px-2 gap-1.5">
                 <div className="w-2 h-2 rounded-full bg-red-500/20 border border-red-500/50" />
                 <div className="w-2 h-2 rounded-full bg-yellow-500/20 border border-yellow-500/50" />
                 <div className="w-2 h-2 rounded-full bg-emerald-500/20 border border-emerald-500/50" />
@@ -51,7 +58,7 @@ export function WasmCompilationVisual() {
 
 export function StateExpirationVisual() {
     return (
-        <div className="flex-1 w-full h-full min-h-32 rounded-md bg-[#0B0F14] border border-[#222730] p-4 flex flex-col justify-between relative overflow-hidden">
+        <div suppressHydrationWarning className="flex-1 w-full h-full min-h-32 rounded-md bg-[var(--surface-1)] border border-white/[0.08] p-4 flex flex-col justify-between relative overflow-hidden">
             <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-size-[16px_16px]" />
 
             <div className="flex items-center justify-between relative z-10">
@@ -64,7 +71,7 @@ export function StateExpirationVisual() {
                     <span className="text-zinc-400">Entry_0x8a</span>
                     <span className="text-emerald-500">Active</span>
                 </div>
-                <div className="w-full h-1 bg-[#1A1F26] rounded-full overflow-hidden">
+                <div className="w-full h-1 bg-[var(--surface-2)] rounded-full overflow-hidden">
                     <motion.div
                         className="h-full bg-emerald-500"
                         initial={{ width: "100%" }}
@@ -77,7 +84,7 @@ export function StateExpirationVisual() {
                     <span className="text-zinc-400">Entry_0x2b</span>
                     <span className="text-yellow-500">Expiring</span>
                 </div>
-                <div className="w-full h-1 bg-[#1A1F26] rounded-full overflow-hidden">
+                <div className="w-full h-1 bg-[var(--surface-2)] rounded-full overflow-hidden">
                     <motion.div
                         className="h-full bg-yellow-500"
                         initial={{ width: "80%" }}
@@ -92,8 +99,8 @@ export function StateExpirationVisual() {
 
 export function FormalVerificationVisual() {
     return (
-        <div className="flex-1 w-full h-full min-h-32 rounded-md bg-[#0D1117] border border-[#222730] relative overflow-hidden flex items-center justify-center">
-            <div className="absolute inset-0 bg-blue-500/5" />
+        <div suppressHydrationWarning className="flex-1 w-full h-full min-h-32 rounded-md bg-[var(--surface-1)] border border-white/[0.08] relative overflow-hidden flex items-center justify-center">
+            <div className="absolute inset-0 bg-primary/5" />
 
             {}
             <div className="w-3/4 space-y-1.5 opacity-50">
@@ -113,7 +120,7 @@ export function FormalVerificationVisual() {
             />
 
             {}
-            <div className="absolute bottom-3 right-3 flex items-center gap-1 bg-[#090C10] border border-emerald-900/50 px-2 py-1 rounded-full">
+            <div className="absolute bottom-3 right-3 flex items-center gap-1 bg-[var(--surface-0)] border border-emerald-900/40 px-2 py-1 rounded-full">
                 <ShieldCheck className="w-3 h-3 text-emerald-500" />
                 <span className="text-[9px] font-mono text-emerald-500">VERIFIED</span>
             </div>
@@ -123,14 +130,14 @@ export function FormalVerificationVisual() {
 
 export function CrossContractVisual() {
     return (
-        <div className="flex-1 w-full h-full min-h-32 rounded-md bg-[#11151A] border border-[#222730] relative p-4 overflow-hidden">
+        <div suppressHydrationWarning className="flex-1 w-full h-full min-h-32 rounded-md bg-[var(--surface-1)] border border-white/[0.08] relative p-4 overflow-hidden">
 
             {}
-            <div className="absolute top-1/2 left-8 -translate-y-1/2 w-10 h-10 rounded bg-[#1A1F26] border border-[#30363D] flex items-center justify-center z-10">
+            <div className="absolute top-1/2 left-8 -translate-y-1/2 w-10 h-10 rounded bg-[var(--surface-2)] border border-white/[0.1] flex items-center justify-center z-10">
                 <FileCode className="w-4 h-4 text-zinc-400" />
             </div>
 
-            <div className="absolute top-1/2 right-8 -translate-y-1/2 w-10 h-10 rounded bg-[#1A1F26] border border-[#30363D] flex items-center justify-center z-10">
+            <div className="absolute top-1/2 right-8 -translate-y-1/2 w-10 h-10 rounded bg-[var(--surface-2)] border border-white/[0.1] flex items-center justify-center z-10">
                 <Layers className="w-4 h-4 text-zinc-400" />
             </div>
 
@@ -143,9 +150,9 @@ export function CrossContractVisual() {
                 style={{ translateY: "-50%" }}
             />
 
-            <div className="absolute top-1/2 left-14 right-14 h-px bg-zinc-800 border-t border-dashed border-zinc-700 -translate-y-1/2" />
+            <div className="absolute top-1/2 left-14 right-14 h-px bg-white/[0.08] border-t border-dashed border-white/[0.12] -translate-y-1/2" />
 
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-[#090C10] px-2 py-0.5 rounded border border-[#222730]">
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-[var(--surface-0)] px-2 py-0.5 rounded border border-white/[0.08]">
                 <span className="text-[9px] font-mono text-zinc-500">INVOKE_CONTRACT</span>
             </div>
         </div>

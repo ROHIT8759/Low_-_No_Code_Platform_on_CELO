@@ -83,7 +83,7 @@ export function WorkstationHeader({
       case "complete":
         return <CheckCircle2 className="w-3 h-3 text-emerald-500" />;
       case "active":
-        return <Circle className="w-3 h-3 text-blue-500 fill-blue-500" />;
+        return <Circle className="w-3 h-3 text-primary fill-primary" />;
       default:
         return <Circle className="w-3 h-3 text-zinc-700" />;
     }
@@ -98,16 +98,16 @@ export function WorkstationHeader({
     : "bg-zinc-600";
 
   return (
-    <div className="w-full border-b border-white/[0.06] bg-[#0B0F14]">
+    <div className="w-full border-b border-white/[0.08] bg-[var(--surface-0)]">
       {/* Pipeline stages */}
-      <div className="h-11 flex items-center justify-between px-4 border-b border-white/[0.06]">
+      <div className="h-11 flex items-center justify-between px-4 border-b border-white/[0.08]">
         <div className="flex items-center gap-1">
           {stages.map((stage, index) => (
             <React.Fragment key={stage.id}>
               <div
                 className={`flex items-center gap-1.5 px-2.5 py-1 rounded transition-all duration-200 ${
                   stage.status === "active"
-                    ? "bg-blue-500/10 border border-blue-500/20"
+                    ? "bg-primary/10 border border-primary/30"
                     : stage.status === "complete"
                     ? "bg-emerald-500/5 border border-emerald-500/10"
                     : "border border-transparent"
@@ -117,7 +117,7 @@ export function WorkstationHeader({
                 <span
                   className={`text-[10px] font-mono uppercase tracking-wider ${
                     stage.status === "active"
-                      ? "text-blue-400"
+                      ? "text-primary"
                       : stage.status === "complete"
                       ? "text-emerald-400"
                       : "text-zinc-600"
@@ -129,7 +129,7 @@ export function WorkstationHeader({
               {index < stages.length - 1 && (
                 <div
                   className={`w-5 h-px mx-0.5 transition-colors ${
-                    index < currentIndex ? "bg-emerald-500/30" : "bg-white/[0.06]"
+                    index < currentIndex ? "bg-emerald-500/30" : "bg-white/[0.08]"
                   }`}
                 />
               )}
@@ -143,7 +143,7 @@ export function WorkstationHeader({
             <Blocks className="w-3 h-3 text-zinc-600" />
             <span>{blockCount} blocks</span>
           </div>
-          <div className="h-3 w-px bg-white/[0.06]" />
+          <div className="h-3 w-px bg-white/[0.08]" />
           <div className="flex items-center gap-1.5 text-[10px] font-mono text-zinc-500">
             <Globe className="w-3 h-3 text-zinc-600" />
             <span>{network}</span>
@@ -167,7 +167,7 @@ export function WorkstationHeader({
                   onChange={(e) => setEditValue(e.target.value)}
                   onBlur={handleSave}
                   onKeyDown={handleKeyDown}
-                  className="bg-[#1A1F26] border border-primary/40 rounded px-2 py-0.5 text-xs text-white font-medium focus:outline-none focus:border-primary w-40"
+                  className="bg-[var(--surface-2)] border border-primary/40 rounded px-2 py-0.5 text-xs text-white font-medium focus:outline-none focus:border-primary w-40"
                   maxLength={40}
                 />
                 <button
@@ -180,7 +180,7 @@ export function WorkstationHeader({
             ) : (
               <button
                 onClick={() => setIsEditing(true)}
-                className="group flex items-center gap-1.5 hover:bg-[#1A1F26] rounded px-1.5 py-0.5 -ml-1.5 transition-colors"
+                className="group flex items-center gap-1.5 hover:bg-[var(--surface-2)] rounded px-1.5 py-0.5 -ml-1.5 transition-colors"
               >
                 <span className="text-xs text-primary font-medium">
                   {contractName}
@@ -190,7 +190,7 @@ export function WorkstationHeader({
             )}
           </div>
 
-          <div className="h-3 w-px bg-white/[0.06]" />
+          <div className="h-3 w-px bg-white/[0.08]" />
 
           {/* Status badge */}
           <div className="flex items-center gap-1.5">
@@ -207,12 +207,12 @@ export function WorkstationHeader({
             <Cpu className="w-3 h-3 text-zinc-700" />
             <span className="text-[10px] text-zinc-500 font-mono">{compileSize}</span>
           </div>
-          <div className="h-3 w-px bg-white/[0.06]" />
+          <div className="h-3 w-px bg-white/[0.08]" />
           <div className="flex items-center gap-1.5">
             <Flame className="w-3 h-3 text-zinc-700" />
             <span className="text-[10px] text-zinc-500 font-mono">{gasEstimate}</span>
           </div>
-          <div className="h-3 w-px bg-white/[0.06]" />
+          <div className="h-3 w-px bg-white/[0.08]" />
           <div className="flex items-center gap-1.5">
             <Clock className="w-3 h-3 text-zinc-700" />
             <span className="text-[10px] text-zinc-500 font-mono">{lastCompiled}</span>

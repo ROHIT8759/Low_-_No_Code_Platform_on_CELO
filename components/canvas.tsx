@@ -269,30 +269,40 @@ export function Canvas() {
         addBlock({ id: Date.now().toString(), type, label: labels[type] || type.toUpperCase(), position: { x: 0, y: 0 } } as any)
     }
 
-    // Zoom controls
-    const handleZoomIn = () => setZoom(z => Math.min(z + 0.15, 2))
-    const handleZoomOut = () => setZoom(z => Math.max(z - 0.15, 0.4))
+    // Zoom controls — no hard boundaries
+    const handleZoomIn = () => setZoom(z => Math.min(z + 0.15, 3))
+    const handleZoomOut = () => setZoom(z => Math.max(z - 0.15, 0.15))
     const handleZoomReset = () => { setZoom(1); setPan({ x: 0, y: 0 }) }
 
-    // Pan handlers
+    // Pan handlers — left click pans freely (like Excalidraw), no boundaries
     const handleMouseDown = (e: React.MouseEvent) => {
-        if (e.button === 1 || (e.button === 0 && e.altKey)) {
+        // Only pan when clicking directly on the canvas background, not on blocks/buttons
+        if (e.target !== e.currentTarget && e.button === 0 && !e.altKey) return
+        if (e.button === 0 || e.button === 1) {
             setIsPanning(true)
             setPanStart({ x: e.clientX - pan.x, y: e.clientY - pan.y })
+            e.preventDefault()
         }
     }
     const handleMouseMove = (e: React.MouseEvent) => {
         if (isPanning) {
+            // No clamping — infinite canvas
             setPan({ x: e.clientX - panStart.x, y: e.clientY - panStart.y })
         }
     }
     const handleMouseUp = () => setIsPanning(false)
 
-    // Wheel zoom
+    // Wheel: zoom with ctrl/meta, pan without
     const handleWheel = useCallback((e: React.WheelEvent) => {
         e.preventDefault()
-        const delta = e.deltaY > 0 ? -0.08 : 0.08
-        setZoom(z => Math.min(Math.max(z + delta, 0.4), 2))
+        if (e.ctrlKey || e.metaKey) {
+            // Pinch-to-zoom or ctrl+scroll
+            const delta = e.deltaY > 0 ? -0.08 : 0.08
+            setZoom(z => Math.min(Math.max(z + delta, 0.15), 3))
+        } else {
+            // Scroll to pan
+            setPan(p => ({ x: p.x - e.deltaX, y: p.y - e.deltaY }))
+        }
     }, [])
 
     const handleBlockClick = (block: Block) => {
@@ -347,7 +357,13 @@ export function Canvas() {
                 compileSize={blocks.length > 0 ? `~${(blocks.length * 2.1).toFixed(1)} KB` : "—"}
                 gasEstimate={blocks.length > 0 ? `~${estimatedGas.toLocaleString()}` : "—"}
                 lastCompiled="Never"
+                blockCount={blocks.length}
                 currentStage={getCurrentStage()}
+                onRename={(name) => {
+                    if (currentProject) {
+                        renameProject(currentProject.id, name)
+                    }
+                }}
             />
 
             <div className="flex-1 relative overflow-hidden">
@@ -458,7 +474,7 @@ export function Canvas() {
                 {/* Canvas content */}
                 <div
                     ref={canvasRef}
-                    className={`w-full h-full ${isPanning ? "cursor-grabbing" : "cursor-default"}`}
+                    className={`w-full h-full ${isPanning ? "cursor-grabbing" : "cursor-grab"}`}
                     onMouseDown={handleMouseDown}
                     onMouseMove={handleMouseMove}
                     onMouseUp={handleMouseUp}
@@ -468,15 +484,19 @@ export function Canvas() {
                     onDragOver={handleDragOver}
                 >
                     <div
-                        className="w-full h-full flex items-center justify-center"
                         style={{
-                            transform: `scale(${zoom}) translate(${pan.x / zoom}px, ${pan.y / zoom}px)`,
-                            transformOrigin: "center center",
+                            transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+                            transformOrigin: "0 0",
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            height: "100%",
                         }}
                     >
                         {blocks.length === 0 ? (
                             /* Empty state */
-                            <div className="max-w-2xl w-full px-8">
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-2xl w-full px-8">
                                 <div className="text-center mb-10">
                                     <h3 className="text-xl font-medium text-zinc-200 mb-2">No contract base selected.</h3>
                                     <p className="text-sm text-zinc-500 max-w-sm mx-auto">
@@ -519,9 +539,9 @@ export function Canvas() {
                                 </div>
                             </div>
                         ) : (
-                            /* Node-based block visualization */
-                            <div className="relative w-full h-full py-10">
-                                <div className="flex flex-col items-center gap-2">
+                            /* Node-based block visualization — infinite canvas */
+                            <div className="absolute inset-0">
+                                <div className="flex flex-col items-center gap-2 pt-20">
                                     {/* Entry point */}
                                     <div className="w-36 h-8 rounded-full border border-dashed border-zinc-700 flex items-center justify-center text-[9px] text-zinc-600 uppercase tracking-widest font-mono">
                                         Entry Point

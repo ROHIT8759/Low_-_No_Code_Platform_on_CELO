@@ -273,18 +273,28 @@ export function DeployModal({ isOpen, onClose }: DeployModalProps) {
       const account = await server.loadAccount(walletAddress)
       addLog("wallet", "success", `Account loaded: ${walletAddress.slice(0, 8)}...${walletAddress.slice(-4)}`)
 
+      // Build transaction with a manageData operation to record deployment on-chain
+      const deploymentMemo = `deploy:${contractName.slice(0, 20)}:${blocks.length}blk`
       const transaction = new StellarSdk.TransactionBuilder(account, {
         fee: StellarSdk.BASE_FEE,
         networkPassphrase: networkConfig.networkPassphrase,
       })
-        .setTimeout(30)
+        .addOperation(StellarSdk.Operation.manageData({
+          name: `block-builder:${contractName.slice(0, 40)}`,
+          value: Buffer.from(JSON.stringify({
+            blocks: blocks.map(b => b.type),
+            ts: Date.now(),
+          }).slice(0, 64)),
+        }))
+        .addMemo(StellarSdk.Memo.text(deploymentMemo.slice(0, 28)))
+        .setTimeout(120)
         .build()
 
       addLog("wallet", "info", "Awaiting Freighter signature...")
-      const networkPassphraseForSign = network === "mainnet"
-        ? "Public Global Stellar Network ; September 2015"
-        : "Test SDF Network ; September 2015"
-      const signedXdr = await signSorobanTransaction(transaction.toXDR(), networkPassphraseForSign)
+      const signedXdr = await signSorobanTransaction(
+        transaction.toXDR(),
+        networkConfig.networkPassphrase
+      )
       addLog("wallet", "success", "Transaction signed by wallet")
       setStepStatus("wallet", "success", {
         "Signer": `${walletAddress.slice(0, 8)}...${walletAddress.slice(-4)}`,

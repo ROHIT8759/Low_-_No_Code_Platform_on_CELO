@@ -1,7 +1,7 @@
 "use client";
 
-import React from "react";
-import { CheckCircle2, Circle, Clock, Rocket } from "lucide-react";
+import React, { useState, useRef, useEffect } from "react";
+import { CheckCircle2, Circle, Clock, Pencil, Save, Blocks, Cpu, Flame, Globe } from "lucide-react";
 
 interface PipelineStage {
   id: string;
@@ -16,7 +16,9 @@ interface WorkstationHeaderProps {
   compileSize?: string;
   gasEstimate?: string;
   lastCompiled?: string;
+  blockCount?: number;
   currentStage?: "design" | "generate" | "compile" | "deploy";
+  onRename?: (name: string) => void;
 }
 
 export function WorkstationHeader({
@@ -26,31 +28,58 @@ export function WorkstationHeader({
   compileSize = "—",
   gasEstimate = "—",
   lastCompiled = "Never",
+  blockCount = 0,
   currentStage = "design",
+  onRename,
 }: WorkstationHeaderProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editValue, setEditValue] = useState(contractName);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setEditValue(contractName);
+  }, [contractName]);
+
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, [isEditing]);
+
+  const handleSave = () => {
+    const trimmed = editValue.trim();
+    if (trimmed && trimmed !== contractName && onRename) {
+      onRename(trimmed);
+    } else {
+      setEditValue(contractName);
+    }
+    setIsEditing(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") handleSave();
+    if (e.key === "Escape") { setEditValue(contractName); setIsEditing(false); }
+  };
+
   const stages: PipelineStage[] = [
-    { id: "design", label: "Design", status: "complete" },
-    { id: "generate", label: "Generate", status: "complete" },
+    { id: "design", label: "Design", status: "pending" },
+    { id: "generate", label: "Generate", status: "pending" },
     { id: "compile", label: "Compile", status: "pending" },
     { id: "deploy", label: "Deploy", status: "pending" },
   ];
 
-  // Update stage statuses based on currentStage
   const stageOrder = ["design", "generate", "compile", "deploy"];
   const currentIndex = stageOrder.indexOf(currentStage);
-  
+
   stages.forEach((stage, index) => {
-    if (index < currentIndex) {
-      stage.status = "complete";
-    } else if (index === currentIndex) {
-      stage.status = "active";
-    } else {
-      stage.status = "pending";
-    }
+    if (index < currentIndex) stage.status = "complete";
+    else if (index === currentIndex) stage.status = "active";
+    else stage.status = "pending";
   });
 
-  const getStageIcon = (status: string) => {
-    switch (status) {
+  const getStageIcon = (stageStatus: string) => {
+    switch (stageStatus) {
       case "complete":
         return <CheckCircle2 className="w-3 h-3 text-emerald-500" />;
       case "active":
@@ -60,15 +89,23 @@ export function WorkstationHeader({
     }
   };
 
+  const statusColor = status === "Generated" || status === "Compiled"
+    ? "bg-emerald-500"
+    : status === "Deployed"
+    ? "bg-blue-500"
+    : status === "Designing"
+    ? "bg-amber-500 animate-pulse"
+    : "bg-zinc-600";
+
   return (
     <div className="w-full border-b border-white/[0.06] bg-[#0B0F14]">
-      {/* Pipeline View */}
-      <div className="h-12 flex items-center px-4 border-b border-white/[0.06]">
+      {/* Pipeline stages */}
+      <div className="h-11 flex items-center justify-between px-4 border-b border-white/[0.06]">
         <div className="flex items-center gap-1">
           {stages.map((stage, index) => (
             <React.Fragment key={stage.id}>
               <div
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded transition-all duration-[180ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded transition-all duration-200 ${
                   stage.status === "active"
                     ? "bg-blue-500/10 border border-blue-500/20"
                     : stage.status === "complete"
@@ -90,84 +127,95 @@ export function WorkstationHeader({
                 </span>
               </div>
               {index < stages.length - 1 && (
-                <div className="w-6 h-px bg-white/[0.06] mx-1" />
+                <div
+                  className={`w-5 h-px mx-0.5 transition-colors ${
+                    index < currentIndex ? "bg-emerald-500/30" : "bg-white/[0.06]"
+                  }`}
+                />
               )}
             </React.Fragment>
           ))}
         </div>
+
+        {/* Right side: quick stats */}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 text-[10px] font-mono text-zinc-500">
+            <Blocks className="w-3 h-3 text-zinc-600" />
+            <span>{blockCount} blocks</span>
+          </div>
+          <div className="h-3 w-px bg-white/[0.06]" />
+          <div className="flex items-center gap-1.5 text-[10px] font-mono text-zinc-500">
+            <Globe className="w-3 h-3 text-zinc-600" />
+            <span>{network}</span>
+          </div>
+        </div>
       </div>
 
-      {/* Contract Overview & Compile Metadata */}
-      <div className="h-10 flex items-center justify-between px-4">
-        {/* Contract Overview Panel */}
+      {/* Contract info bar */}
+      <div className="h-9 flex items-center justify-between px-4">
         <div className="flex items-center gap-4">
+          {/* Editable contract name */}
           <div className="flex items-center gap-2">
             <span className="text-[10px] text-zinc-600 font-mono uppercase tracking-wider">
               Contract:
             </span>
-            <span className="text-xs text-zinc-300 font-medium">
-              {contractName}
-            </span>
+            {isEditing ? (
+              <div className="flex items-center gap-1">
+                <input
+                  ref={inputRef}
+                  value={editValue}
+                  onChange={(e) => setEditValue(e.target.value)}
+                  onBlur={handleSave}
+                  onKeyDown={handleKeyDown}
+                  className="bg-[#1A1F26] border border-primary/40 rounded px-2 py-0.5 text-xs text-white font-medium focus:outline-none focus:border-primary w-40"
+                  maxLength={40}
+                />
+                <button
+                  onClick={handleSave}
+                  className="p-0.5 text-primary hover:text-white transition-colors"
+                >
+                  <Save className="w-3 h-3" />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setIsEditing(true)}
+                className="group flex items-center gap-1.5 hover:bg-[#1A1F26] rounded px-1.5 py-0.5 -ml-1.5 transition-colors"
+              >
+                <span className="text-xs text-primary font-medium">
+                  {contractName}
+                </span>
+                <Pencil className="w-2.5 h-2.5 text-zinc-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </button>
+            )}
           </div>
-          
+
           <div className="h-3 w-px bg-white/[0.06]" />
-          
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] text-zinc-600 font-mono uppercase tracking-wider">
-              Network:
-            </span>
-            <span className="text-xs text-zinc-400 font-mono">
-              {network}
-            </span>
-          </div>
-          
-          <div className="h-3 w-px bg-white/[0.06]" />
-          
-          <div className="flex items-center gap-2">
-            <div
-              className={`w-1.5 h-1.5 rounded-full ${
-                status === "Compiled"
-                  ? "bg-emerald-500"
-                  : status === "Deployed"
-                  ? "bg-blue-500"
-                  : "bg-zinc-600"
-              }`}
-            />
+
+          {/* Status badge */}
+          <div className="flex items-center gap-1.5">
+            <div className={`w-1.5 h-1.5 rounded-full ${statusColor}`} />
             <span className="text-[10px] text-zinc-500 font-mono uppercase tracking-wider">
               {status}
             </span>
           </div>
         </div>
 
-        {/* Compile Metadata Panel */}
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] text-zinc-600 font-mono uppercase tracking-wider">
-              Size:
-            </span>
-            <span className="text-xs text-zinc-400 font-mono">
-              {compileSize}
-            </span>
+        {/* Compile metadata */}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5">
+            <Cpu className="w-3 h-3 text-zinc-700" />
+            <span className="text-[10px] text-zinc-500 font-mono">{compileSize}</span>
           </div>
-          
           <div className="h-3 w-px bg-white/[0.06]" />
-          
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] text-zinc-600 font-mono uppercase tracking-wider">
-              Gas:
-            </span>
-            <span className="text-xs text-zinc-400 font-mono">
-              {gasEstimate}
-            </span>
+          <div className="flex items-center gap-1.5">
+            <Flame className="w-3 h-3 text-zinc-700" />
+            <span className="text-[10px] text-zinc-500 font-mono">{gasEstimate}</span>
           </div>
-          
           <div className="h-3 w-px bg-white/[0.06]" />
-          
-          <div className="flex items-center gap-2">
-            <Clock className="w-3 h-3 text-zinc-600" />
-            <span className="text-[10px] text-zinc-500 font-mono">
-              {lastCompiled}
-            </span>
+          <div className="flex items-center gap-1.5">
+            <Clock className="w-3 h-3 text-zinc-700" />
+            <span className="text-[10px] text-zinc-500 font-mono">{lastCompiled}</span>
           </div>
         </div>
       </div>

@@ -1,6 +1,11 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
+import { STELLAR_NETWORKS } from './stellar/stellar-config'
 
-const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY || '')
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || ''
+if (!GEMINI_API_KEY) {
+  throw new Error('GEMINI_API_KEY environment variable is required. Server-side keys only — never use NEXT_PUBLIC_* for API keys.')
+}
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY)
 
 export async function generateFrontendWithGemini(
   contractCode: string,
@@ -37,12 +42,12 @@ ${contractCode}
 1. Create a modern, responsive Next.js application using:
    - TypeScript
    - Tailwind CSS for styling
-   - ethers.js v6 for blockchain interaction
+   - @stellar/stellar-sdk for blockchain interaction
    - React hooks for state management
 
 2. Include the following features:
-   - Wallet connection (MetaMask)
-   - Network detection and switching to Celo
+   - Wallet connection (Freighter for Stellar)
+   - Network detection and switching to Stellar Testnet/Mainnet
    - Display contract information
    - Interactive UI for all contract functions (${features})
    - Transaction status notifications
@@ -50,11 +55,12 @@ ${contractCode}
    - Loading states
    - Responsive design with beautiful gradients
 
-3. For each contract function, create:
-   - Input fields for parameters
-   - Call button with loading state
-   - Success/error notifications
-   - Transaction hash display
+3. Use Stellar SDK (@stellar/stellar-sdk) for blockchain interaction:
+   - Connect to Stellar network
+   - Use network passphrase: "Test SDF Network ; September 2015" for testnet or "Public Global Stellar Network ; September 2015" for mainnet
+   - Handle XLM transactions
+   - Support contract ID format for Soroban contracts
+   - Use Freighter wallet for signing
 
 4. Use modern UI patterns:
    - Card-based layout
@@ -89,7 +95,7 @@ Make it production-ready, beautiful, and fully functional.
     const response = await result.response
     const text = response.text()
     
-    // Try to extract JSON from the response
+    
     const jsonMatch = text.match(/\{[\s\S]*\}/)
     if (jsonMatch) {
       return jsonMatch[0]
@@ -110,22 +116,22 @@ export async function enhanceSmartContract(
   const model = genAI.getGenerativeModel({ model: 'gemini-pro' })
 
   const prompt = `
-You are an expert Solidity developer. Enhance the following smart contract by adding these features: ${additionalFeatures.join(', ')}
+You are an expert Rust and Soroban smart contract developer. Enhance the following contract by adding these features: ${additionalFeatures.join(', ')}
 
 **Current Contract:**
-\`\`\`solidity
+\`\`\`rust
 ${contractCode}
 \`\`\`
 
 **Requirements:**
 1. Add the requested features while maintaining security best practices
-2. Use OpenZeppelin contracts where applicable
+2. Use soroban-sdk patterns where applicable
 3. Include proper error handling and events
-4. Add comprehensive NatSpec documentation
-5. Ensure gas optimization
+4. Add comprehensive documentation comments
+5. Ensure efficiency and minimal WASM size
 6. Maintain backward compatibility with existing functions
 
-Return ONLY the enhanced Solidity code, no explanations.
+Return ONLY the enhanced Rust code, no explanations.
 `
 
   try {
@@ -181,26 +187,26 @@ export async function optimizeContractGas(contractCode: string): Promise<{
   const model = genAI.getGenerativeModel({ model: 'gemini-pro' })
 
   const prompt = `
-Analyze the following Solidity contract for gas optimization opportunities and provide an optimized version.
+Analyze the following Rust/Soroban contract for optimization opportunities and provide an optimized version.
 
 **Contract Code:**
-\`\`\`solidity
+\`\`\`rust
 ${contractCode}
 \`\`\`
 
 Return a JSON object with:
 {
-  "optimizedCode": "... optimized Solidity code ...",
+  "optimizedCode": "... optimized Rust code ...",
   "suggestions": ["suggestion 1", "suggestion 2", ...]
 }
 
 Focus on:
 - Storage optimization
 - Loop optimization
-- Function visibility
 - Data types
 - Caching
 - Batch operations
+- WASM size reduction
 `
 
   try {
@@ -230,7 +236,7 @@ export async function explainContract(contractCode: string): Promise<string> {
 Explain the following smart contract in simple, non-technical terms that anyone can understand.
 
 **Contract Code:**
-\`\`\`solidity
+\`\`\`rust
 ${contractCode}
 \`\`\`
 

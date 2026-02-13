@@ -1,71 +1,15 @@
-import { ethers } from "ethers"
-import { defineChain } from 'viem'
-import { sepolia } from 'viem/chains'
+/**
+ * @deprecated This file is deprecated and will be removed in a future version.
+ * Celo/EVM support has been discontinued. This platform is now Stellar-only.
+ * 
+ * For Stellar network configuration, use:
+ * @see lib/stellar/stellar-config.ts
+ * 
+ * All EVM-related functionality has been removed from the codebase.
+ * If you need EVM support, use an earlier version of this codebase.
+ */
 
-export const celoSepoliaTestnet = defineChain({
-  id: 11142220,
-  name: 'Celo Sepolia Testnet',
-  nativeCurrency: {
-    decimals: 18,
-    name: 'Celo Sepolia Testnet',
-    symbol: 'CELO',
-  },
-  rpcUrls: {
-    default: { http: ['https://forno.celo-sepolia.celo-testnet.org/'] },
-    public: { http: ['https://forno.celo-sepolia.celo-testnet.org/'] },
-  },
-  blockExplorers: {
-    default: {
-      name: 'Celo Sepolia Testnet Explorer',
-      url: 'https://celo-sepolia.blockscout.com/',
-    },
-  },
-  testnet: true,
-})
+console.warn('[DEPRECATED] celo-config.ts is deprecated. Stellar-only platform.')
 
-export const CELO_NETWORKS = {
-  sepolia: {
-    name: "Celo Sepolia Testnet",
-    chainId: 11142220,
-    rpcUrl: "https://forno.celo-sepolia.celo-testnet.org/",
-    explorerUrl: "https://celo-sepolia.blockscout.com/",
-    nativeCurrency: {
-      name: "CELO",
-      symbol: "CELO",
-      decimals: 18,
-    },
-  },
-  mainnet: {
-    name: "Celo Mainnet",
-    chainId: 42220,
-    rpcUrl: "https://forno.celo.org",
-    explorerUrl: "https://celoscan.io",
-    nativeCurrency: {
-      name: "CELO",
-      symbol: "CELO",
-      decimals: 18,
-    },
-  },
-}
-
-export { sepolia }
-
-export async function getProvider(network: "sepolia" | "mainnet" = "sepolia") {
-  const config = CELO_NETWORKS[network]
-  return new ethers.JsonRpcProvider(config.rpcUrl)
-}
-
-export async function compileSolidityCode(code: string): Promise<any> {
-  // This would typically use solc compiler
-  // For now, return a mock compilation result
-  console.log("Compiling Solidity code...")
-  return {
-    abi: [],
-    bytecode: "0x",
-  }
-}
-
-export function getExplorerUrl(txHash: string, network: "sepolia" | "mainnet" = "sepolia"): string {
-  const config = CELO_NETWORKS[network]
-  return `${config.explorerUrl}/tx/${txHash}`
-}
+export const CELO_NETWORKS = {} as const;
+export type CeloNetwork = never;

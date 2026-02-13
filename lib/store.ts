@@ -2,9 +2,8 @@ import { create } from "zustand"
 import { persist } from "zustand/middleware"
 import { isSupabaseAvailable } from "./supabase"
 
-// Simple UUID v4 generator
 function generateUUID(): string {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
     const r = Math.random() * 16 | 0
     const v = c === 'x' ? r : (r & 0x3 | 0x8)
     return v.toString(16)
@@ -13,24 +12,24 @@ function generateUUID(): string {
 
 export interface Block {
   id: string
-  type: 
-    | "erc20" 
-    | "nft" 
-    | "mint" 
-    | "transfer" 
-    | "burn" 
-    | "stake" 
-    | "withdraw"
-    | "pausable"
-    | "whitelist"
-    | "blacklist"
-    | "royalty"
-    | "airdrop"
-    | "timelock"
-    | "multisig"
-    | "voting"
-    | "snapshot"
-    | "permit"
+  type:
+  | "erc20"
+  | "nft"
+  | "mint"
+  | "transfer"
+  | "burn"
+  | "stake"
+  | "withdraw"
+  | "pausable"
+  | "whitelist"
+  | "blacklist"
+  | "royalty"
+  | "airdrop"
+  | "timelock"
+  | "multisig"
+  | "voting"
+  | "snapshot"
+  | "permit"
   label: string
   config?: Record<string, any>
   position?: { x: number; y: number }
@@ -42,15 +41,17 @@ export interface DeployedContract {
   contractName: string
   tokenName?: string
   tokenSymbol?: string
-  network: "sepolia" | "mainnet"
+  network: "testnet" | "mainnet"
+  networkType: "stellar"
   networkName: string
-  chainId: number
+  chainId?: number
   deployer: string
   deployedAt: string
   transactionHash: string
-  contractType: "erc20" | "nft"
-  abi: any[]
-  solidityCode: string
+  contractType: "erc20" | "nft" | "soroban"
+  abi?: any[]
+  solidityCode?: string
+  sorobanCode?: string
   blocks: Block[]
   explorerUrl: string
   frontendUrl?: string
@@ -60,9 +61,10 @@ export interface DeployedContract {
 export interface Project {
   id: string
   name: string
+  networkType: "stellar"
   blocks: Block[]
   generatedCode?: {
-    solidity: string
+    soroban?: string
     frontend: string
   }
   createdAt: string
@@ -75,10 +77,12 @@ interface BuilderStore {
   blocks: Block[]
   selectedBlock: Block | null
   walletAddress: string | null
+  walletType: "freighter" | null
   walletChainId: number | null
+  network: "stellar"
   deployedContracts: DeployedContract[]
 
-  createProject: (name: string) => void
+  createProject: (name: string, networkType?: "stellar") => void
   loadProject: (id: string) => void
   deleteProject: (id: string) => void
   renameProject: (id: string, name: string) => void
@@ -87,11 +91,13 @@ interface BuilderStore {
   removeBlock: (id: string) => void
   updateBlock: (id: string, updates: Partial<Block>) => void
   selectBlock: (block: Block | null) => void
-  setGeneratedCode: (solidity: string, frontend: string) => void
+  setGeneratedCode: (code: { soroban?: string; frontend: string }) => void
   clearAll: () => void
   importProject: (projectData: Project) => void
   setWalletAddress: (address: string | null) => void
+  setWalletType: (type: "freighter" | null) => void
   setWalletChainId: (chainId: number | null) => void
+  setNetwork: (network: "stellar") => void
   addDeployedContract: (contract: DeployedContract) => void
   updateDeployedContract: (id: string, updates: Partial<DeployedContract>) => void
   deleteDeployedContract: (id: string) => void
@@ -106,13 +112,16 @@ export const useBuilderStore = create<BuilderStore>()(
       blocks: [],
       selectedBlock: null,
       walletAddress: null,
+      walletType: null,
       walletChainId: null,
+      network: "stellar",
       deployedContracts: [],
 
-      createProject: (name: string) => {
+      createProject: (name: string, networkType: "stellar" = "stellar") => {
         const newProject: Project = {
           id: generateUUID(),
           name,
+          networkType,
           blocks: [],
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
@@ -122,8 +131,8 @@ export const useBuilderStore = create<BuilderStore>()(
           projects: [...state.projects, newProject],
           blocks: [],
         }))
+
         
-        // Save to cloud if available
         if (isSupabaseAvailable()) {
           import("./supabase-store").then(({ useSupabaseStore }) => {
             const supabaseStore = useSupabaseStore.getState()
@@ -156,8 +165,8 @@ export const useBuilderStore = create<BuilderStore>()(
             blocks: isCurrentProject ? [] : state.blocks,
           }
         })
+
         
-        // Delete from cloud if available
         if (isSupabaseAvailable()) {
           import("./supabase-store").then(({ useSupabaseStore }) => {
             const supabaseStore = useSupabaseStore.getState()
@@ -176,8 +185,8 @@ export const useBuilderStore = create<BuilderStore>()(
               ? { ...state.currentProject, name, updatedAt: new Date().toISOString() }
               : state.currentProject,
         }))
+
         
-        // Update in cloud if available
         if (isSupabaseAvailable()) {
           import("./supabase-store").then(({ useSupabaseStore }) => {
             const supabaseStore = useSupabaseStore.getState()
@@ -201,8 +210,8 @@ export const useBuilderStore = create<BuilderStore>()(
             currentProject: { ...state.currentProject, blocks: state.blocks, updatedAt: new Date().toISOString() },
           }
         })
+
         
-        // Save to cloud if available
         if (currentProjectId && isSupabaseAvailable()) {
           import("./supabase-store").then(({ useSupabaseStore }) => {
             const supabaseStore = useSupabaseStore.getState()
@@ -230,13 +239,17 @@ export const useBuilderStore = create<BuilderStore>()(
 
       selectBlock: (block: Block | null) => set({ selectedBlock: block }),
 
-      setGeneratedCode: (solidity: string, frontend: string) =>
+      setGeneratedCode: (code: { solidity?: string; soroban?: string; frontend: string }) =>
         set((state) => ({
           currentProject: state.currentProject
             ? {
-                ...state.currentProject,
-                generatedCode: { solidity, frontend },
-              }
+              ...state.currentProject,
+              generatedCode: {
+                solidity: code.solidity,
+                soroban: code.soroban,
+                frontend: code.frontend
+              },
+            }
             : null,
         })),
 
@@ -265,16 +278,18 @@ export const useBuilderStore = create<BuilderStore>()(
       },
 
       setWalletAddress: (address: string | null) => set({ walletAddress: address }),
+      setWalletType: (type: "freighter" | null) => set({ walletType: type }),
       setWalletChainId: (chainId: number | null) => set({ walletChainId: chainId }),
+      setNetwork: (network: "stellar") => set({ network }),
 
       addDeployedContract: (contract: DeployedContract) => {
         set((state) => {
-          // Keep only last 5 contracts in local storage
+          
           const newContracts = [contract, ...state.deployedContracts].slice(0, 5)
           return { deployedContracts: newContracts }
         })
+
         
-        // Save to cloud if available (cloud stores all contracts, not just 5)
         if (isSupabaseAvailable()) {
           import("./supabase-store").then(({ useSupabaseStore }) => {
             const supabaseStore = useSupabaseStore.getState()
@@ -303,7 +318,7 @@ export const useBuilderStore = create<BuilderStore>()(
       },
     }),
     {
-      name: "celo-builder-store",
+      name: "block-builder-store",
       version: 1,
     },
   ),

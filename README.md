@@ -4,9 +4,9 @@
   
   # 🚀 Block Builder
   
-  ### *Generate production-ready Next.js frontends from smart contract ABIs in seconds*
+  > **AI-Powered • Visual Builder • One-Click Deployment** — Deploy your blockchain vision faster than ever
   
-  **🌐 [Live Demo](https://celobuilder.vercel.app/) • [Builder](https://celobuilder.vercel.app/builder)**
+  **[🌐 Live Demo](https://celobuilder.vercel.app/) • [🛠️ Builder](https://celobuilder.vercel.app/builder) • [📖 Docs](https://celobuilder.vercel.app/docs)**
   
   [![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
   [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
@@ -25,7 +25,32 @@
 
 ---
 
-## 🎥 Demo Video
+## � What is Block Builder?
+
+**Block Builder** is a revolutionary no-code/low-code platform that eliminates the barrier between your smart contracts and user-facing applications. Instead of writing weeks of code, paste your contract ABI and get a fully functional, production-ready Next.js dApp in **under 5 seconds**.
+
+### 🎁 What You Get
+
+```
+Your Smart Contract  ──▶  [Block Builder Magic]  ──▶  Production-Ready dApp
+    (Any ABI)                (5 seconds)              (MetaMask integrated)
+                                                      (Tailwind styled)
+                                                      (Deploy ready)
+```
+
+### 🌟 Key Promises
+
+| Promise | Reality |
+|---------|---------|
+| **"It's too hard to build dApp UIs"** | ✅ Auto-generated & beautiful |
+| **"Wallet integration is complex"** | ✅ Pre-integrated MetaMask + Alchemy |
+| **"I don't know ethers.js"** | ✅ Code generated for you |
+| **"Testing takes forever"** | ✅ Ready-to-test components |
+| **"Deployment is scary"** | ✅ Click → Deploy → Live |
+
+---
+
+## 🎥 See It In Action
 
 [![Watch Demo Video](https://img.shields.io/badge/▶️_Watch_Demo-Video-FF0000?style=for-the-badge&logo=youtube)](https://youtu.be/-GR1HKnp26Q)
 
@@ -141,7 +166,7 @@ graph LR
 
 ---
 
-## 🎯 How to Use
+## 📖 How to Use Block Builder
 
 ### Access the Platform
 
@@ -434,9 +459,11 @@ All 17 smart contract block types:
 
 ---
 
-## 🎓 Examples
+## 🎓 Examples & Use Cases
 
-### Example 1: ERC-20 Token
+### Example 1: ERC-20 Token DApp
+
+Perfect for tokenomics projects, community tokens, fundraising.
 
 **Contract Functions:**
 - `mint(address, uint256)` ✅
@@ -463,7 +490,178 @@ All 17 smart contract block types:
 
 ---
 
-## 🚦 Roadmap
+## ❓ Frequently Asked Questions (FAQ)
+
+<details>
+<summary><b>Q: Do I need to know React or TypeScript?</b></summary>
+
+**A:** No! Block Builder generates all the code for you. The generated dApp is production-ready and fully typed with TypeScript. You can modify it if you want, but you don't need to understand the code to deploy it.
+
+</details>
+
+<details>
+<summary><b>Q: What blockchains are supported?</b></summary>
+
+**A:** Currently optimized for **Celo** (Mainnet, Alfajores Testnet, Sepolia Testnet). The architecture supports any EVM-compatible blockchain (Ethereum, Polygon, etc.) with minimal configuration changes.
+
+</details>
+
+<details>
+<summary><b>Q: Can I use my own contract ABI?</b></summary>
+
+**A:** Absolutely! Paste any contract ABI (JSON), and Block Builder will introspect it and generate UI for all functions. If your ABI isn't stored on-chain, you can paste it directly.
+
+</details>
+
+<details>
+<summary><b>Q: How do I handle contract events?</b></summary>
+
+**A:** Events are automatically detected from the ABI. The generated frontend includes an event viewer component that listens to contract events and displays them in real-time.
+
+</details>
+
+<details>
+<summary><b>Q: Is the generated code secure?</b></summary>
+
+**A:** The generated code follows Web3 security best practices:
+- MetaMask signature verification
+- Safe provider handling with fallback
+- No private keys stored client-side
+- Transaction confirmation prompts
+- For production, add additional security audits as needed
+
+</details>
+
+<details>
+<summary><b>Q: Can I modify the generated code?</b></summary>
+
+**A:** Yes! The generated code is yours to modify. It's a starting point - customize styles, add features, deploy where you want.
+
+</details>
+
+<details>
+<summary><b>Q: How do I deploy the generated dApp?</b></summary>
+
+**A:** The generated code is a standard Next.js app. Deploy to:
+- **Vercel** (recommended, 1-click deployment)
+- **Netlify**
+- **GitHub Pages**
+- **Your own server**
+
+</details>
+
+<details>
+<summary><b>Q: What's the cost?</b></summary>
+
+**A:** Block Builder is **completely free**. The only costs are:
+- Gas fees for contract deployment (one-time)
+- Hosting (Vercel is free tier available)
+- Optional: Alchemy API (free tier available)
+
+</details>
+
+<details>
+<summary><b>Q: Do you store my contract code?</b></summary>
+
+**A:** Your contracts are stored in Supabase (encrypted) only if you choose to save a project. You can generate dApps without an account - no data is stored.
+
+</details>
+
+<details>
+<summary><b>Q: Can I generate multiple dApps for the same contract?</b></summary>
+
+**A:** Yes! Generate as many as you want. Each generation can have different UX/design choices. Create multiple versions for different user audiences.
+
+</details>
+
+---
+
+## � Troubleshooting Guide
+
+### MetaMask Connection Issues
+
+<details>
+<summary>🔴 MetaMask not detected</summary>
+
+**Solutions:**
+1. Install [MetaMask extension](https://metamask.io/) for your browser
+2. Refresh the page after installation
+3. Make sure MetaMask is unlocked
+4. Try a different browser if issues persist
+
+</details>
+
+<details>
+<summary>🔴 Wrong network selected</summary>
+
+**Solutions:**
+1. Click the network selector in MetaMask
+2. Select the correct network (Alfajores, Mainnet, etc.)
+3. The dApp will auto-detect and prompt you to switch
+4. Confirm the network switch in MetaMask popup
+
+</details>
+
+### Compilation Errors
+
+<details>
+<summary>🔴 "Compilation failed"</summary>
+
+**Common Causes:**
+- ABI contains invalid Solidity syntax
+- Missing required fields in ABI
+- Incompatible Solidity version
+
+**Solutions:**
+1. Validate your ABI is valid JSON
+2. Ensure contract compiles with `solc`
+3. Check compiler version compatibility
+4. See [Compilation Guide](./Docs/DEBUGGING_GUIDE.md)
+
+</details>
+
+### Transaction Failures
+
+<details>
+<summary>🔴 "Transaction reverted"</summary>
+
+**Common Causes:**
+- Insufficient gas
+- Contract function requirements not met
+- Network issues
+- Account lacks permissions
+
+**Solutions:**
+1. Check account balance in MetaMask
+2. Verify function parameters are correct
+3. Check contract requires (owner, whitelisted, etc.)
+4. View error details on Celoscan explorer link
+
+</details>
+
+### Performance Issues
+
+<details>
+<summary>🔴 "dApp loading slowly"</summary>
+
+**Solutions:**
+1. Check your internet connection
+2. Clear browser cache and cookies
+3. Disable browser extensions (especially ad blockers)
+4. Try a different network (Alchemy vs Forno)
+5. Use browser DevTools to check Network tab
+
+</details>
+
+### For More Help
+
+- 📖 [Full Debugging Guide](./Docs/DEBUGGING_GUIDE.md)
+- 🐛 [GitHub Issues](https://github.com/ROHIT8759/Low_-_No_Code_Platform_on_CELO/issues)
+- 💬 [Celo Discord Community](https://discord.gg/celo)
+
+---
+
+## �🚦 Roadmap
 
 - [x] ABI-aware function generation
 - [x] Dual provider (MetaMask + Alchemy)
@@ -502,22 +700,67 @@ This project is licensed under the MIT License.
 - **Celoscan** for block explorer APIs
 - **Next.js Team** for the framework
 - **ethers.js** for Ethereum interactions
+- **Tailwind CSS** for beautiful, responsive UI
+- **Zustand** for elegant state management
+- **Supabase** for serverless architecture
 
 ---
 
-## 📧 Support & Contact
+## 🆘 Getting Help & Support
 
-- 🐛 **Issues**: [GitHub Issues](https://github.com/ROHIT8759/Low_-_No_Code_Platform_on_CELO/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/ROHIT8759/Low_-_No_Code_Platform_on_CELO/discussions)
-- 📧 **Email**: Contact via GitHub profile
+We're here to help! Choose the best channel for your question:
+
+### Quick Issues
+
+| Issue | Solution | Channel |
+|-------|----------|---------|
+| **MetaMask won't connect** | Network config issue | [Troubleshooting Guide](#-troubleshooting-guide) |
+| **Compilation error** | ABI format issue | [Debugging Guide](./Docs/DEBUGGING_GUIDE.md) |
+| **Transaction failed** | Contract issue | [Celoscan Explorer](https://celoscan.io) |
+| **Performance slow** | Optimization needed | [Optimization Guide](./Docs/OPTIMIZATION_SUMMARY.md) |
+
+### Support Channels
+
+- 🐛 **Bug Report**: [GitHub Issues](https://github.com/ROHIT8759/Low_-_No_Code_Platform_on_CELO/issues) - For technical bugs
+- 💬 **Discussion**: [GitHub Discussions](https://github.com/ROHIT8759/Low_-_No_Code_Platform_on_CELO/discussions) - Questions & ideas
+- 🎓 **Documentation**: [/Docs folder](./Docs/) - Comprehensive guides
+- 💎 **Community**: [Celo Discord](https://discord.gg/celo) - Chat with builders
+- 📧 **Direct**: GitHub profile - Private inquiries
+
+### Contributing Improvements
+
+Found a bug? Have an idea? **Contributions are welcome!**
+
+[See Contributing Guide](#-contributing)
+
+---
+
+## 📱 Social & Resources
+
+<div align="center">
+
+[![GitHub](https://img.shields.io/badge/GitHub-ROHIT8759-181717?style=for-the-badge&logo=github)](https://github.com/ROHIT8759/Low_-_No_Code_Platform_on_CELO)
+[![Twitter](https://img.shields.io/badge/Follow-@ROHIT8759-1DA1F2?style=for-the-badge&logo=twitter)](https://twitter.com/ROHIT8759)
+[![Discord](https://img.shields.io/badge/Join_Discord-Community-5865F2?style=for-the-badge&logo=discord)](https://discord.gg/celo)
+[![Docs](https://img.shields.io/badge/Read_Docs-Full_Guide-47484F?style=for-the-badge&logo=readme)](./Docs/)
+
+</div>
 
 ---
 
 <div align="center">
   
-  ### ⭐ Star this repo if you find it useful!
+  ### ⭐ Love Block Builder? Star us on GitHub!
   
-  Made with ❤️ for the Celo ecosystem
+  ```
+  Your feedback helps us build better tools for the Celo ecosystem
+  ```
+  
+  Made with ❤️ by blockchain enthusiasts | Powered by Celo 🌱
+  
+  [View Repository](https://github.com/ROHIT8759/Low_-_No_Code_Platform_on_CELO) • 
+  [Report Issue](https://github.com/ROHIT8759/Low_-_No_Code_Platform_on_CELO/issues) • 
+  [Start Building](https://celobuilder.vercel.app/)
   
   [⬆ Back to Top](#-block-builder)
   

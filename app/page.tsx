@@ -1,727 +1,474 @@
 ﻿"use client"
 
-import { useEffect, useRef, useState, Suspense, lazy, useCallback, memo } from "react"
+import dynamic from 'next/dynamic'
+import { Suspense } from 'react'
+import { BentoGrid, BentoGridItem } from "@/components/reactbits/BentoGrid"
+import { Navbar } from "@/components/navbar"
+import { motion } from "framer-motion"
+import { ArrowRight, Shield, Database, Cpu, Layers, GitCommit, CheckCircle, Code2, Workflow, Box, Terminal, FileCheck, Lock } from "lucide-react"
 import Link from "next/link"
-import { ArrowRight, Zap, Code2, Rocket, Github, Twitter, Sparkles, Shield, Menu, X, Blocks, Layers, Globe, ChevronDown } from "lucide-react"
-import FaucetInfo from "../components/faucet-info"
-import SectionDivider from "../components/section-divider"
-import { ScrollReveal, ScrollProgress } from "../components/scroll-reveal"
+import { MOTION_DURATION, MOTION_TRANSFORMS } from "@/lib/motion"
+import { useIsMobile, useIsTablet } from "@/lib/use-breakpoint"
 
-// Dynamic import for Starfield to avoid SSR issues with canvas
-import NetworkBackground from "../components/network-background"
-import GrainOverlay from "../components/grain-overlay"
-import TiltCard from "../components/TiltCard"
-const Hero3DObject = dynamic(() => import("../components/hero-3d-object"), { ssr: false })
-import ShineButton from "../components/ShineButton"
-import dynamic from "next/dynamic"
+import { BorderBeam } from "@/components/reactbits/BorderBeam"
+import Silk from "@/components/reactbits/Silk"
+import { PipelineStage } from "@/components/infrastructure/pipeline-stage"
+import { PipelineConnector } from "@/components/infrastructure/pipeline-connector"
+import { SecurityFeature } from "@/components/infrastructure/security-feature"
+import { SecurityLayers } from "@/components/infrastructure/security-layers"
 
-// Loading fallback for 3D scene - Removed as Starfield is lightweight
-
-// Optimized Animated Counter Component with memo
-const AnimatedCounter = memo(function AnimatedCounter({ end, duration = 2000, suffix = "" }: { end: number; duration?: number; suffix?: string }) {
-  const [count, setCount] = useState(0)
-  const [isVisible, setIsVisible] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const currentRef = ref.current
-    if (!currentRef) return
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !isVisible) {
-          setIsVisible(true)
-          observer.unobserve(currentRef)
-        }
-      },
-      { threshold: 0.5 }
-    )
-
-    observer.observe(currentRef)
-
-    return () => {
-      if (currentRef) observer.unobserve(currentRef)
-    }
-  }, [isVisible])
-
-  useEffect(() => {
-    if (!isVisible) return
-
-    let startTime: number | null = null
-    let animationId: number
-
-    const step = (timestamp: number) => {
-      if (!startTime) startTime = timestamp
-      const progress = Math.min((timestamp - startTime) / duration, 1)
-      setCount(Math.floor(progress * end))
-      if (progress < 1) {
-        animationId = requestAnimationFrame(step)
-      }
-    }
-    animationId = requestAnimationFrame(step)
-
-    return () => cancelAnimationFrame(animationId)
-  }, [isVisible, end, duration])
-
-  return (
-    <div ref={ref} className="text-3xl sm:text-4xl font-bold mb-2 bg-gradient-to-r from-cyan-400 to-blue-500 text-transparent bg-clip-text">
-      {count}{suffix}
-    </div>
-  )
+// Lazy load heavy components for better performance
+const ProductWindow = dynamic(() => import("@/components/infrastructure/product-window").then(mod => ({ default: mod.ProductWindow })), {
+  loading: () => <div className="w-full aspect-[16/10] bg-[var(--surface-1)] rounded-lg border border-white/[0.08] animate-pulse" />,
+  ssr: false
 })
 
+const WasmCompilationVisual = dynamic(() => import("@/components/infrastructure/bento-visuals").then(mod => ({ default: mod.WasmCompilationVisual })), {
+  loading: () => <div className="w-full h-32 bg-[var(--surface-1)] rounded animate-pulse" />
+})
+
+const StateExpirationVisual = dynamic(() => import("@/components/infrastructure/bento-visuals").then(mod => ({ default: mod.StateExpirationVisual })), {
+  loading: () => <div className="w-full h-32 bg-[var(--surface-1)] rounded animate-pulse" />
+})
+
+const FormalVerificationVisual = dynamic(() => import("@/components/infrastructure/bento-visuals").then(mod => ({ default: mod.FormalVerificationVisual })), {
+  loading: () => <div className="w-full h-32 bg-[var(--surface-1)] rounded animate-pulse" />
+})
+
+const CrossContractVisual = dynamic(() => import("@/components/infrastructure/bento-visuals").then(mod => ({ default: mod.CrossContractVisual })), {
+  loading: () => <div className="w-full h-32 bg-[var(--surface-1)] rounded animate-pulse" />
+})
+
+const INFRASTRUCTURE_FEATURES = [
+  {
+    title: "Native WASM Compilation",
+    description: (
+      <div className="flex flex-col gap-2">
+        <span>Direct Rust-to-WASM pipeline optimized for Soroban's runtime environment.</span>
+        <div className="flex items-center gap-2 mt-1">
+          <span className="px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-mono text-emerald-500 font-medium">REL: OPTIMIZED</span>
+          <span className="text-[10px] text-zinc-500 font-mono">14kb runtime</span>
+        </div>
+      </div>
+    ),
+    header: <WasmCompilationVisual />,
+    icon: <Cpu className="h-4 w-4 text-zinc-500" />,
+    className: "md:col-span-2",
+    accentColor: "emerald" as const,
+  },
+  {
+    title: "State Expiration Handling",
+    description: (
+      <div className="flex flex-col gap-2">
+        <span>Automated ledger entry TTL management preventing state bloat.</span>
+        <div className="flex items-center gap-2 mt-1">
+          <span className="px-1.5 py-0.5 rounded bg-blue-500/10 border border-blue-500/20 text-[10px] font-mono text-blue-500 font-medium">AUTO-RENEW</span>
+        </div>
+      </div>
+    ),
+    header: <StateExpirationVisual />,
+    icon: <Database className="h-4 w-4 text-zinc-500" />,
+    className: "md:col-span-1",
+    accentColor: "blue" as const,
+  },
+  {
+    title: "Formal Verification",
+    description: (
+      <div className="flex flex-col gap-2">
+        <span>Integrated Proptest and symbolic execution for contract logic validation.</span>
+        <div className="flex items-center gap-2 mt-1">
+          <span className="px-1.5 py-0.5 rounded bg-purple-500/10 border border-purple-500/20 text-[10px] font-mono text-purple-500 font-medium">SYMBOLIC EXEC</span>
+        </div>
+      </div>
+    ),
+    header: <FormalVerificationVisual />,
+    icon: <Shield className="h-4 w-4 text-zinc-500" />,
+    className: "md:col-span-1",
+    accentColor: "amber" as const,
+  },
+  {
+    title: "Cross-Contract Calls",
+    description: (
+      <div className="flex flex-col gap-2">
+        <span>Composable architecture allowing seamless invocation between logic modules.</span>
+        <div className="flex items-center gap-2 mt-1">
+          <span className="px-1.5 py-0.5 rounded bg-zinc-800 border border-zinc-700 text-[10px] font-mono text-zinc-400 font-medium">INVOKE_HOST</span>
+        </div>
+      </div>
+    ),
+    header: <CrossContractVisual />,
+    icon: <Layers className="h-4 w-4 text-zinc-500" />,
+    className: "md:col-span-2",
+    accentColor: "zinc" as const,
+  },
+]
+
 export default function Home() {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const ticking = useRef(false)
-
-  // Throttled mouse move handler for better performance
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (!ticking.current) {
-      requestAnimationFrame(() => {
-        setMousePosition({
-          x: (e.clientX / window.innerWidth - 0.5) * 20,
-          y: (e.clientY / window.innerHeight - 0.5) * 20,
-        })
-        ticking.current = false
-      })
-      ticking.current = true
+  const isMobile = useIsMobile()
+  const isTablet = useIsTablet()
+  
+  // Staggered animation variants for hero elements
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2
+      }
     }
-  }, [])
+  }
 
-  useEffect(() => {
-    window.addEventListener("mousemove", handleMouseMove, { passive: true })
-    return () => window.removeEventListener("mousemove", handleMouseMove)
-  }, [])
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: MOTION_DURATION.normal / 1000,
+        ease: [0.16, 1, 0.3, 1] as [number, number, number, number]
+      }
+    }
+  }
 
   return (
-    <main className="min-h-screen bg-transparent overflow-hidden relative">
-      {/* Scroll Progress Bar */}
-      <ScrollProgress />
+    <main suppressHydrationWarning className="min-h-screen bg-[var(--surface-0)] text-[var(--text-secondary)] antialiased overflow-hidden selection:bg-emerald-400/20 selection:text-emerald-100">
 
-      {/* Navigation - Enhanced with Animations */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-black/30 backdrop-blur-xl border-b border-white/5 animate-fade-in-down supports-[backdrop-filter]:bg-black/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
-          <div className="flex items-center justify-between">
-            {/* Logo - Enhanced 3D Effect */}
-            <Link href="/" className="flex items-center gap-2 sm:gap-3 group">
-              <div className="relative">
-                <div className="absolute inset-0 bg-cyan-400/50 blur-xl group-hover:blur-2xl transition-all duration-300 animate-pulse"></div>
-                <div className="relative w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-xl flex items-center justify-center transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg shadow-cyan-500/50">
-                  <span className="text-white font-bold text-lg sm:text-xl">C</span>
-                </div>
-              </div>
-              <span className="font-bold text-lg sm:text-xl text-white tracking-tight group-hover:text-cyan-400 transition-colors">Block Builder</span>
-            </Link>
-
-            {/* Center Navigation Links - Enhanced */}
-            <div className="hidden md:flex items-center gap-6 lg:gap-8">
-              <Link
-                href="#about"
-                className="relative text-slate-300 hover:text-white transition-colors font-medium group"
-              >
-                About
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-cyan-400 group-hover:w-full transition-all duration-300"></span>
-              </Link>
-              <Link
-                href="#features"
-                className="relative text-slate-300 hover:text-white transition-colors font-medium group"
-              >
-                Features
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-cyan-400 group-hover:w-full transition-all duration-300"></span>
-              </Link>
-              <Link
-                href="#faucet"
-                className="relative text-slate-300 hover:text-white transition-colors font-medium group"
-              >
-                Faucet
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-cyan-400 group-hover:w-full transition-all duration-300"></span>
-              </Link>
-              <Link
-                href="/docs"
-                className="relative text-slate-300 hover:text-white transition-colors font-medium group"
-              >
-                Docs
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-cyan-400 group-hover:w-full transition-all duration-300"></span>
-              </Link>
-            </div>
-
-            {/* Right Side - Enhanced Social & CTA */}
-            <div className="flex items-center gap-2 sm:gap-4">
-              <a
-                href="https://github.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="GitHub"
-                className="hover-magnetic hidden sm:flex w-9 h-9 sm:w-10 sm:h-10 items-center justify-center rounded-lg bg-slate-800/50 hover:bg-slate-700/50 text-slate-400 hover:text-white transition-all hover:rotate-6"
-              >
-                <Github size={18} className="sm:w-5 sm:h-5" />
-              </a>
-              <a
-                href="https://twitter.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Twitter"
-                className="hover-magnetic hidden sm:flex w-9 h-9 sm:w-10 sm:h-10 items-center justify-center rounded-lg bg-slate-800/50 hover:bg-slate-700/50 text-slate-400 hover:text-white transition-all hover:rotate-6"
-              >
-                <Twitter size={18} className="sm:w-5 sm:h-5" />
-              </a>
-              <Link
-                href="/builder"
-                className="hover-shimmer hover-pulse-glow group relative px-4 sm:px-6 py-2 sm:py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg shadow-cyan-500/30 overflow-hidden text-sm sm:text-base"
-              >
-                <span className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity"></span>
-                <span className="relative flex items-center gap-1 sm:gap-2">
-                  <span className="hidden sm:inline">Launch App</span>
-                  <span className="sm:hidden">Build</span>
-                  <Sparkles size={14} className="group-hover:animate-spin sm:w-4 sm:h-4" />
-                </span>
-              </Link>
-
-              {/* Mobile Menu Button */}
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 text-slate-400 hover:text-white transition-all"
-              >
-                {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-              </button>
-            </div>
-          </div>
-
-          {/* Mobile Menu Dropdown */}
-          {mobileMenuOpen && (
-            <div className="md:hidden mt-4 pb-4 border-t border-slate-800/50 pt-4 animate-fade-in-down">
-              <div className="flex flex-col gap-3">
-                <Link
-                  href="#about"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="text-slate-300 hover:text-cyan-400 transition-colors font-medium py-2"
-                >
-                  About
-                </Link>
-                <Link
-                  href="#features"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="text-slate-300 hover:text-cyan-400 transition-colors font-medium py-2"
-                >
-                  Features
-                </Link>
-                <Link
-                  href="#faucet"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="text-slate-300 hover:text-cyan-400 transition-colors font-medium py-2"
-                >
-                  Faucet
-                </Link>
-                <Link
-                  href="/docs"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="text-slate-300 hover:text-cyan-400 transition-colors font-medium py-2"
-                >
-                  Docs
-                </Link>
-                <div className="flex gap-3 pt-2">
-                  <a
-                    href="https://github.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-10 h-10 flex items-center justify-center rounded-lg bg-slate-800/50 text-slate-400 hover:text-white transition-all"
-                  >
-                    <Github size={20} />
-                  </a>
-                  <a
-                    href="https://twitter.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-10 h-10 flex items-center justify-center rounded-lg bg-slate-800/50 text-slate-400 hover:text-white transition-all"
-                  >
-                    <Twitter size={20} />
-                  </a>
-                </div>
-              </div>
-            </div>
-          )}
+      {/* 1. LAYERED BACKGROUND SYSTEM */}
+      {/* Micro noise texture at 1-2% opacity with radial vignette */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden" aria-hidden="true">
+        {/* Silk component for subtle noise texture (1-2% opacity) */}
+        <div className="absolute inset-0 opacity-[0.015]">
+          <Silk
+            speed={5}
+            scale={1}
+            color="#FFFFFF"
+            noiseIntensity={1.0}
+            rotation={0}
+          />
         </div>
-      </nav>
-
-      <section className="relative px-4 sm:px-6 pt-24 sm:pt-32 pb-12 sm:pb-20 min-h-screen flex items-center overflow-hidden">
-        {/* Interactive Network Background */}
-        <NetworkBackground />
-        <GrainOverlay />
-
-        {/* Gradient Overlay for text readability - More subtle now */}
-        <div className="absolute inset-0 bg-transparent z-[1]"></div>
-
-        {/* Animated Background Elements with Parallax */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none z-[2]">
-          <Hero3DObject />
-          <div
-            className="absolute top-20 left-10 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl animate-pulse"
-            style={{ transform: `translate(${mousePosition.x * 0.5}px, ${mousePosition.y * 0.5}px)` }}
-          ></div>
-          <div
-            className="absolute bottom-20 right-10 w-96 h-96 bg-fuchsia-500/10 rounded-full blur-3xl animate-pulse"
-            style={{
-              transform: `translate(${mousePosition.x * -0.3}px, ${mousePosition.y * -0.3}px)`,
-              animationDelay: '1s'
-            }}
-          ></div>
-          <div
-            className="absolute top-1/2 left-1/2 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse"
-            style={{
-              transform: `translate(${mousePosition.x * 0.4}px, ${mousePosition.y * 0.4}px)`,
-              animationDelay: '2s'
-            }}
-          ></div>
-        </div>
-
-        <div className="max-w-6xl mx-auto text-center relative z-10">
-          {/* Animated Badge with Pulse */}
-
-
-          {/* Main Heading - Enhanced Typography Animation */}
-          <br /><br />
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-4 sm:mb-6 leading-tight animate-fade-in-up">
-            <span className="bg-gradient-to-r from-white via-slate-200 to-slate-400 text-transparent bg-clip-text inline-block animate-slide-in-left">
-              Build Smart Contracts
-            </span>
-            <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-fuchsia-500 text-transparent bg-clip-text inline-block animate-slide-in-right relative animate-neon-glow">
-              Without Writing Code
-              <span className="absolute -right-1 sm:-right-2 -top-1 sm:-top-2 flex h-2 w-2 sm:h-3 sm:w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 sm:h-3 sm:w-3 bg-cyan-500"></span>
-              </span>
-            </span>
-          </h1>
-
-          {/* Subtitle - Enhanced with Animation */}
-          <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-slate-400 mb-8 sm:mb-12 max-w-3xl mx-auto leading-relaxed animate-fade-in-up px-4" style={{ animationDelay: '0.2s' }}>
-            <span className="hover:text-slate-300 transition-colors">Drag and drop smart contract components.</span>{" "}
-            <span className="hover:text-slate-300 transition-colors">Generate Solidity code automatically.</span>{" "}
-            <span className="hover:text-slate-300 transition-colors">Deploy to Celo in minutes.</span>
-            <span className="block mt-2 text-slate-500 font-semibold hover:text-cyan-400 transition-colors">No coding experience required.</span>
-          </p>
-
-          {/* CTA Buttons - Enhanced */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 animate-fade-in-up px-4" style={{ animationDelay: '0.4s' }}>
-
-            <ShineButton href="/builder" className="w-full sm:w-auto">
-              <span>Start Building Free</span>
-              <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-            </ShineButton>
-            <a
-              href="#features"
-              className="group w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-slate-800/50 hover:bg-slate-700/50 text-white font-bold rounded-xl transition-all duration-300 border border-slate-700/50 hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/20 hover:-translate-y-1 flex items-center justify-center gap-2 text-sm sm:text-base backdrop-blur-sm"
-            >
-              <span>Explore Features</span>
-              <ChevronDown size={18} className="group-hover:translate-y-1 transition-transform sm:w-5 sm:h-5" />
-            </a>
-          </div>
-
-          {/* Stats - Enhanced with Animated Counters */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 max-w-2xl mx-auto mt-12 sm:mt-20 pt-12 sm:pt-20 border-t border-white/10">
-            <ScrollReveal delay={600}>
-              <div className="text-center group cursor-default hover:transform hover:scale-110 transition-all p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 hover:border-cyan-500/30 hover-tilt shadow-lg hover:shadow-cyan-500/20">
-                <AnimatedCounter end={17} suffix="+" />
-                <div className="text-xs sm:text-sm text-slate-400 group-hover:text-cyan-300 transition-colors uppercase tracking-wider font-semibold">Smart Contract Blocks</div>
-              </div>
-            </ScrollReveal>
-            <ScrollReveal delay={700}>
-              <div className="text-center group cursor-default hover:transform hover:scale-110 transition-all p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 hover:border-blue-500/30 hover-tilt shadow-lg hover:shadow-blue-500/20">
-                <div className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-blue-400 to-cyan-500 text-transparent bg-clip-text mb-2">1-Click</div>
-                <div className="text-xs sm:text-sm text-slate-400 group-hover:text-blue-300 transition-colors uppercase tracking-wider font-semibold">Deploy to Celo</div>
-              </div>
-            </ScrollReveal>
-            <ScrollReveal delay={800}>
-              <div className="text-center group cursor-default hover:transform hover:scale-110 transition-all p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 hover:border-fuchsia-500/30 hover-tilt shadow-lg hover:shadow-fuchsia-500/20">
-                <div className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-fuchsia-400 to-pink-500 text-transparent bg-clip-text mb-2">Auto</div>
-                <div className="text-xs sm:text-sm text-slate-400 group-hover:text-fuchsia-300 transition-colors uppercase tracking-wider font-semibold">Code Generation</div>
-              </div>
-            </ScrollReveal>
-          </div>
-        </div>
-
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 animate-bounce">
-          <ChevronDown className="w-8 h-8 text-cyan-400/50" />
-        </div>
-      </section>
-
-      {/* How It Works Section */}
-      <section id="about" className="px-4 sm:px-6 py-16 sm:py-24 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-500/5 to-transparent"></div>
-        <div className="max-w-6xl mx-auto relative z-10">
-          <ScrollReveal>
-            <div className="text-center mb-12 sm:mb-16">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-500/10 border border-cyan-500/20 rounded-full mb-6">
-                <Layers className="w-4 h-4 text-cyan-400" />
-                <span className="text-sm text-cyan-400 font-medium">Simple 3-Step Process</span>
-              </div>
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
-                How It Works
-              </h2>
-              <p className="text-lg text-slate-400 max-w-2xl mx-auto">
-                Build production-ready smart contracts in minutes, not weeks
-              </p>
-            </div>
-          </ScrollReveal>
-
-          <div className="grid md:grid-cols-3 gap-8 relative">
-            {/* Connection lines */}
-            <div className="hidden md:block absolute top-1/2 left-1/4 right-1/4 h-0.5 bg-gradient-to-r from-cyan-500/50 via-fuchsia-500/50 to-cyan-500/50 -translate-y-1/2"></div>
-
-            {/* Step 1 */}
-            <ScrollReveal delay={100} variant="3d-card">
-              <TiltCard>
-                <div className="relative group h-full">
-                  <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
-                  <div className="relative h-full bg-slate-900/40 backdrop-blur-xl p-8 rounded-2xl border border-slate-800 hover:border-cyan-500/50 transition-all">
-                    <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-6 transition-transform shadow-lg shadow-cyan-500/20">
-                      <Blocks className="w-8 h-8 text-white" />
-                    </div>
-                    <div className="absolute -top-3 -right-3 w-8 h-8 bg-cyan-500 rounded-full flex items-center justify-center text-white font-bold text-sm group-hover:scale-125 transition-transform shadow-lg shadow-cyan-500/40">1</div>
-                    <h3 className="text-xl font-bold text-white mb-3 group-hover:text-cyan-400 transition-colors">Drag & Drop Blocks</h3>
-                    <p className="text-slate-400 group-hover:text-slate-300 transition-colors">
-                      Choose from 17+ pre-built smart contract blocks including ERC-20, NFT, staking, governance, and more.
-                    </p>
-                  </div>
-                </div>
-              </TiltCard>
-            </ScrollReveal>
-
-            {/* Step 2 */}
-            <ScrollReveal delay={200} variant="3d-card">
-              <TiltCard>
-                <div className="relative group h-full">
-                  <div className="absolute -inset-0.5 bg-gradient-to-r from-fuchsia-500 to-pink-500 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
-                  <div className="relative h-full bg-slate-900/40 backdrop-blur-xl p-8 rounded-2xl border border-slate-800 hover:border-fuchsia-500/50 transition-all">
-                    <div className="w-16 h-16 bg-gradient-to-br from-fuchsia-500 to-pink-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-6 transition-transform shadow-lg shadow-fuchsia-500/20">
-                      <Code2 className="w-8 h-8 text-white" />
-                    </div>
-                    <div className="absolute -top-3 -right-3 w-8 h-8 bg-fuchsia-500 rounded-full flex items-center justify-center text-white font-bold text-sm group-hover:scale-125 transition-transform shadow-lg shadow-fuchsia-500/40">2</div>
-                    <h3 className="text-xl font-bold text-white mb-3 group-hover:text-fuchsia-400 transition-colors">Auto-Generate Code</h3>
-                    <p className="text-slate-400 group-hover:text-slate-300 transition-colors">
-                      Watch your Solidity code generate in real-time. Learn how contracts work as you build them.
-                    </p>
-                  </div>
-                </div>
-              </TiltCard>
-            </ScrollReveal>
-
-            {/* Step 3 */}
-            <ScrollReveal delay={300} variant="3d-card">
-              <TiltCard>
-                <div className="relative group h-full">
-                  <div className="absolute -inset-0.5 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
-                  <div className="relative h-full bg-slate-900/40 backdrop-blur-xl p-8 rounded-2xl border border-slate-800 hover:border-green-500/50 transition-all">
-                    <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-6 transition-transform shadow-lg shadow-green-500/20">
-                      <Rocket className="w-8 h-8 text-white" />
-                    </div>
-                    <div className="absolute -top-3 -right-3 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white font-bold text-sm group-hover:scale-125 transition-transform shadow-lg shadow-green-500/40">3</div>
-                    <h3 className="text-xl font-bold text-white mb-3 group-hover:text-green-400 transition-colors">Deploy & Launch</h3>
-                    <p className="text-slate-400 group-hover:text-slate-300 transition-colors">
-                      One-click deploy to Celo Mainnet or Testnet. Get auto-generated frontend and verification.
-                    </p>
-                  </div>
-                </div>
-              </TiltCard>
-            </ScrollReveal>
-          </div>
-        </div>
-      </section>
-
-      {/* Separator */}
-      <SectionDivider />
-
-      {/* Features Section - Enhanced with Scroll Animations */}
-      <section id="features" className="px-4 sm:px-6 py-12 sm:py-20 relative">
-        <div className="max-w-6xl mx-auto">
-          <ScrollReveal variant="blur">
-            <div className="text-center mb-10 sm:mb-16">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-3 sm:mb-4 hover:scale-105 transition-transform inline-block">
-                Why Choose Block Builder?
-              </h2>
-              <p className="text-base sm:text-xl text-slate-400 hover:text-slate-300 transition-colors px-4">
-                Everything you need to build, deploy, and manage smart contracts
-              </p>
-            </div>
-          </ScrollReveal>
-
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
-            {/* Feature Card 1 - Enhanced 3D Effect */}
-            <ScrollReveal delay={100} variant="scale">
-              <TiltCard>
-                <div className="group relative h-full p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-slate-900/40 to-slate-800/40 border border-slate-800/50 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-cyan-500/20 backdrop-blur-sm">
-                  <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-blue-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  <div className="relative">
-                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 flex items-center justify-center mb-4 sm:mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all hover-icon-spin shadow-lg shadow-cyan-500/10">
-                      <Zap className="w-6 h-6 sm:w-7 sm:h-7 text-cyan-400 group-hover:animate-pulse" />
-                    </div>
-                    <h3 className="text-lg sm:text-xl font-bold text-white mb-2 sm:mb-3 group-hover:text-cyan-400 transition-colors">Lightning Fast</h3>
-                    <p className="text-sm sm:text-base text-slate-400 leading-relaxed group-hover:text-slate-300 transition-colors">
-                      Build complex dApps in minutes, not weeks. No blockchain expertise needed. Just drag, drop, and deploy.
-                    </p>
-                  </div>
-                </div>
-              </TiltCard>
-            </ScrollReveal>
-
-            {/* Feature Card 2 - Enhanced 3D Effect */}
-            <ScrollReveal delay={200} variant="scale">
-              <TiltCard>
-                <div className="group relative h-full p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-slate-900/40 to-slate-800/40 border border-slate-800/50 hover:border-blue-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/20 backdrop-blur-sm">
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-cyan-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  <div className="relative">
-                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 flex items-center justify-center mb-4 sm:mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all hover-icon-spin shadow-lg shadow-blue-500/10">
-                      <Code2 className="w-6 h-6 sm:w-7 sm:h-7 text-blue-400 group-hover:animate-pulse" />
-                    </div>
-                    <h3 className="text-lg sm:text-xl font-bold text-white mb-2 sm:mb-3 group-hover:text-blue-400 transition-colors">Learn by Doing</h3>
-                    <p className="text-sm sm:text-base text-slate-400 leading-relaxed group-hover:text-slate-300 transition-colors">
-                      See the generated Solidity code in real-time and learn how smart contracts work under the hood.
-                    </p>
-                  </div>
-                </div>
-              </TiltCard>
-            </ScrollReveal>
-
-            {/* Feature Card 3 - Enhanced 3D Effect */}
-            <ScrollReveal delay={300} variant="scale">
-              <TiltCard>
-                <div className="group relative h-full p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-slate-900/40 to-slate-800/40 border border-slate-800/50 hover:border-fuchsia-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-fuchsia-500/20 backdrop-blur-sm">
-                  <div className="absolute inset-0 bg-gradient-to-br from-fuchsia-500/5 to-pink-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  <div className="relative">
-                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-fuchsia-500/20 to-pink-500/20 flex items-center justify-center mb-4 sm:mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all hover-icon-spin shadow-lg shadow-fuchsia-500/10">
-                      <Rocket className="w-6 h-6 sm:w-7 sm:h-7 text-fuchsia-400 group-hover:animate-pulse" />
-                    </div>
-                    <h3 className="text-lg sm:text-xl font-bold text-white mb-2 sm:mb-3 group-hover:text-fuchsia-400 transition-colors">Deploy Instantly</h3>
-                    <p className="text-sm sm:text-base text-slate-400 leading-relaxed group-hover:text-slate-300 transition-colors">
-                      One-click deployment to Celo Mainnet or Testnet with MetaMask integration and auto-generated frontend.
-                    </p>
-                  </div>
-                </div>
-              </TiltCard>
-            </ScrollReveal>
-
-            {/* Feature Card 4 - Security */}
-            <ScrollReveal delay={400} variant="scale">
-              <TiltCard>
-                <div className="group relative h-full p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-slate-900/40 to-slate-800/40 border border-slate-800/50 hover:border-green-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-green-500/20 backdrop-blur-sm">
-                  <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-emerald-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  <div className="relative">
-                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-green-500/20 to-emerald-500/20 flex items-center justify-center mb-4 sm:mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all hover-icon-spin shadow-lg shadow-green-500/10">
-                      <Shield className="w-6 h-6 sm:w-7 sm:h-7 text-green-400 group-hover:animate-pulse" />
-                    </div>
-                    <h3 className="text-lg sm:text-xl font-bold text-white mb-2 sm:mb-3 group-hover:text-green-400 transition-colors">Battle-Tested</h3>
-                    <p className="text-sm sm:text-base text-slate-400 leading-relaxed group-hover:text-slate-300 transition-colors">
-                      Built with security best practices. Includes pausable, whitelist, blacklist, multisig, and timelock features.
-                    </p>
-                  </div>
-                </div>
-              </TiltCard>
-            </ScrollReveal>
-
-            {/* Feature Card 5 - Global */}
-            <ScrollReveal delay={500} variant="scale">
-              <TiltCard>
-                <div className="group relative h-full p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-slate-900/40 to-slate-800/40 border border-slate-800/50 hover:border-yellow-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-yellow-500/20 backdrop-blur-sm">
-                  <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/5 to-orange-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  <div className="relative">
-                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-yellow-500/20 to-orange-500/20 flex items-center justify-center mb-4 sm:mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all hover-icon-spin shadow-lg shadow-yellow-500/10">
-                      <Globe className="w-6 h-6 sm:w-7 sm:h-7 text-yellow-400 group-hover:animate-pulse" />
-                    </div>
-                    <h3 className="text-lg sm:text-xl font-bold text-white mb-2 sm:mb-3 group-hover:text-yellow-400 transition-colors">Celo Native</h3>
-                    <p className="text-sm sm:text-base text-slate-400 leading-relaxed group-hover:text-slate-300 transition-colors">
-                      Built specifically for Celo blockchain. Support for both Mainnet and Alfajores Testnet with low gas fees.
-                    </p>
-                  </div>
-                </div>
-              </TiltCard>
-            </ScrollReveal>
-
-            {/* Feature Card 6 - Blocks */}
-            <ScrollReveal delay={600} variant="scale">
-              <TiltCard>
-                <div className="group relative h-full p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-slate-900/40 to-slate-800/40 border border-slate-800/50 hover:border-purple-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/20 backdrop-blur-sm">
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-violet-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  <div className="relative">
-                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-purple-500/20 to-violet-500/20 flex items-center justify-center mb-4 sm:mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all hover-icon-spin shadow-lg shadow-purple-500/10">
-                      <Blocks className="w-6 h-6 sm:w-7 sm:h-7 text-purple-400 group-hover:animate-pulse" />
-                    </div>
-                    <h3 className="text-lg sm:text-xl font-bold text-white mb-2 sm:mb-3 group-hover:text-purple-400 transition-colors">17+ Block Types</h3>
-                    <p className="text-sm sm:text-base text-slate-400 leading-relaxed group-hover:text-slate-300 transition-colors">
-                      ERC-20, NFT, mint, burn, stake, withdraw, voting, airdrop, snapshot, royalty, permit and more.
-                    </p>
-                  </div>
-                </div>
-              </TiltCard>
-            </ScrollReveal>
-          </div>
-        </div>
-      </section>
-
-      {/* Separator */}
-      <SectionDivider />
-
-      {/* Faucet details */}
-      <div id="faucet">
-        <FaucetInfo />
+        
+        {/* Radial vignette overlay */}
+        <div 
+          className="absolute inset-0" 
+          style={{
+            background: "radial-gradient(900px 420px at 12% 10%, rgba(46, 200, 146, 0.16), transparent 65%), radial-gradient(800px 520px at 82% 12%, rgba(76, 141, 255, 0.12), transparent 70%), radial-gradient(900px 540px at 50% 100%, rgba(244, 183, 64, 0.08), transparent 70%), radial-gradient(ellipse at center, transparent 20%, rgba(0,0,0,0.35) 100%)"
+          }}
+        />
       </div>
 
-      {/* Separator */}
-      <SectionDivider />
+      <Navbar />
 
-      {/* CTA Section - Enhanced with Animations */}
-      <section className="px-6 py-24 relative overflow-hidden">
-        {/* Animated Background Glow */}
-        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-blue-500/10 to-fuchsia-500/10 blur-3xl animate-pulse"></div>
+      {/* 2. ADVANCED HERO */}
+      <section className="relative pt-24 pb-12 px-6 max-w-7xl mx-auto z-10 grid lg:grid-cols-12 gap-12 items-center" aria-labelledby="hero-heading">
+        {/* Conditional grid overlay for hero zone (2-3% opacity) */}
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          aria-hidden="true"
+          style={{
+            backgroundSize: '40px 40px',
+            backgroundImage: 'linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px)',
+            opacity: 0.025
+          }}
+        />
+        
+        {/* Left: Content */}
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="lg:col-span-5 flex flex-col items-start text-left"
+        >
+          <motion.h1 
+            variants={itemVariants}
+            id="hero-heading"
+            className="text-4xl sm:text-5xl lg:text-6xl font-semibold text-white tracking-tight mb-3 leading-[1.08]"
+          >
+            Deterministic <br />
+            <span className="bg-gradient-to-r from-emerald-300 via-cyan-300 to-sky-400 bg-clip-text text-transparent">Contract Infrastructure</span>
+          </motion.h1>
 
-        <ScrollReveal variant="bounce">
-          <div className="max-w-4xl mx-auto text-center relative z-10">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-500/10 border border-cyan-500/20 rounded-full mb-8 animate-bounce">
-              <span className="text-sm text-cyan-400 font-medium">🚀 Ready to Launch?</span>
-            </div>
+          <motion.p 
+            variants={itemVariants}
+            className="text-lg sm:text-xl text-zinc-300/90 font-light mb-1"
+          >
+            For Soroban Deployments
+          </motion.p>
 
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 hover:scale-105 transition-transform inline-block">
-              Start Building Your dApp Today
-            </h2>
-            <p className="text-xl text-slate-400 mb-10 max-w-2xl mx-auto hover:text-slate-300 transition-colors">
-              Join developers building the future of decentralized applications on Celo.
-              No credit card required. Start for free.
-            </p>
+          <motion.div 
+            variants={itemVariants}
+            className="h-px w-12 bg-zinc-800 my-5" 
+          />
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <ShineButton href="/builder" className="w-full sm:w-auto px-10">
-                <span>Launch Builder</span>
-                <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-              </ShineButton>
-              <Link
-                href="/docs"
-                className="hover-lift group px-10 py-4 bg-slate-800/50 hover:bg-slate-700/50 text-white font-bold rounded-xl transition-all duration-300 border border-slate-700/50 hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/20 flex items-center gap-2"
-              >
-                <span>View Documentation</span>
-                <Sparkles size={20} className="group-hover:rotate-180 transition-transform duration-500" />
-              </Link>
-            </div>
+          <motion.p 
+            variants={itemVariants}
+            className="text-xs sm:text-sm font-mono text-emerald-400/90 uppercase tracking-widest mb-6"
+          >
+            Production-grade WASM <span className="text-zinc-700 px-2">·</span> Architecture-first tooling
+          </motion.p>
+
+          <motion.div 
+            variants={itemVariants}
+            className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full sm:w-auto"
+          >
+            <Link
+              href="/builder"
+              className="h-10 px-6 bg-primary hover:bg-primary/90 text-white text-sm font-medium rounded transition-all shadow-none flex items-center justify-center gap-2"
+              aria-label="Initialize Workbench - Start building contracts"
+            >
+              Initialize Workbench <ArrowRight className="w-4 h-4" aria-hidden="true" />
+            </Link>
+            <button 
+              className="h-10 px-6 border border-white/[0.1] hover:border-white/[0.2] hover:bg-[var(--surface-1)] text-zinc-300 text-sm font-medium rounded transition-all"
+              aria-label="Read Documentation"
+            >
+              Read Documentation
+            </button>
+          </motion.div>
+          
+          {!isMobile && (
+            <motion.div 
+              variants={itemVariants}
+              className="mt-3 flex items-center gap-3 text-[10px] text-zinc-500 font-mono"
+            >
+              <span>MAINNET READY</span>
+              <span className="w-1 h-1 rounded-full bg-zinc-700" />
+              <span>WASM NATIVE</span>
+              <span className="w-1 h-1 rounded-full bg-zinc-700" />
+              <span>FORMAL PIPELINE</span>
+            </motion.div>
+          )}
+        </motion.div>
+
+        {/* Right: Product Window - Hidden on mobile/tablet */}
+        {!isMobile && !isTablet && (
+          <div className="lg:col-span-7 relative">
+            <motion.div
+              initial={{ opacity: 0, y: MOTION_TRANSFORMS.slideUp }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: MOTION_DURATION.slow / 1000, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+              className="relative rounded-lg"
+            >
+              <Suspense fallback={<div className="w-full aspect-[16/10] bg-[var(--surface-1)] rounded-lg border border-white/[0.08] animate-pulse" />}>
+                <ProductWindow />
+              </Suspense>
+              <BorderBeam duration={10} delay={5} borderWidth={1.5} size={300} colorFrom="#2EC892" colorTo="#4C8DFF" />
+            </motion.div>
           </div>
-        </ScrollReveal>
+        )}
       </section>
 
-      {/* Separator */}
-      <SectionDivider />
-
-      {/* Footer */}
-      <footer className="relative border-t border-white/5 py-12 px-6 overflow-hidden bg-black/40 backdrop-blur-xl">
-        {/* Animated Background */}
-        <div className="absolute inset-0 bg-transparent"></div>
-
-        <ScrollReveal>
-          <div className="max-w-7xl mx-auto relative z-10">
-            <div className="grid md:grid-cols-4 gap-8 mb-8">
-              {/* Brand */}
-              <div className="md:col-span-2">
-                <div className="flex items-center gap-3 mb-4 group">
-                  <div className="relative">
-                    <div className="absolute inset-0 bg-cyan-400/50 blur-xl group-hover:blur-2xl transition-all duration-300"></div>
-                    <div className="relative w-10 h-10 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-12 transition-all duration-300">
-                      <span className="text-white font-bold text-xl">C</span>
-                    </div>
+      {/* 3. ENGINEERING PRINCIPLES STRIP - LOOPING MARQUEE */}
+      <section className="border-y border-white/[0.06] bg-[var(--surface-1)] py-4 md:py-5 overflow-hidden" aria-label="Engineering principles">
+        <div className="relative max-w-7xl mx-auto">
+          {/* Marquee container with gradient fade edges */}
+          <div className="relative flex overflow-hidden">
+            {/* Left gradient fade */}
+            <div className="absolute left-0 top-0 bottom-0 w-8 md:w-16 bg-gradient-to-r from-[var(--surface-1)] to-transparent z-10 pointer-events-none" />
+            {/* Right gradient fade */}
+            <div className="absolute right-0 top-0 bottom-0 w-8 md:w-16 bg-gradient-to-l from-[var(--surface-1)] to-transparent z-10 pointer-events-none" />
+            
+            {/* Scrolling content */}
+            <motion.div
+              className="flex shrink-0 gap-6 md:gap-12 items-center text-xs md:text-sm font-mono text-zinc-500 uppercase tracking-wider whitespace-nowrap"
+              animate={{ x: ["0%", "-50%"] }}
+              transition={{
+                x: {
+                  repeat: Infinity,
+                  repeatType: "loop",
+                  duration: 20,
+                  ease: "linear",
+                },
+              }}
+            >
+              {/* Duplicate content for seamless loop */}
+              {[...Array(2)].map((_, setIndex) => (
+                <div key={setIndex} className="flex shrink-0 gap-6 md:gap-12 items-center">
+                  <div className="flex items-center gap-2 shrink-0">
+                    <CheckCircle className="w-3 md:w-4 h-3 md:h-4 text-zinc-600" aria-hidden="true" />
+                    <span className="hidden sm:inline">Deterministic by Default</span>
+                    <span className="sm:hidden">Deterministic</span>
                   </div>
-                  <span className="font-bold text-xl text-white">Block Builder</span>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Workflow className="w-3 md:w-4 h-3 md:h-4 text-zinc-600" />
+                    <span className="hidden sm:inline">Architecture-First</span>
+                    <span className="sm:hidden">Architecture</span>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Code2 className="w-3 md:w-4 h-3 md:h-4 text-zinc-600" /> WASM-Native
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <GitCommit className="w-3 md:w-4 h-3 md:h-4 text-zinc-600" /> Deployment Parity
+                  </div>
+                  {/* Separator dot */}
+                  <span className="w-1 h-1 rounded-full bg-zinc-700 shrink-0" />
                 </div>
-                <p className="text-slate-400 mb-4 max-w-md">
-                  Build, deploy, and manage smart contracts on Celo without writing a single line of code.
-                  The easiest way to launch your Web3 project.
-                </p>
-                <div className="flex gap-4">
-                  <a
-                    href="https://github.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover-magnetic w-10 h-10 rounded-lg bg-slate-800/50 hover:bg-cyan-500/20 flex items-center justify-center text-slate-400 hover:text-cyan-400 transition-all hover:rotate-6"
-                  >
-                    <Github size={20} />
-                  </a>
-                  <a
-                    href="https://twitter.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover-magnetic w-10 h-10 rounded-lg bg-slate-800/50 hover:bg-blue-500/20 flex items-center justify-center text-slate-400 hover:text-blue-400 transition-all hover:rotate-6"
-                  >
-                    <Twitter size={20} />
-                  </a>
-                </div>
-              </div>
+              ))}
+            </motion.div>
+          </div>
+        </div>
+      </section>
 
-              {/* Quick Links */}
-              <div>
-                <h3 className="font-bold text-white mb-4">Quick Links</h3>
-                <ul className="space-y-2">
-                  <li>
-                    <Link href="/#about" className="hover-underline text-slate-400 hover:text-cyan-400 transition-colors">About</Link>
-                  </li>
-                  <li>
-                    <Link href="/#features" className="hover-underline text-slate-400 hover:text-cyan-400 transition-colors">Features</Link>
-                  </li>
-                  <li>
-                    <Link href="/builder" className="hover-underline text-slate-400 hover:text-cyan-400 transition-colors">Builder</Link>
-                  </li>
-                  <li>
-                    <Link href="/docs" className="hover-underline text-slate-400 hover:text-cyan-400 transition-colors">Documentation</Link>
-                  </li>
-                </ul>
-              </div>
+      {/* 4. UPGRADED BENTO GRID */}
+      <section className="relative pb-24 px-6 max-w-7xl mx-auto z-10" aria-labelledby="features-heading">
+        {/* Conditional grid overlay for bento zone (2-3% opacity) */}
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          aria-hidden="true"
+          style={{
+            backgroundSize: '40px 40px',
+            backgroundImage: 'linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px)',
+            opacity: 0.025
+          }}
+        />
+        
+        <div className="mb-8 md:mb-12 relative z-10">
+          <h2 id="features-heading" className="text-xl md:text-2xl font-semibold text-white mb-2">Core Infrastructure</h2>
+          <p className="text-sm md:text-base text-zinc-500 max-w-xl">Primitives designed for high-assurance financial applications.</p>
+        </div>
+        <BentoGrid className="max-w-7xl mx-auto">
+          {INFRASTRUCTURE_FEATURES.map((feature, i) => (
+            <BentoGridItem
+              key={i}
+              title={feature.title}
+              description={feature.description}
+              header={feature.header}
+              icon={feature.icon}
+              className={feature.className}
+              accentColor={feature.accentColor}
+            />
+          ))}
+        </BentoGrid>
+      </section>
 
-              {/* Resources */}
-              <div>
-                <h3 className="font-bold text-white mb-4">Resources</h3>
-                <ul className="space-y-2">
-                  <li>
-                    <a
-                      href="https://docs.celo.org"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover-underline text-slate-400 hover:text-cyan-400 transition-colors"
-                    >
-                      Celo Docs
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="https://faucet.celo.org"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover-underline text-slate-400 hover:text-cyan-400 transition-colors"
-                    >
-                      Testnet Faucet
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="https://explorer.celo.org"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover-underline text-slate-400 hover:text-cyan-400 transition-colors"
-                    >
-                      Block Explorer
-                    </a>
-                  </li>
-                </ul>
-              </div>
+      {/* 5. SYSTEM ARCHITECTURE / BUILD PIPELINE */}
+      <section className="py-16 md:py-24 lg:py-32 border-t border-white/[0.06] bg-[var(--surface-0)] relative overflow-hidden" aria-labelledby="pipeline-heading">
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="text-center mb-12 md:mb-16 lg:mb-20">
+            <h2 id="pipeline-heading" className="text-2xl md:text-3xl font-semibold text-white mb-3">Build Pipeline</h2>
+            <p className="text-zinc-500 font-mono text-xs md:text-sm uppercase tracking-wider">
+              Visual Engine <span className="text-zinc-700 mx-2">→</span> Deterministic WASM
+            </p>
+          </div>
+
+          <div className="relative flex flex-col md:flex-row items-start justify-center gap-0 max-w-6xl mx-auto">
+
+            {/* Stage 1: Visual Engine */}
+            <PipelineStage
+              id="01"
+              title="Visual Engine"
+              description="Drag-and-drop composition with schema enforcement."
+              icon={<Box className="w-4 h-4" />}
+              accentColor="blue"
+              metrics={[{ label: 'CTX', value: '84ms' }]}
+            />
+
+            <PipelineConnector />
+
+            {/* Stage 2: Rust Synthesis */}
+            <PipelineStage
+              id="02"
+              title="Rust Synthesis"
+              description="AST generation + borrow checker compliance."
+              icon={<Code2 className="w-4 h-4" />}
+              accentColor="purple"
+              metrics={[{ label: 'GEN', value: '12ms' }]}
+            />
+
+            <PipelineConnector />
+
+            {/* Stage 3: LLVM Compiler */}
+            <PipelineStage
+              id="03"
+              title="LLVM Compiler"
+              description="Optimization pipeline for minimal bytecode size."
+              icon={<Terminal className="w-4 h-4" />}
+              accentColor="emerald"
+              metrics={[{ label: 'OPT', value: 'Level 3' }]}
+            />
+
+            <PipelineConnector />
+
+            {/* Stage 4: WASM Bytecode */}
+            <PipelineStage
+              id="04"
+              title="WASM Bytecode"
+              description="Mainnet-ready binary artifact."
+              icon={<Cpu className="w-4 h-4" />}
+              accentColor="indigo"
+              metrics={[{ label: 'SIZE', value: '14kb' }]}
+            />
+
+          </div>
+        </div>
+      </section>
+
+      {/* 6. SECURITY & COMPLIANCE - DEFENSE IN DEPTH SPLIT */}
+      <section className="relative py-16 md:py-24 lg:py-32 px-6 border-t border-white/[0.06] bg-[var(--surface-1)]" aria-labelledby="security-heading">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-16 lg:gap-20 items-center">
+
+          {/* Left: Copy Column */}
+          <div>
+            {/* Active Protection Badge */}
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-900/30 bg-emerald-900/10 mb-6" role="status">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />
+              <span className="text-[10px] font-medium text-emerald-500 uppercase tracking-wider">Active Protection</span>
             </div>
+            
+            {/* Heading */}
+            <h2 id="security-heading" className="text-2xl md:text-3xl lg:text-4xl font-semibold text-white mb-6 tracking-tight">
+              Defense in Depth <br />
+              <span className="text-zinc-500">Architecture</span>
+            </h2>
+            
+            {/* Description */}
+            <p className="text-sm md:text-base text-zinc-400 leading-relaxed mb-8 max-w-md opacity-85">
+              We don't just compile; we verify. Every contract undergoes a rigorous multi-stage security pipeline before it ever touches the network.
+            </p>
 
-            {/* Bottom Bar */}
-            <div className="pt-8 border-t border-slate-800/50 flex flex-col md:flex-row items-center justify-between gap-4">
-              <p className="text-slate-400 text-sm">
-                Â© 2025 Block Builder. Built with â¤ï¸ for the Celo Community.
-              </p>
-              <div className="flex items-center gap-2 text-slate-400 text-sm">
-                <span>Powered by</span>
-                <span className="font-semibold text-cyan-400">Celo</span>
-              </div>
+            {/* Security Features */}
+            <div className="space-y-6">
+              <SecurityFeature
+                icon={<Shield className="w-3 h-3 text-zinc-400" />}
+                title="Pre-Flight Analysis"
+                description="Static analysis scans for common vector vulnerabilities."
+              />
+              <SecurityFeature
+                icon={<FileCheck className="w-3 h-3 text-zinc-400" />}
+                title="Symbolic Execution"
+                description="Mathematical proof of contract logic correctness."
+              />
+              <SecurityFeature
+                icon={<Lock className="w-3 h-3 text-zinc-400" />}
+                title="Runtime Enclaves"
+                description="Isolated execution environments for gas metering."
+              />
             </div>
           </div>
-        </ScrollReveal>
+
+          {/* Right: Visual Column - Layered Security Cards */}
+          <SecurityLayers />
+
+        </div>
+      </section>
+
+      {}
+      <footer className="border-t border-white/[0.06] bg-[var(--surface-0)] py-12 px-6" role="contentinfo">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex items-center gap-2 opacity-50 grayscale hover:grayscale-0 transition-all">
+            <div className="w-6 h-6 bg-zinc-800 rounded flex items-center justify-center text-[10px] font-bold" aria-hidden="true">B</div>
+            <span className="text-sm font-semibold">Block Builder</span>
+          </div>
+          <div className="text-xs text-zinc-600 font-mono" role="status">
+            SYSTEM STATUS: <span className="text-emerald-500">ONLINE</span>
+          </div>
+          <nav className="flex gap-6 text-xs text-zinc-500" aria-label="Footer navigation">
+            <a href="#" className="hover:text-zinc-300 transition-colors">Documentation</a>
+            <a href="#" className="hover:text-zinc-300 transition-colors">API Reference</a>
+            <a href="#" className="hover:text-zinc-300 transition-colors">Status</a>
+          </nav>
+        </div>
       </footer>
-    </main >
+    </main>
   )
 }

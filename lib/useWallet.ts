@@ -1,99 +1,69 @@
-import { useState, useEffect } from "react"
-import { ethers } from "ethers"
-import { CELO_NETWORKS } from "./celo-config"
+import { useState, useEffect, useCallback } from "react"
 
-declare global {
-  interface Window {
-    ethereum?: any
-  }
+interface StellarWallet {
+  publicKey: string
+  network: string
 }
 
 export function useWallet() {
   const [walletAddress, setWalletAddress] = useState<string | null>(null)
-  const [provider, setProvider] = useState<ethers.BrowserProvider | null>(null)
-  const [chainId, setChainId] = useState<number | null>(null)
+  const [network, setNetwork] = useState<"testnet" | "mainnet">("testnet")
   const [isConnecting, setIsConnecting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isFreighterAvailable, setIsFreighterAvailable] = useState(false)
 
   useEffect(() => {
+    checkFreighterAvailability()
     checkConnection()
-
-    if (window.ethereum) {
-      window.ethereum.on("accountsChanged", handleAccountsChanged)
-      window.ethereum.on("chainChanged", handleChainChanged)
-    }
-
-    return () => {
-      if (window.ethereum) {
-        window.ethereum.removeListener("accountsChanged", handleAccountsChanged)
-        window.ethereum.removeListener("chainChanged", handleChainChanged)
-      }
-    }
   }, [])
 
-  const checkConnection = async () => {
+  const checkFreighterAvailability = () => {
+    if (typeof window !== "undefined" && window.freighter) {
+      setIsFreighterAvailable(true)
+    }
+  }
+
+  const checkConnection = useCallback(async () => {
     try {
-      if (window.ethereum) {
-        const provider = new ethers.BrowserProvider(window.ethereum)
-        const accounts = await provider.listAccounts()
+      if (typeof window === "undefined" || !window.freighter) {
+        return
+      }
 
-        if (accounts.length > 0) {
-          const signer = await provider.getSigner()
-          const address = await signer.getAddress()
-          setWalletAddress(address)
-          setProvider(provider)
-
-          const network = await provider.getNetwork()
-          setChainId(Number(network.chainId))
-        }
+      const { isConnected } = await window.freighter.isConnected()
+      if (isConnected) {
+        const publicKey = await window.freighter.getPublicKey()
+        const network = await window.freighter.getNetwork()
+        setWalletAddress(publicKey)
+        setNetwork(network === "PUBLIC" ? "mainnet" : "testnet")
       }
     } catch (err) {
       console.error("Error checking wallet connection:", err)
     }
-  }
-
-  const handleAccountsChanged = (accounts: string[]) => {
-    if (accounts.length === 0) {
-      disconnect()
-    } else {
-      setWalletAddress(accounts[0])
-    }
-  }
-
-  const handleChainChanged = () => {
-    window.location.reload()
-  }
+  }, [])
 
   const connect = async () => {
     try {
       setIsConnecting(true)
       setError(null)
 
-      if (!window.ethereum) {
-        throw new Error("Please install a Celo-compatible wallet")
+      if (typeof window === "undefined" || !window.freighter) {
+        throw new Error("Please install Freighter wallet extension")
       }
 
-      const accounts = await window.ethereum.request({
-        method: "eth_requestAccounts",
-      })
-
-      if (accounts.length === 0) {
-        throw new Error("No accounts found")
+      const { isConnected } = await window.freighter.isConnected()
+      if (!isConnected) {
+        await window.freighter.connect()
       }
 
-      const provider = new ethers.BrowserProvider(window.ethereum)
-      setProvider(provider)
+      const publicKey = await window.freighter.getPublicKey()
+      const networkInfo = await window.freighter.getNetwork()
+      
+      setWalletAddress(publicKey)
+      setNetwork(networkInfo === "PUBLIC" ? "mainnet" : "testnet")
 
-      const signer = await provider.getSigner()
-      const address = await signer.getAddress()
-      setWalletAddress(address)
-
-      const network = await provider.getNetwork()
-      setChainId(Number(network.chainId))
-
-      return address
+      return publicKey
     } catch (err: any) {
-      const errorMessage = err.code === 4001 ? "Connection rejected by user" : err.message || "Failed to connect"
+      const errorMessage = err.message || "Failed to connect to Freighter wallet"
       setError(errorMessage)
       throw new Error(errorMessage)
     } finally {
@@ -103,61 +73,71 @@ export function useWallet() {
 
   const disconnect = () => {
     setWalletAddress(null)
-    setProvider(null)
-    setChainId(null)
     setError(null)
   }
 
-  const switchNetwork = async (networkType: "sepolia" | "mainnet") => {
-    const networkConfig = CELO_NETWORKS[networkType]
-
+  const switchNetwork = async (targetNetwork: "testnet" | "mainnet") => {
     try {
-      await window.ethereum.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: `0x${networkConfig.chainId.toString(16)}` }],
-      })
-      setChainId(networkConfig.chainId)
+      if (typeof window === "undefined" || !window.freighter) {
+        throw new Error("Freighter wallet not available")
+      }
+
+      const networkPassphrase = targetNetwork === "mainnet" 
+        ? "Public Global Stellar Network ; September 2015"
+        : "Test SDF Network ; September 2015"
+
+      await window.freighter.setNetwork(networkPassphrase)
+      setNetwork(targetNetwork)
+      
       return true
     } catch (err: any) {
-      if (err.code === 4902) {
-        return await addNetwork(networkType)
-      }
+      console.error("Error switching network:", err)
       throw err
     }
   }
 
-  const addNetwork = async (networkType: "sepolia" | "mainnet") => {
-    const networkConfig = CELO_NETWORKS[networkType]
-
+  const signTransaction = async (xdr: string, network: "testnet" | "mainnet"): Promise<string> => {
     try {
-      await window.ethereum.request({
-        method: "wallet_addEthereumChain",
-        params: [
-          {
-            chainId: `0x${networkConfig.chainId.toString(16)}`,
-            chainName: networkConfig.name,
-            nativeCurrency: networkConfig.nativeCurrency,
-            rpcUrls: [networkConfig.rpcUrl],
-            blockExplorerUrls: [networkConfig.explorerUrl],
-          },
-        ],
+      if (typeof window === "undefined" || !window.freighter) {
+        throw new Error("Freighter wallet not available")
+      }
+
+      const signedXdr = await window.freighter.signTransaction(xdr, {
+        networkPassphrase: network === "mainnet" 
+          ? "Public Global Stellar Network ; September 2015"
+          : "Test SDF Network ; September 2015"
       })
-      return true
-    } catch (err) {
-      throw err
+
+      return signedXdr
+    } catch (err: any) {
+      console.error("Error signing transaction:", err)
+      throw new Error(err.message || "Failed to sign transaction")
     }
   }
 
   return {
     walletAddress,
-    provider,
-    chainId,
+    network,
     isConnecting,
     error,
     isConnected: !!walletAddress,
+    isFreighterAvailable,
     connect,
     disconnect,
     switchNetwork,
-    addNetwork,
+    signTransaction,
+  }
+}
+
+declare global {
+  interface Window {
+    freighter?: {
+      isConnected: () => Promise<{ isConnected: boolean; error?: string }>
+      connect: () => Promise<{ publicKey: string; error?: string }>
+      getPublicKey: () => Promise<string>
+      getNetwork: () => Promise<string>
+      setNetwork: (networkPassphrase: string) => Promise<void>
+      signTransaction: (xdr: string, options?: { networkPassphrase?: string }) => Promise<string>
+    }
   }
 }

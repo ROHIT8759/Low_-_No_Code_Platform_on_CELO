@@ -4,12 +4,15 @@ interface FrontendFiles {
   [path: string]: string
 }
 
-// ABI helper
 function hasAbiFunction(contract: DeployedContract, name: string): boolean {
   return Array.isArray(contract.abi) && contract.abi.some((item: any) => item.type === 'function' && item.name === name)
 }
 
 export function generateNextJsFrontend(contract: DeployedContract): FrontendFiles {
+  if (contract.networkType === 'stellar') {
+    return generateStellarFrontend(contract);
+  }
+
   const files: FrontendFiles = {}
 
   files['app/layout.tsx'] = generateLayout(contract)
@@ -28,6 +31,183 @@ export function generateNextJsFrontend(contract: DeployedContract): FrontendFile
   files['README.md'] = generateReadme(contract)
 
   return files
+}
+
+function generateStellarFrontend(contract: DeployedContract): FrontendFiles {
+  const files: FrontendFiles = {};
+
+  
+  files['app/layout.tsx'] = generateLayout(contract);
+  files['app/globals.css'] = generateGlobalCss();
+  files['app/page.tsx'] = generateStellarMainPage(contract);
+
+  
+  files['lib/stellar.ts'] = generateStellarLib(contract);
+  files['components/WalletConnect.tsx'] = generateStellarWalletComponent();
+
+  
+  files['package.json'] = generateStellarPackageJson(contract);
+  files['next.config.js'] = generateNextConfig();
+  files['tsconfig.json'] = generateTsConfig();
+  files['.gitignore'] = generateGitignore();
+  files['README.md'] = generateStellarReadme(contract);
+
+  return files;
+}
+
+function generateStellarMainPage(contract: DeployedContract): string {
+  return `"use client"
+
+import { useState } from 'react'
+import WalletConnect from '@/components/WalletConnect'
+
+export default function Home() {
+  const [walletPublicKey, setWalletPublicKey] = useState<string>('')
+
+  return (
+    <main className="min-h-screen p-6">
+      <div className="max-w-5xl mx-auto">
+        <h1 className="text-4xl font-bold mb-2">${contract.contractName}</h1>
+        <p className="text-slate-400 mb-4">Network: ${contract.networkName}</p>
+        <p className="text-sm text-slate-500 mb-6">Contract ID: {process.env.NEXT_PUBLIC_CONTRACT_ID}</p>
+        
+        <div className="mb-6">
+          <WalletConnect onConnect={setWalletPublicKey} />
+        </div>
+        
+        {walletPublicKey && (
+          <div className="mt-6">
+            <div className="card">
+               <h2 className="text-xl font-bold mb-4">Contract Interaction</h2>
+               <p>Stellar interaction components for Soroban contracts would go here.</p>
+               {/* Add dedicated components for invoking Soroban contract functions */}
+            </div>
+          </div>
+        )}
+      </div>
+    </main>
+  )
+}
+`;
+}
+
+function generateStellarLib(contract: DeployedContract): string {
+  return `import { checkConnection, isAllowed, setAllowed } from "@stellar/freighter-api";
+
+export async function connectWallet() {
+    if (await isAllowed()) {
+        return await checkConnection();
+    } else {
+        await setAllowed();
+        return await checkConnection();
+    }
+}
+`;
+}
+
+function generateStellarWalletComponent(): string {
+  return `"use client"
+import { useState } from 'react';
+import { isAllowed, setAllowed, getUserInfo } from "@stellar/freighter-api";
+
+export default function WalletConnect({ onConnect }: { onConnect: (key: string) => void }) {
+    const [publicKey, setPublicKey] = useState<string>("");
+    
+    const connect = async () => {
+        if (await isAllowed()) {
+            const { publicKey } = await getUserInfo();
+            setPublicKey(publicKey);
+            onConnect(publicKey);
+        } else {
+            await setAllowed();
+            const { publicKey } = await getUserInfo();
+            setPublicKey(publicKey);
+            onConnect(publicKey);
+        }
+    };
+
+    return (
+        <div className="card">
+            {!publicKey ? (
+                <button onClick={connect} className="btn-primary">Connect Freighter Wallet</button>
+            ) : (
+                <div>
+                   <p className="text-green-400">Connected: {publicKey}</p>
+                </div>
+            )}
+        </div>
+    );
+}
+`;
+}
+
+function generateStellarPackageJson(contract: DeployedContract): string {
+  return `{
+  "name": "${contract.contractName.toLowerCase().replace(/\s+/g, '-')}-dapp",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "next": "^15.1.3",
+    "@stellar/freighter-api": "^2.0.0",
+    "@stellar/stellar-sdk": "^13.0.0",
+    "lucide-react": "^0.473.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "@types/node": "^22.10.2",
+    "@types/react": "^19.0.2",
+    "@types/react-dom": "^19.0.2",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "eslint": "^9.17.0",
+    "eslint-config-next": "^15.1.3"
+  }
+}
+`;
+}
+
+function generateStellarReadme(contract: DeployedContract): string {
+  return `# ${contract.contractName} dApp (Stellar)
+
+A Next.js decentralized application for interacting with the **${contract.contractName}** smart contract on **${contract.networkName}**.
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Node.js 18+ 
+- Freighter Wallet Extension
+
+### Installation
+
+\`\`\`bash
+npm install
+\`\`\`
+
+### Configuration
+
+1. Copy the \`.env.local\` file and add your Contract ID:
+
+\`\`\`env
+NEXT_PUBLIC_CONTRACT_ID=${contract.contractAddress}
+NEXT_PUBLIC_NETWORK=${contract.networkName}
+\`\`\`
+
+### Run locally
+
+\`\`\`bash
+npm run dev
+\`\`\`
+`;
 }
 
 function generateLayout(contract: DeployedContract): string {
@@ -145,7 +325,7 @@ export async function getAlchemyProvider() {
   }
   
   // Alchemy URL for Celo network
-  const alchemyUrl = \`https://celo-mainnet.g.alchemy.com/v2/\${alchemyApiKey}\`
+  const alchemyUrl = \`https:
   return new ethers.JsonRpcProvider(alchemyUrl)
 }
 
@@ -225,7 +405,7 @@ export default function WalletConnect({ onConnect }: Props) {
       const signer = await provider.getSigner()
       const addr = await signer.getAddress()
       
-      // Switch to correct network
+      
       const network = await provider.getNetwork()
       const expectedChainId = process.env.NEXT_PUBLIC_CHAIN_ID
       
@@ -293,30 +473,46 @@ export default function WalletConnect({ onConnect }: Props) {
 }
 
 function generateContractComponent(contract: DeployedContract): string {
+  // Helpers to identify function types
+  const getFunctionsByType = (type: 'view' | 'pure' | 'nonpayable' | 'payable') => {
+    return Array.isArray(contract.abi)
+      ? contract.abi.filter((item: any) => item.type === 'function' && item.stateMutability === type)
+      : []
+  }
+
+  const readFunctions = [...getFunctionsByType('view'), ...getFunctionsByType('pure')]
+  const writeFunctions = [...getFunctionsByType('nonpayable'), ...getFunctionsByType('payable')]
+
+  // Filter out standard functions we already handle explicitly
+  const standardMethods = ['mint', 'burn', 'transfer', 'approve', 'balanceOf', 'transferFrom', 'allowance']
+
+  const customReadFunctions = readFunctions.filter(f => !standardMethods.includes(f.name))
+  const customWriteFunctions = writeFunctions.filter(f => !standardMethods.includes(f.name))
+
   const canMint = hasAbiFunction(contract, 'mint')
   const canBurn = hasAbiFunction(contract, 'burn')
   const canTransfer = hasAbiFunction(contract, 'transfer')
   const canApprove = hasAbiFunction(contract, 'approve')
   const canBalanceOf = hasAbiFunction(contract, 'balanceOf')
 
-  // Check mint function signature to determine if it accepts amount parameter
-  const mintFunction = Array.isArray(contract.abi) 
+  // Check mint function signature
+  const mintFunction = Array.isArray(contract.abi)
     ? contract.abi.find((item: any) => item.type === 'function' && item.name === 'mint')
     : null
   const mintAcceptsAmount = mintFunction?.inputs?.length === 2 // mint(address, uint256)
-  const mintOnlyAddress = mintFunction?.inputs?.length === 1 // mint(address)
 
   // Check burn function signature
   const burnFunction = Array.isArray(contract.abi)
     ? contract.abi.find((item: any) => item.type === 'function' && item.name === 'burn')
     : null
-  const burnAcceptsAmount = burnFunction?.inputs?.length >= 1 // burn(uint256) or burn(address, uint256)
+  // const burnAcceptsAmount = burnFunction?.inputs?.length >= 1 
 
   return `"use client"
 
 import { useState, useEffect } from 'react'
 import { ethers } from 'ethers'
 import { getContract, getProvider, getAlchemyProvider, getBlockExplorerUrl, verifyTransactionOnExplorer } from '@/lib/contract'
+import { ChevronDown, ChevronUp, Play, Eye, Activity } from 'lucide-react'
 
 interface Props { 
   walletAddress: string 
@@ -328,14 +524,19 @@ export default function ContractInteraction({ walletAddress }: Props) {
   const [error, setError] = useState<string>('')
   const [success, setSuccess] = useState<string>('')
   const [txHash, setTxHash] = useState<string>('')
-
-  // Input states
+  
+  
   const [mintAmount, setMintAmount] = useState<string>('')
   const [burnAmount, setBurnAmount] = useState<string>('')
   const [transferTo, setTransferTo] = useState<string>('')
   const [transferAmount, setTransferAmount] = useState<string>('')
   const [approveSpender, setApproveSpender] = useState<string>('')
   const [approveAmount, setApproveAmount] = useState<string>('')
+
+  
+  const [functionInputs, setFunctionInputs] = useState<Record<string, string>>({})
+  const [functionOutputs, setFunctionOutputs] = useState<Record<string, string>>({})
+  const [expandedFunctions, setExpandedFunctions] = useState<Record<string, boolean>>({})
 
   useEffect(() => {
     if (walletAddress) {
@@ -355,6 +556,74 @@ export default function ContractInteraction({ walletAddress }: Props) {
     }` : '// No balanceOf function in ABI'}
   }
 
+  const handleInputChange = (funcName: string, argName: string, value: string) => {
+    setFunctionInputs(prev => ({
+      ...prev,
+      [\`\${funcName}_\${argName}\`]: value
+    }))
+  }
+
+  const toggleFunction = (funcName: string) => {
+    setExpandedFunctions(prev => ({
+      ...prev,
+      [funcName]: !prev[funcName]
+    }))
+  }
+
+  
+  const handleRead = async (funcName: string, inputs: any[]) => {
+    try {
+      const provider = await getProvider()
+      const contract = getContract(provider)
+      
+      const args = inputs.map(input => functionInputs[\`\${funcName}_\${input.name}\`] || '')
+      const result = await contract[funcName](...args)
+      
+      setFunctionOutputs(prev => ({
+        ...prev,
+        [funcName]: result.toString()
+      }))
+    } catch (err: any) {
+      console.error(\`Read error (\${funcName}):\`, err)
+      setFunctionOutputs(prev => ({
+        ...prev,
+        [funcName]: \`Error: \${err.reason || err.message}\`
+      }))
+    }
+  }
+
+  
+  const handleWrite = async (funcName: string, inputs: any[]) => {
+    setLoading(true)
+    setError('')
+    setSuccess('')
+    
+    try {
+      const provider = await getProvider()
+      const signer = await provider.getSigner()
+      const contract = getContract(signer)
+      
+      const args = inputs.map(input => {
+        const val = functionInputs[\`\${funcName}_\${input.name}\`] || ''
+        
+        return val
+      })
+      
+      const tx = await contract[funcName](...args)
+      setSuccess(\`Transaction submitted! Hash: \${tx.hash}\`)
+      setTxHash(tx.hash)
+      
+      await tx.wait()
+      setSuccess(\`Function \${funcName} executed successfully!\`)
+      await loadBalance()
+    } catch (err: any) {
+      setError(err.message || 'Transaction failed')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  
   const handleTransaction = async (txFunc: () => Promise<any>, successMsg: string) => {
     setLoading(true)
     setError('')
@@ -408,7 +677,7 @@ export default function ContractInteraction({ walletAddress }: Props) {
       const contract = getContract(signer)
       
       // Execute mint transaction with appropriate parameters based on ABI
-      ${mintAcceptsAmount 
+      ${mintAcceptsAmount
         ? 'const tx = await contract.mint(walletAddress, ethers.parseEther(mintAmount))'
         : 'const tx = await contract.mint(walletAddress)'}
       setSuccess(\`Transaction submitted! Hash: \${tx.hash}\`)
@@ -427,7 +696,7 @@ export default function ContractInteraction({ walletAddress }: Props) {
       }
       
       await loadBalance()
-      ${mintAcceptsAmount ? 'setMintAmount(\'\')' : ''}
+      ${mintAcceptsAmount ? 'setMintAmount(\\\'\\\')' : ''}
     } catch (err: any) {
       setError(err.message || 'Mint transaction failed')
       console.error('Mint error:', err)
@@ -436,94 +705,66 @@ export default function ContractInteraction({ walletAddress }: Props) {
     }
   }` : ''}
 
-  ${canBurn ? `
+   ${canBurn ? `
   const handleBurn = async () => {
-    if (!burnAmount || parseFloat(burnAmount) <= 0) {
-      setError('Please enter a valid amount')
-      return
-    }
-    await handleTransaction(
+     if (!burnAmount) return
+      await handleTransaction(
       async () => {
         const provider = await getProvider()
         const signer = await provider.getSigner()
         const contract = getContract(signer)
         return await contract.burn(ethers.parseEther(burnAmount))
       },
-      \`Successfully burned \${burnAmount} tokens!\`
+      'Burned tokens successfully!'
     )
     setBurnAmount('')
-  }` : ''}
+  }`: ''}
 
-  ${canTransfer ? `
+   ${canTransfer ? `
   const handleTransfer = async () => {
-    if (!transferTo || !ethers.isAddress(transferTo)) {
-      setError('Please enter a valid address')
-      return
-    }
-    if (!transferAmount || parseFloat(transferAmount) <= 0) {
-      setError('Please enter a valid amount')
-      return
-    }
-    await handleTransaction(
+    if (!transferTo || !transferAmount) return
+     await handleTransaction(
       async () => {
         const provider = await getProvider()
         const signer = await provider.getSigner()
         const contract = getContract(signer)
         return await contract.transfer(transferTo, ethers.parseEther(transferAmount))
       },
-      \`Successfully transferred \${transferAmount} tokens!\`
+      'Transferred tokens successfully!'
     )
-    setTransferTo('')
-    setTransferAmount('')
-  }` : ''}
+     setTransferTo('')
+     setTransferAmount('')
+  }`: ''}
 
-  ${canApprove ? `
+   ${canApprove ? `
   const handleApprove = async () => {
-    if (!approveSpender || !ethers.isAddress(approveSpender)) {
-      setError('Please enter a valid spender address')
-      return
-    }
-    if (!approveAmount || parseFloat(approveAmount) <= 0) {
-      setError('Please enter a valid amount')
-      return
-    }
-    await handleTransaction(
+    if (!approveSpender || !approveAmount) return
+     await handleTransaction(
       async () => {
         const provider = await getProvider()
         const signer = await provider.getSigner()
         const contract = getContract(signer)
         return await contract.approve(approveSpender, ethers.parseEther(approveAmount))
       },
-      \`Successfully approved \${approveAmount} tokens!\`
+      'Approved tokens successfully!'
     )
-    setApproveSpender('')
-    setApproveAmount('')
-  }` : ''}
+     setApproveSpender('')
+     setApproveAmount('')
+  }`: ''}
 
   return (
-    <div className="space-y-4">
-      ${canBalanceOf ? `
-      <div className="card">
-        <h3 className="font-bold text-lg mb-2">Your Balance</h3>
-        <p className="text-2xl text-green-400">{balance} tokens</p>
-        <button 
-          onClick={loadBalance} 
-          className="mt-2 text-sm text-slate-400 hover:text-slate-200"
-        >
-          Refresh
-        </button>
-      </div>` : ''}
-
+    <div className="space-y-8 animate-fade-in">
+      {}
       {error && (
-        <div className="bg-red-900/30 border border-red-500 text-red-200 px-4 py-3 rounded">
+        <div className="bg-red-900/20 border border-red-500/50 text-red-200 px-4 py-3 rounded-xl backdrop-blur-sm">
           {error}
         </div>
       )}
 
       {success && (
-        <div className="bg-green-900/30 border border-green-500 text-green-200 px-4 py-3 rounded">
+        <div className="bg-green-900/20 border border-green-500/50 text-green-200 px-4 py-3 rounded-xl backdrop-blur-sm">
           {success}
-          {txHash && (
+           {txHash && (
             <a 
               href={getBlockExplorerUrl(txHash)}
               target="_blank"
@@ -536,105 +777,201 @@ export default function ContractInteraction({ walletAddress }: Props) {
         </div>
       )}
 
-      ${canMint ? `
-      <div className="card">
-        <h3 className="font-bold text-lg mb-3">Mint Tokens</h3>
-        ${mintAcceptsAmount ? `
-        <input
-          type="number"
-          value={mintAmount}
-          onChange={(e) => setMintAmount(e.target.value)}
-          placeholder="Amount to mint"
-          className="w-full px-3 py-2 bg-slate-800 rounded border border-slate-700 mb-3"
-          disabled={loading}
-        />` : `
-        <p className="text-sm text-slate-400 mb-3">
-          This will mint tokens to your connected wallet address.
-        </p>`}
-        <button 
-          onClick={handleMint}
-          disabled={loading}
-          className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {loading ? 'Processing...' : 'Mint'}
-        </button>
+      {}
+      <div className="grid md:grid-cols-2 gap-6">
+        ${canBalanceOf ? `
+        <div className="card bg-slate-900/60 border-slate-800 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-bold text-lg text-slate-200">Your Balance</h3>
+            <Activity size={20} className="text-cyan-400" />
+          </div>
+          <p className="text-3xl font-mono text-white mb-2">{balance}</p>
+          <button onClick={loadBalance} className="text-xs text-slate-400 hover:text-cyan-400 transition-colors">
+            Refresh Balance
+          </button>
+        </div>` : ''}
+
+        ${canMint ? `
+        <div className="card bg-slate-900/60 border-slate-800 p-6">
+          <div className="flex items-center justify-between mb-4">
+             <h3 className="font-bold text-lg text-slate-200">Mint Tokens</h3>
+             <Play size={20} className="text-green-400" />
+          </div>
+          ${mintAcceptsAmount ? `
+          <input
+            type="number"
+            value={mintAmount}
+            onChange={(e) => setMintAmount(e.target.value)}
+            placeholder="Amount"
+            className="w-full px-4 py-2 bg-slate-800 border-slate-700 rounded-lg mb-4 focus:ring-2 focus:ring-green-500/50 outline-none transition-all"
+            disabled={loading}
+          />` : ''}
+          <button 
+            onClick={handleMint}
+            disabled={loading}
+            className="btn-primary w-full"
+          >
+            {loading ? 'Minting...' : 'Mint'}
+          </button>
+        </div>` : ''}
+
+        ${canBurn ? `
+         <div className="card bg-slate-900/60 border-slate-800 p-6">
+          <div className="flex items-center justify-between mb-4">
+             <h3 className="font-bold text-lg text-slate-200">Burn Tokens</h3>
+             <Play size={20} className="text-red-400" />
+          </div>
+          <input
+            type="number"
+            value={burnAmount}
+            onChange={(e) => setBurnAmount(e.target.value)}
+            placeholder="Amount"
+            className="w-full px-4 py-2 bg-slate-800 border-slate-700 rounded-lg mb-4 focus:ring-2 focus:ring-red-500/50 outline-none transition-all"
+            disabled={loading}
+          />
+          <button 
+            onClick={handleBurn}
+            disabled={loading}
+            className="w-full px-4 py-2 bg-red-600/80 hover:bg-red-600 text-white rounded-lg font-medium transition-colors"
+          >
+            {loading ? 'Burning...' : 'Burn'}
+          </button>
+        </div>` : ''}
+        
+         ${canTransfer ? `
+         <div className="card bg-slate-900/60 border-slate-800 p-6">
+          <div className="flex items-center justify-between mb-4">
+             <h3 className="font-bold text-lg text-slate-200">Transfer</h3>
+             <Play size={20} className="text-blue-400" />
+          </div>
+          <input
+            type="text"
+            value={transferTo}
+            onChange={(e) => setTransferTo(e.target.value)}
+            placeholder="Recipient Address"
+            className="w-full px-4 py-2 bg-slate-800 border-slate-700 rounded-lg mb-3 focus:ring-2 focus:ring-blue-500/50 outline-none transition-all"
+            disabled={loading}
+          />
+           <input
+            type="number"
+            value={transferAmount}
+            onChange={(e) => setTransferAmount(e.target.value)}
+            placeholder="Amount"
+            className="w-full px-4 py-2 bg-slate-800 border-slate-700 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500/50 outline-none transition-all"
+            disabled={loading}
+          />
+          <button 
+            onClick={handleTransfer}
+            disabled={loading}
+            className="w-full px-4 py-2 bg-blue-600/80 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors"
+          >
+            {loading ? 'Transferring...' : 'Transfer'}
+          </button>
+        </div>` : ''}
+      </div>
+
+       {}
+      ${customReadFunctions.length > 0 ? `
+      <div className="mt-8">
+        <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+          <Eye className="text-purple-400" size={24} />
+          Read Data
+        </h3>
+        <div className="space-y-4">
+          ${customReadFunctions.map((func: any) => `
+          <div className="bg-slate-900/50 border border-slate-800 rounded-xl overflow-hidden">
+            <button 
+              onClick={() => toggleFunction('${func.name}')}
+              className="w-full flex items-center justify-between p-4 hover:bg-slate-800/50 transition-colors"
+            >
+              <div className="font-mono text-purple-300 font-medium">${func.name}</div>
+              <ChevronDown size={18} className={\`text-slate-500 transition-transform duration-200 \${expandedFunctions['${func.name}'] ? 'rotate-180' : ''}\`} />
+            </button>
+            
+            {expandedFunctions['${func.name}'] && (
+              <div className="p-4 border-t border-slate-800 bg-slate-950/30">
+                ${func.inputs.length > 0 ? `
+                <div className="grid gap-3 mb-4">
+                  ${func.inputs.map((input: any) => `
+                  <div>
+                    <label className="text-xs text-slate-500 mb-1 block">${input.name} (${input.type})</label>
+                    <input 
+                      type="text" 
+                      placeholder="${input.name}" 
+                      className="w-full px-3 py-2 bg-slate-800 text-sm border-slate-700 rounded-lg focus:border-purple-500"
+                      onChange={(e) => handleInputChange('${func.name}', '${input.name}', e.target.value)}
+                    />
+                  </div>`).join('')}
+                </div>` : ''}
+                
+                <button 
+                  onClick={() => handleRead('${func.name}', ${JSON.stringify(func.inputs)})}
+                  className="px-4 py-2 bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30 rounded-lg text-sm transition-colors"
+                >
+                  Query
+                </button>
+                
+                {functionOutputs['${func.name}'] && (
+                  <div className="mt-3 p-3 bg-slate-950 rounded-lg border border-slate-800">
+                    <div className="text-xs text-slate-500 mb-1">Result:</div>
+                    <div className="font-mono text-sm text-green-400 break-all">
+                      {functionOutputs['${func.name}']}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>`).join('')}
+        </div>
       </div>` : ''}
 
-      ${canBurn ? `
-      <div className="card">
-        <h3 className="font-bold text-lg mb-3">Burn Tokens</h3>
-        <input
-          type="number"
-          value={burnAmount}
-          onChange={(e) => setBurnAmount(e.target.value)}
-          placeholder="Amount to burn"
-          className="w-full px-3 py-2 bg-slate-800 rounded border border-slate-700 mb-3"
-          disabled={loading}
-        />
-        <button 
-          onClick={handleBurn}
-          disabled={loading}
-          className="px-4 py-2 bg-red-600 text-white rounded-lg w-full disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {loading ? 'Processing...' : 'Burn'}
-        </button>
+      {}
+      ${customWriteFunctions.length > 0 ? `
+      <div className="mt-8">
+        <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+          <Play className="text-orange-400" size={24} />
+          Execute Actions
+        </h3>
+         <div className="space-y-4">
+          ${customWriteFunctions.map((func: any) => `
+          <div className="bg-slate-900/50 border border-slate-800 rounded-xl overflow-hidden">
+             <button 
+              onClick={() => toggleFunction('${func.name}')}
+              className="w-full flex items-center justify-between p-4 hover:bg-slate-800/50 transition-colors"
+            >
+              <div className="font-mono text-orange-300 font-medium">${func.name}</div>
+              <ChevronDown size={18} className={\`text-slate-500 transition-transform duration-200 \${expandedFunctions['${func.name}'] ? 'rotate-180' : ''}\`} />
+            </button>
+            
+            {expandedFunctions['${func.name}'] && (
+              <div className="p-4 border-t border-slate-800 bg-slate-950/30">
+                 ${func.inputs.length > 0 ? `
+                <div className="grid gap-3 mb-4">
+                  ${func.inputs.map((input: any) => `
+                  <div>
+                    <label className="text-xs text-slate-500 mb-1 block">${input.name} (${input.type})</label>
+                    <input 
+                      type="text" 
+                      placeholder="${input.name}" 
+                      className="w-full px-3 py-2 bg-slate-800 text-sm border-slate-700 rounded-lg focus:border-orange-500"
+                      onChange={(e) => handleInputChange('${func.name}', '${input.name}', e.target.value)}
+                    />
+                  </div>`).join('')}
+                </div>` : ''}
+                
+                <button 
+                  onClick={() => handleWrite('${func.name}', ${JSON.stringify(func.inputs)})}
+                  disabled={loading}
+                  className="px-4 py-2 bg-orange-600/20 hover:bg-orange-600/30 text-orange-300 border border-orange-500/30 rounded-lg text-sm transition-colors disabled:opacity-50"
+                >
+                  {loading ? 'Executing...' : 'Execute Transaction'}
+                </button>
+              </div>
+            )}
+          </div>`).join('')}
+        </div>
       </div>` : ''}
 
-      ${canTransfer ? `
-      <div className="card">
-        <h3 className="font-bold text-lg mb-3">Transfer Tokens</h3>
-        <input
-          type="text"
-          value={transferTo}
-          onChange={(e) => setTransferTo(e.target.value)}
-          placeholder="Recipient address"
-          className="w-full px-3 py-2 bg-slate-800 rounded border border-slate-700 mb-3"
-          disabled={loading}
-        />
-        <input
-          type="number"
-          value={transferAmount}
-          onChange={(e) => setTransferAmount(e.target.value)}
-          placeholder="Amount to transfer"
-          className="w-full px-3 py-2 bg-slate-800 rounded border border-slate-700 mb-3"
-          disabled={loading}
-        />
-        <button 
-          onClick={handleTransfer}
-          disabled={loading}
-          className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {loading ? 'Processing...' : 'Transfer'}
-        </button>
-      </div>` : ''}
-
-      ${canApprove ? `
-      <div className="card">
-        <h3 className="font-bold text-lg mb-3">Approve Spender</h3>
-        <input
-          type="text"
-          value={approveSpender}
-          onChange={(e) => setApproveSpender(e.target.value)}
-          placeholder="Spender address"
-          className="w-full px-3 py-2 bg-slate-800 rounded border border-slate-700 mb-3"
-          disabled={loading}
-        />
-        <input
-          type="number"
-          value={approveAmount}
-          onChange={(e) => setApproveAmount(e.target.value)}
-          placeholder="Amount to approve"
-          className="w-full px-3 py-2 bg-slate-800 rounded border border-slate-700 mb-3"
-          disabled={loading}
-        />
-        <button 
-          onClick={handleApprove}
-          disabled={loading}
-          className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {loading ? 'Processing...' : 'Approve'}
-        </button>
-      </div>` : ''}
     </div>
   )
 }
@@ -647,7 +984,7 @@ NEXT_PUBLIC_CHAIN_ID=${contract.chainId}
 NEXT_PUBLIC_NETWORK_NAME=${contract.networkName}
 NEXT_PUBLIC_ALCHEMY_API_KEY=your_alchemy_api_key_here
 NEXT_PUBLIC_BLOCK_EXPLORER_API_KEY=your_celoscan_api_key_here
-NEXT_PUBLIC_BLOCK_EXPLORER_URL=https://celoscan.io
+NEXT_PUBLIC_BLOCK_EXPLORER_URL=https:
 `
 }
 
@@ -670,7 +1007,8 @@ function generatePackageJson(contract: DeployedContract): string {
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "next": "^15.1.3",
-    "ethers": "^6.13.4"
+    "ethers": "^6.13.4",
+    "lucide-react": "^0.473.0"
   },
   "devDependencies": {
     "typescript": "^5.7.2",
@@ -688,7 +1026,7 @@ function generatePackageJson(contract: DeployedContract): string {
 }
 
 function generateNextConfig(): string {
-  return `/** @type {import('next').NextConfig} */
+  return `
 const nextConfig = {
   reactStrictMode: true,
   webpack: (config) => {
@@ -769,6 +1107,31 @@ next-env.d.ts
 `
 }
 
+function generateTailwindConfig(): string {
+  return `
+module.exports = {
+  content: [
+    './app/**/*.{js,ts,jsx,tsx,mdx}',
+    './components/**/*.{js,ts,jsx,tsx,mdx}',
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+`
+}
+
+function generatePostcssConfig(): string {
+  return `module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}
+`
+}
+
 function generateReadme(contract: DeployedContract): string {
   return `# ${contract.contractName} dApp
 
@@ -799,130 +1162,13 @@ NEXT_PUBLIC_CHAIN_ID=${contract.chainId}
 NEXT_PUBLIC_NETWORK_NAME=${contract.networkName}
 NEXT_PUBLIC_ALCHEMY_API_KEY=your_alchemy_api_key_here
 NEXT_PUBLIC_BLOCK_EXPLORER_API_KEY=your_celoscan_api_key_here
-NEXT_PUBLIC_BLOCK_EXPLORER_URL=https://celoscan.io
+NEXT_PUBLIC_BLOCK_EXPLORER_URL=${contract.explorerUrl || 'https://celoscan.io'}
 \`\`\`
 
-#### Get Your API Keys:
-
-**Alchemy API Key:**
-1. Visit [https://www.alchemy.com/](https://www.alchemy.com/)
-2. Sign up for a free account
-3. Create a new app for Celo network
-4. Copy the API key from your dashboard
-5. Paste it in \`.env.local\` as \`NEXT_PUBLIC_ALCHEMY_API_KEY\`
-
-**Celoscan API Key:**
-1. Visit [https://celoscan.io/](https://celoscan.io/)
-2. Sign up for a free account
-3. Go to API Keys section
-4. Generate a new API key
-5. Paste it in \`.env.local\` as \`NEXT_PUBLIC_BLOCK_EXPLORER_API_KEY\`
-
-### Development
+### Run locally
 
 \`\`\`bash
 npm run dev
 \`\`\`
-
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-### Production Build
-
-\`\`\`bash
-npm run build
-npm start
-\`\`\`
-
-## 🎯 Features
-
-- **Wallet Connection**: Connect with MetaMask or any Web3 wallet
-- **Network Validation**: Automatic network switching
-- **Token Balance**: Real-time balance display
-- **Mint Tokens**: Mint new tokens with Alchemy fallback provider
-- **Burn Tokens**: Burn tokens from your balance
-- **Transfer Tokens**: Send tokens to other addresses
-- **Transaction Verification**: Automatic verification via Celoscan API
-- **Block Explorer Links**: Direct links to transaction details
-
-## 🔧 Technology Stack
-
-- **Next.js 15** - React framework with App Router
-- **TypeScript** - Type safety
-- **Tailwind CSS** - Styling
-- **ethers.js 6** - Ethereum interaction
-- **Alchemy** - Enhanced RPC provider
-- **Celoscan** - Block explorer and transaction verification
-
-## 📝 Contract Details
-
-- **Contract Address**: \`${contract.contractAddress}\`
-- **Network**: ${contract.networkName}
-- **Chain ID**: ${contract.chainId}
-
-## 🛠️ How It Works
-
-### ABI-Aware Function Generation
-
-The dApp automatically detects your contract's function signatures from the ABI:
-- **Mint Function**: Detects if mint accepts \`mint(address)\` or \`mint(address, uint256)\`
-  - Shows amount input only when contract accepts amount parameter
-  - Calls the correct function signature automatically
-- **Burn Function**: Adapts to different burn signatures
-- **Only generates UI for functions that exist in your contract**
-
-### Mint Function with Alchemy Integration
-
-The mint function uses a dual-provider approach:
-1. First attempts to use MetaMask (user's wallet)
-2. Falls back to Alchemy provider for enhanced reliability
-3. Calls contract with correct parameters based on ABI signature
-4. Verifies transaction on Celoscan after confirmation
-5. Displays transaction status and explorer link
-
-### Block Explorer Integration
-
-All transactions are automatically:
-- Tracked with transaction hash
-- Verified via Celoscan API
-- Displayed with clickable links to full transaction details
-
-## 📄 License
-
-MIT
-
-## 🤝 Support
-
-For issues or questions, please refer to the documentation or create an issue in the repository.
-`
-}
-
-function generateTailwindConfig(): string {
-  return `/** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: [
-    './pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './components/**/*.{js,ts,jsx,tsx,mdx}',
-    './app/**/*.{js,ts,jsx,tsx,mdx}',
-  ],
-  theme: {
-    extend: {
-      colors: {
-        background: 'var(--background)',
-        foreground: 'var(--foreground)',
-      },
-    },
-  },
-  plugins: [],
-}
-`
-}
-
-function generatePostcssConfig(): string {
-  return `module.exports = {
-  plugins: {
-    tailwindcss: {},
-    autoprefixer: {},
-  },
-}
 `
 }

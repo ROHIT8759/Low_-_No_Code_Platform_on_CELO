@@ -1,70 +1,49 @@
 import { NextRequest, NextResponse } from "next/server"
-import solc from "solc"
+import { compilationService } from "@/lib/services/compilation"
 
 export async function POST(request: NextRequest) {
   try {
-    const { solidityCode, contractName } = await request.json()
+    const { rustCode, contractName, network = 'testnet' } = await request.json()
 
-    if (!solidityCode || !contractName) {
+    // Validate Stellar/Rust code input
+    if (!rustCode || !contractName) {
       return NextResponse.json(
-        { error: "Missing solidityCode or contractName" },
+        { error: "Missing rustCode or contractName" },
         { status: 400 }
       )
     }
 
-    // Prepare the compiler input
-    const input = {
-      language: "Solidity",
-      sources: {
-        "contract.sol": {
-          content: solidityCode,
-        },
-      },
-      settings: {
-        outputSelection: {
-          "*": {
-            "*": ["abi", "evm.bytecode"],
-          },
-        },
-        optimizer: {
-          enabled: true,
-          runs: 200,
-        },
-      },
-    }
-
-    // Compile the contract
-    const output = JSON.parse(solc.compile(JSON.stringify(input)))
-
-    // Check for errors
-    if (output.errors) {
-      const errors = output.errors.filter((error: any) => error.severity === "error")
-      if (errors.length > 0) {
-        return NextResponse.json(
-          {
-            error: "Compilation failed",
-            details: errors.map((e: any) => e.formattedMessage).join("\n"),
-          },
-          { status: 400 }
-        )
-      }
-    }
-
-    // Extract the compiled contract
-    const contract = output.contracts["contract.sol"][contractName]
-
-    if (!contract) {
+    // Reject Solidity code
+    if (rustCode.includes('pragma solidity') || rustCode.includes('contract ')) {
       return NextResponse.json(
-        { error: `Contract ${contractName} not found in compiled output` },
+        { error: "EVM/Solidity contracts are not supported. This is a Stellar-only platform." },
+        { status: 400 }
+      )
+    }
+
+    // Compile as Stellar/Soroban contract
+    const result = await compilationService.compileStellar(
+      rustCode,
+      contractName,
+      network
+    )
+
+    if (!result.success) {
+      return NextResponse.json(
+        {
+          error: result.error || "Compilation failed",
+          details: result.details,
+        },
         { status: 400 }
       )
     }
 
     return NextResponse.json({
       success: true,
-      abi: contract.abi,
-      bytecode: contract.evm.bytecode.object,
-      warnings: output.errors?.filter((e: any) => e.severity === "warning") || [],
+      abi: result.abi,
+      wasmHash: result.wasmHash,
+      artifactId: result.artifactId,
+      warnings: result.warnings || [],
     })
   } catch (error: any) {
     console.error("Compilation error:", error)

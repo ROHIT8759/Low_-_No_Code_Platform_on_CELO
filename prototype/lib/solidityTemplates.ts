@@ -1,4 +1,4 @@
-// Smart contract templates for different dApp types
+
 
 export const solidityTemplates = {
   erc20: (config: { name: string; symbol: string; initialSupply: string }) => `

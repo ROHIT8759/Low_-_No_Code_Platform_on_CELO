@@ -24,17 +24,17 @@ interface SupabaseStore {
   isLoadingUser: boolean
   isSyncing: boolean
 
-  // User actions
+  
   initializeUser: (walletAddress: string) => Promise<void>
   updateUserProfile: (updates: Partial<User>) => Promise<void>
   logoutUser: () => void
 
-  // Project syncing
+  
   syncProjects: () => Promise<void>
   saveProjectToCloud: (projectId: string) => Promise<void>
   deleteProjectFromCloud: (projectId: string) => Promise<void>
 
-  // Deployed contracts syncing
+  
   syncDeployedContracts: () => Promise<void>
   saveDeployedContractToCloud: (contractId: string) => Promise<void>
 }
@@ -65,7 +65,7 @@ export const useSupabaseStore = create<SupabaseStore>()(
               },
             })
 
-            // Auto-sync projects and contracts after user initialization
+            
             await get().syncProjects()
             await get().syncDeployedContracts()
           }
@@ -80,10 +80,10 @@ export const useSupabaseStore = create<SupabaseStore>()(
         const { user } = get()
         if (!user) return
 
-        // Update local state optimistically
+        
         set({ user: { ...user, ...updates } })
 
-        // TODO: Add Supabase user profile update
+        
       },
 
       logoutUser: () => {
@@ -98,14 +98,15 @@ export const useSupabaseStore = create<SupabaseStore>()(
         try {
           const projects = await getUserProjects(user.id)
 
-          // Update the main store with synced projects
+          
           const { useBuilderStore } = await import("./store")
           const store = useBuilderStore.getState()
 
-          // Convert Supabase projects to local format
+          
           const localProjects = projects.map((p) => ({
             id: p.id,
             name: p.name,
+            networkType: "stellar" as const,
             blocks: p.blocks,
             generatedCode: {
               solidity: p.solidity_code || "",
@@ -115,12 +116,12 @@ export const useSupabaseStore = create<SupabaseStore>()(
             updatedAt: p.updated_at,
           }))
 
-          // Merge with existing local projects (prioritize cloud)
-          // This is a simple implementation - you may want more sophisticated merging
+          
+          
           store.projects = localProjects
         } catch (error) {
-          // Silently ignore Supabase errors (backend not configured yet)
-          // console.error("Failed to sync projects:", error)
+          
+          
         } finally {
           set({ isSyncing: false })
         }
@@ -143,7 +144,7 @@ export const useSupabaseStore = create<SupabaseStore>()(
         }
 
         try {
-          // Use upsert to insert or update
+          
           const { upsertProject } = await import("./supabase")
           const result = await upsertProject(projectId, user.id, {
             name: project.name,
@@ -151,7 +152,7 @@ export const useSupabaseStore = create<SupabaseStore>()(
             blocks: project.blocks,
             contractType: project.blocks.find((b) => b.type === "erc20" || b.type === "nft")?.type || "erc20",
             config: {},
-            solidityCode: project.generatedCode?.solidity,
+            solidityCode: null, // EVM no longer supported - Stellar-only platform
             frontendCode: project.generatedCode?.frontend,
           })
 
@@ -161,8 +162,8 @@ export const useSupabaseStore = create<SupabaseStore>()(
             console.warn("⚠️ Project save to cloud returned null (check Supabase configuration)")
           }
         } catch (error: any) {
-          // Silently ignore Supabase errors (backend not configured yet)
-          // console.error("❌ Failed to save project to cloud:", error?.message || error)
+          
+          
         }
       },
 
@@ -183,11 +184,11 @@ export const useSupabaseStore = create<SupabaseStore>()(
         try {
           const contracts = await getUserDeployedContracts(user.id)
 
-          // Update the main store with synced contracts
+          
           const { useBuilderStore } = await import("./store")
           const store = useBuilderStore.getState()
 
-          // Convert Supabase contracts to local format
+          
           const localContracts = contracts.map((c) => ({
             id: c.id,
             contractAddress: c.contract_address,
@@ -195,6 +196,7 @@ export const useSupabaseStore = create<SupabaseStore>()(
             tokenName: c.token_name || undefined,
             tokenSymbol: c.token_symbol || undefined,
             network: c.network,
+            networkType: "stellar" as const,
             networkName: c.network_name,
             chainId: c.chain_id,
             deployer: c.deployer,

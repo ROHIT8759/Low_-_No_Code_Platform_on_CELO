@@ -1,11 +1,7 @@
-/**
- * Wallet Connection Tests
- * Tests wallet detection and connection functionality
- */
+
 
 import '@testing-library/jest-dom'
 
-// Mock window.ethereum
 const mockEthereum = {
   request: jest.fn(),
   on: jest.fn(),
@@ -17,7 +13,7 @@ describe('Wallet Connection Tests', () => {
   beforeEach(() => {
     jest.clearAllMocks()
 
-    // Mock localStorage
+    
     Storage.prototype.getItem = jest.fn((key) => {
       if (key === 'deployedContractAddress') {
         return '0x1234567890123456789012345678901234567890'
@@ -27,7 +23,7 @@ describe('Wallet Connection Tests', () => {
 
     Storage.prototype.setItem = jest.fn()
 
-      // Setup window.ethereum mock
+      
       ; (window as any).ethereum = mockEthereum
   })
 

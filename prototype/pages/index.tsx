@@ -13,7 +13,7 @@ export default function Home(){
   const [editingId, setEditingId] = useState<string | null>(null);
 
   useEffect(()=>{
-    // Initialize drag and drop handlers
+    
     const palette = document.querySelectorAll('.draggable');
     const canvas = document.getElementById('canvas');
     const nodesList = document.getElementById('nodes');
@@ -47,13 +47,13 @@ export default function Home(){
   },[nodes]);
 
   useEffect(()=>{
-    // Update Solidity preview whenever nodes change
+    
     const solidityEl = document.getElementById('solidity');
     if(solidityEl){
       solidityEl.textContent = generateSolidityFromNodes(nodes);
     }
     
-    // Render nodes
+    
     const nodesList = document.getElementById('nodes');
     if(nodesList){
       if(nodes.length===0){
@@ -74,7 +74,7 @@ export default function Home(){
     }
   },[nodes]);
 
-  // Expose functions to window for inline onclick handlers
+  
   useEffect(()=>{
     (window as any).editNode = (id: string)=>{
       setEditingId(id);
@@ -149,7 +149,7 @@ export default function Home(){
 
           <aside className="preview">
             <h2>Solidity Preview</h2>
-            <pre id="solidity">// Drop components to generate contract code</pre>
+            <pre id="solidity">
           </aside>
         </main>
 

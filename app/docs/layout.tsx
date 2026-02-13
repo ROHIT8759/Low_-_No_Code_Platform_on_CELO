@@ -5,12 +5,12 @@ export const metadata: Metadata = {
   description: "Learn how to use Block Builder to create and deploy smart contracts. Comprehensive guides for ERC20 tokens, NFTs, DeFi, and frontend generation.",
   openGraph: {
     title: "Documentation | Block Builder",
-    description: "Learn how to use Block Builder to create and deploy smart contracts on Celo blockchain",
+    description: "Learn how to use Block Builder to create and deploy smart contracts on Stellar (Soroban) and EVM blockchains",
     url: "https://celobuilder.vercel.app/docs",
   },
   twitter: {
     title: "Documentation | Block Builder",
-    description: "Learn how to use Block Builder to create and deploy smart contracts on Celo blockchain",
+    description: "Learn how to use Block Builder to create and deploy smart contracts on Stellar (Soroban) and EVM blockchains",
   },
   alternates: {
     canonical: "https://celobuilder.vercel.app/docs",

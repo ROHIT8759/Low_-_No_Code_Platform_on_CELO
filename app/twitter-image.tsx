@@ -23,7 +23,7 @@ export default async function Image() {
                     fontFamily: "system-ui, sans-serif",
                 }}
             >
-                {/* Grid overlay */}
+                {}
                 <div
                     style={{
                         position: "absolute",
@@ -34,7 +34,7 @@ export default async function Image() {
                     }}
                 />
 
-                {/* Decorative circles */}
+                {}
                 <div
                     style={{
                         position: "absolute",
@@ -58,7 +58,7 @@ export default async function Image() {
                     }}
                 />
 
-                {/* Logo */}
+                {}
                 <div
                     style={{
                         display: "flex",
@@ -75,7 +75,7 @@ export default async function Image() {
                     <span style={{ fontSize: 60 }}>🔗</span>
                 </div>
 
-                {/* Title */}
+                {}
                 <div
                     style={{
                         display: "flex",
@@ -90,7 +90,7 @@ export default async function Image() {
                     Block Builder
                 </div>
 
-                {/* Subtitle */}
+                {}
                 <div
                     style={{
                         fontSize: 28,
@@ -98,10 +98,10 @@ export default async function Image() {
                         marginBottom: 40,
                     }}
                 >
-                    No-Code Smart Contract Builder for Celo Blockchain
+                    No-Code Smart Contract Builder for Blockchain
                 </div>
 
-                {/* Features */}
+                {}
                 <div
                     style={{
                         display: "flex",
@@ -128,7 +128,7 @@ export default async function Image() {
                     ))}
                 </div>
 
-                {/* URL */}
+                {}
                 <div
                     style={{
                         position: "absolute",

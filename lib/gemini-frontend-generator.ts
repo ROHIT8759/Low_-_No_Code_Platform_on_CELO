@@ -15,7 +15,7 @@ export async function generateEnhancedFrontend(
 ): Promise<Blob> {
   let frontendFiles: Record<string, string>
 
-  // Try to use Gemini API if available
+  
   if (process.env.NEXT_PUBLIC_GEMINI_API_KEY && process.env.NEXT_PUBLIC_GEMINI_API_KEY !== 'your_gemini_api_key_here') {
     try {
       const geminiResponse = await generateFrontendWithGemini(
@@ -27,26 +27,26 @@ export async function generateEnhancedFrontend(
         blocks
       )
 
-      // Parse the Gemini response
+      
       frontendFiles = JSON.parse(geminiResponse)
     } catch (error) {
       console.error('Gemini API failed, using fallback generator:', error)
       frontendFiles = generateFallbackFrontend(solidityCode, abi, contractAddress, contractName, contractType, blocks, network)
     }
   } else {
-    // Use fallback generator if no Gemini API key
+    
     frontendFiles = generateFallbackFrontend(solidityCode, abi, contractAddress, contractName, contractType, blocks, network)
   }
 
-  // Create ZIP file
+  
   const zip = new JSZip()
 
-  // Add all files to ZIP
+  
   Object.entries(frontendFiles).forEach(([path, content]) => {
     zip.file(path, content)
   })
 
-  // Add README
+  
   zip.file(
     "README.md",
     `# ${contractName} dApp
@@ -312,7 +312,7 @@ export default function Home() {
             </div>
             <div>
               <p className="text-gray-400 text-sm">Network</p>
-              <p className="text-white">Celo Sepolia Testnet</p>
+              <p className="text-white">Testnet</p>
             </div>
           </div>
         </div>
@@ -389,8 +389,8 @@ export function WalletConnect({ onConnect }: WalletConnectProps) {
           method: "wallet_addEthereumChain",
           params: [{
             chainId: \`0x\${CHAIN_ID.toString(16)}\`,
-            chainName: "Celo Sepolia Testnet",
-            nativeCurrency: { name: "CELO", symbol: "CELO", decimals: 18 },
+            chainName: "Testnet",
+            nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
             rpcUrls: ["https://forno.celo-sepolia.celo-testnet.org/"],
             blockExplorerUrls: ["https://celo-sepolia.blockscout.com/"],
           }],

@@ -21,41 +21,81 @@ describe('BlockSidebar Component', () => {
 
     test('renders sidebar with title', () => {
         render(<BlockSidebar />)
-        expect(screen.getByText(/Smart Contract Blocks/i)).toBeInTheDocument()
+        expect(screen.getByText(/Contract Modules/i)).toBeInTheDocument()
     })
 
     test('displays available blocks', () => {
         render(<BlockSidebar />)
 
-        // Check for core features
-        expect(screen.getByText(/ERC20 Token/i)).toBeInTheDocument()
-        expect(screen.getByText(/NFT Collection/i)).toBeInTheDocument()
+        expect(screen.getByText(/ERC20 Standard/i)).toBeInTheDocument()
+        expect(screen.getByText(/ERC721 Standard/i)).toBeInTheDocument()
         expect(screen.getByText(/Pausable/i)).toBeInTheDocument()
     })
 
     test('blocks are organized in categories', () => {
         render(<BlockSidebar />)
 
-        // Check for actual text
-        expect(screen.getByText(/Smart Contract Blocks/i)).toBeInTheDocument()
-        expect(screen.getByText(/Drag to canvas or click to add/i)).toBeInTheDocument()
+        expect(screen.getByText(/Base Standards/i)).toBeInTheDocument()
+        expect(screen.getByText(/Token Logic/i)).toBeInTheDocument()
+        expect(screen.getByText(/Security Modules/i)).toBeInTheDocument()
     })
 
     test('adds block when clicked', () => {
         render(<BlockSidebar />)
 
-        const mintBlock = screen.getByText(/Mint/i).closest('div')
+        const mintBlock = screen.getByText(/Mintable/i).closest('div')
         if (mintBlock) {
             fireEvent.click(mintBlock)
             expect(mockStore.addBlock).toHaveBeenCalled()
         }
     })
 
-    test('displays block descriptions', () => {
+    test('displays guided base selection notice when no base is selected', () => {
         render(<BlockSidebar />)
 
-        // Blocks should have descriptive text
-        const sidebar = screen.getByText(/Smart Contract Blocks/i).closest('div')
-        expect(sidebar).toBeInTheDocument()
+        expect(screen.getByText(/Start with a Base/i)).toBeInTheDocument()
+        expect(screen.getByText(/Select a base standard below to begin building your contract/i)).toBeInTheDocument()
+    })
+
+    test('highlights Base Standards category when no base is selected', () => {
+        render(<BlockSidebar />)
+
+        const baseStandardsButton = screen.getByText(/Base Standards/i).closest('button')
+        expect(baseStandardsButton).toHaveClass('border-primary/30')
+        expect(screen.getByText(/Required/i)).toBeInTheDocument()
+    })
+
+    test('hides guided notice when base standard is selected', () => {
+        const storeWithBase = {
+            blocks: [{ id: '1', type: 'erc20', label: 'ERC20 Standard' }],
+            addBlock: jest.fn(),
+        }
+            ; (useBuilderStore as jest.Mock).mockImplementation((selector) =>
+                selector ? selector(storeWithBase) : storeWithBase
+            )
+
+        render(<BlockSidebar />)
+
+        expect(screen.queryByText(/Start with a Base/i)).not.toBeInTheDocument()
+    })
+
+    test('shows visual indicator for selected blocks', () => {
+        const storeWithBlocks = {
+            blocks: [{ id: '1', type: 'erc20', label: 'ERC20 Standard' }],
+            addBlock: jest.fn(),
+        }
+            ; (useBuilderStore as jest.Mock).mockImplementation((selector) =>
+                selector ? selector(storeWithBlocks) : storeWithBlocks
+            )
+
+        render(<BlockSidebar />)
+
+        // Check that the selected block has the proper styling
+        const blockElement = screen.getByText(/ERC20 Standard/i)
+        expect(blockElement).toBeInTheDocument()
+        
+        // The parent container should have the selected styling
+        const blockContainer = blockElement.closest('[class*="border-primary"]')
+        expect(blockContainer).toBeInTheDocument()
     })
 })

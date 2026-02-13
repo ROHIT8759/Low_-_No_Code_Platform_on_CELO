@@ -1,45 +1,47 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
+import { Space_Grotesk, IBM_Plex_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import "./globals.css"
 
-const geistSans = Geist({ subsets: ["latin"] })
-const geistMono = Geist_Mono({ subsets: ["latin"] })
+const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-space" })
+const ibmPlexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-plex-mono",
+})
 
-const siteUrl = "https://celobuilder.vercel.app"
+const siteUrl = "https://blockbuilder.dev"
 const siteName = "Block Builder"
-const siteDescription = "Build and deploy smart contracts on Celo blockchain without writing code. Visual drag-and-drop builder for ERC20 tokens, NFTs, DeFi, and more. Generate production-ready Next.js frontends instantly."
+const siteDescription = "Infrastructure-grade smart contract builder for Stellar Soroban and EVM blockchains. Visual development platform with formal verification, WASM-native compilation, and production-ready deployment pipeline."
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: `${siteName} - No-Code Smart Contract Builder for Celo Blockchain`,
+    default: `${siteName} - Infrastructure-Grade Smart Contract Platform`,
     template: `%s | ${siteName}`,
   },
   description: siteDescription,
   keywords: [
-    "Celo",
-    "blockchain",
+    "Stellar",
+    "Soroban",
+    "WASM",
+    "Rust",
     "smart contracts",
-    "no-code",
-    "low-code",
-    "dApp builder",
-    "ERC20",
-    "NFT",
-    "DeFi",
-    "Web3",
+    "blockchain infrastructure",
+    "formal verification",
+    "contract builder",
+    "EVM",
     "Solidity",
-    "Next.js",
-    "crypto",
-    "token creator",
-    "NFT minting",
-    "Celo network",
-    "Alfajores testnet",
-    "smart contract generator",
-    "visual builder",
-    "drag and drop",
+    "Web3",
+    "DeFi",
+    "token deployment",
+    "mainnet ready",
+    "production deployment",
+    "contract workstation",
+    "blockchain development",
+    "infrastructure platform",
   ],
   authors: [{ name: "Block Builder Team", url: siteUrl }],
   creator: "Block Builder",
@@ -66,23 +68,23 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: siteUrl,
     siteName: siteName,
-    title: `${siteName} - No-Code Smart Contract Builder`,
+    title: `${siteName} - Infrastructure-Grade Smart Contract Platform`,
     description: siteDescription,
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Block Builder - Visual Smart Contract Builder",
+        alt: "Block Builder - Infrastructure-Grade Contract Platform",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: `${siteName} - No-Code Smart Contract Builder`,
+    title: `${siteName} - Infrastructure-Grade Smart Contract Platform`,
     description: siteDescription,
     images: ["/og-image.png"],
-    creator: "@celobuilder",
+    creator: "@blockbuilder",
   },
   alternates: {
     canonical: siteUrl,
@@ -118,10 +120,7 @@ export const viewport: Viewport = {
   maximumScale: 5,
 }
 
-import ThreeBackground from "@/components/ThreeBackground"
-import CustomCursor from "@/components/CustomCursor"
-
-// ... (keep existing code)
+import { NetworkProvider } from "@/lib/multi-chain/network-context"
 
 export default function RootLayout({
   children,
@@ -130,60 +129,27 @@ export default function RootLayout({
 }) {
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "WebApplication",
-    name: "Block Builder",
-    description: "Build and deploy smart contracts on Celo blockchain without writing code",
-    url: "https://celobuilder.vercel.app",
-    applicationCategory: "DeveloperApplication",
-    operatingSystem: "Web Browser",
-    offers: {
-      "@type": "Offer",
-      price: "0",
-      priceCurrency: "USD",
-    },
-    creator: {
-      "@type": "Organization",
-      name: "Block Builder Team",
-    },
-    featureList: [
-      "Visual drag-and-drop smart contract builder",
-      "ERC20 token creation",
-      "NFT (ERC721) minting",
-      "DeFi contract templates",
-      "Automatic frontend generation",
-      "Celo Mainnet and Alfajores testnet support",
-      "MetaMask wallet integration",
-    ],
+    "@type": "WebSite",
+    "name": siteName,
+    "url": siteUrl,
   }
 
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
-    itemListElement: [
+    "itemListElement": [
       {
         "@type": "ListItem",
-        position: 1,
-        name: "Home",
-        item: "https://celobuilder.vercel.app",
-      },
-      {
-        "@type": "ListItem",
-        position: 2,
-        name: "Builder",
-        item: "https://celobuilder.vercel.app/builder",
-      },
-      {
-        "@type": "ListItem",
-        position: 3,
-        name: "Documentation",
-        item: "https://celobuilder.vercel.app/docs",
+        "position": 1,
+        "name": "Home",
+        "item": siteUrl,
       },
     ],
   }
 
   return (
-    // Enable dark theme by default by adding the `dark` class on the <html> element.
-    // This activates the `.dark { ... }` CSS variable overrides in `globals.css`.
+    
+    
     <html lang="en" className="dark" suppressHydrationWarning>
       <head>
         <script
@@ -195,12 +161,12 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
         />
       </head>
-      <body className={`${geistSans.className} bg-background text-foreground`}>
-        <CustomCursor />
-        <ThreeBackground />
-        {children}
-        <Analytics />
-        <SpeedInsights />
+      <body suppressHydrationWarning className={`${spaceGrotesk.variable} ${ibmPlexMono.variable} bg-background text-foreground`}>
+        <NetworkProvider>
+          {children}
+          <Analytics />
+          <SpeedInsights />
+        </NetworkProvider>
       </body>
     </html>
   )

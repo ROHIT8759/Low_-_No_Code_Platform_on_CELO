@@ -4,7 +4,7 @@ import type { Block } from '@/lib/store'
 
 describe('Builder Store', () => {
   beforeEach(() => {
-    // Reset store state before each test
+    
     const { result } = renderHook(() => useBuilderStore())
     act(() => {
       result.current.blocks = []
@@ -48,7 +48,7 @@ describe('Builder Store', () => {
     expect(result.current.blocks).toHaveLength(2)
 
     act(() => {
-      // Remove the first one that was added
+      
       const firstId = result.current.blocks[0].id
       result.current.removeBlock(firstId)
     })
@@ -80,7 +80,7 @@ describe('Builder Store', () => {
       result.current.addBlock(block)
     })
 
-    // selectedBlock may not exist in the actual store - skip this test if not implemented
+    
     if (result.current.setSelectedBlock) {
       act(() => {
         result.current.setSelectedBlock(block)

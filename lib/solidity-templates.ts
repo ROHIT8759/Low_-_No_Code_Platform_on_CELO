@@ -1,7 +1,4 @@
-/**
- * Optimized Solidity Templates for Block Builder
- * These templates are standalone (no external imports) and compile with solc
- */
+
 
 export interface ContractConfig {
     name: string
@@ -524,9 +521,6 @@ contract SimpleGovernance {
 }`,
 }
 
-/**
- * Helper function to get template by type
- */
 export function getTemplate(type: string, config: ContractConfig): string {
     const templateFn = OPTIMIZED_TEMPLATES[type as keyof typeof OPTIMIZED_TEMPLATES]
     if (!templateFn) {

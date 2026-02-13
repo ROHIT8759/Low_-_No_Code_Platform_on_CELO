@@ -3,7 +3,18 @@
 import type React from "react"
 import { useState } from "react"
 import { type Block, useBuilderStore } from "@/lib/store"
-import { GripHorizontal, ChevronDown, ChevronRight, Box, Shield, Zap, Layers, AlertTriangle, ArrowRight } from "lucide-react"
+import {
+  GripHorizontal, ChevronDown, ChevronRight, Box, Shield, Zap, Layers,
+  ArrowRight, Database, Coins, Vote, Clock, LayoutTemplate
+} from "lucide-react"
+
+// Category color mapping (matches canvas)
+const CATEGORY_STYLES: Record<string, { accent: string; text: string; icon: React.ReactNode }> = {
+  "Base Standards": { accent: "bg-blue-500", text: "text-blue-400", icon: <Database className="w-3 h-3" /> },
+  "Token Logic": { accent: "bg-teal-500", text: "text-teal-400", icon: <Coins className="w-3 h-3" /> },
+  "Security Modules": { accent: "bg-orange-500", text: "text-orange-400", icon: <Shield className="w-3 h-3" /> },
+  "Governance & Advanced": { accent: "bg-purple-500", text: "text-purple-400", icon: <Vote className="w-3 h-3" /> },
+}
 
 const BLOCKS_BY_CATEGORY = {
   "Base Standards": [
@@ -29,24 +40,77 @@ const BLOCKS_BY_CATEGORY = {
   ]
 }
 
+// Preset templates
+const TEMPLATES = [
+  {
+    id: "starter-token",
+    name: "Starter Token",
+    desc: "ERC20 + Mint + Burn",
+    blocks: [
+      { type: "erc20", label: "ERC20 Standard" },
+      { type: "mint", label: "Mintable" },
+      { type: "burn", label: "Burnable" },
+    ],
+  },
+  {
+    id: "governance-token",
+    name: "Governance Token",
+    desc: "ERC20 + Voting + Snapshot",
+    blocks: [
+      { type: "erc20", label: "ERC20 Standard" },
+      { type: "mint", label: "Mintable" },
+      { type: "pausable", label: "Pausable" },
+      { type: "voting", label: "Voting" },
+      { type: "snapshot", label: "Snapshot" },
+    ],
+  },
+  {
+    id: "nft-drop",
+    name: "NFT Drop",
+    desc: "ERC721 + Whitelist + Royalties",
+    blocks: [
+      { type: "nft", label: "ERC721 Standard" },
+      { type: "mint", label: "Mintable" },
+      { type: "whitelist", label: "Whitelist" },
+      { type: "royalty", label: "Royalties" },
+      { type: "pausable", label: "Pausable" },
+    ],
+  },
+  {
+    id: "secure-token",
+    name: "Secure Token",
+    desc: "ERC20 + Full Security Suite",
+    blocks: [
+      { type: "erc20", label: "ERC20 Standard" },
+      { type: "mint", label: "Mintable" },
+      { type: "burn", label: "Burnable" },
+      { type: "pausable", label: "Pausable" },
+      { type: "whitelist", label: "Whitelist" },
+      { type: "blacklist", label: "Blacklist" },
+      { type: "timelock", label: "Time Lock" },
+    ],
+  },
+]
+
 export function BlockSidebar() {
   const addBlock = useBuilderStore((state) => state.addBlock)
   const blocks = useBuilderStore((state) => state.blocks)
+  const clearAll = useBuilderStore((state) => state.clearAll)
+  const createProject = useBuilderStore((state) => state.createProject)
   const [openCategories, setOpenCategories] = useState<Record<string, boolean>>({
     "Base Standards": true,
     "Token Logic": true,
     "Security Modules": true,
     "Governance & Advanced": false,
   })
+  const [showTemplates, setShowTemplates] = useState(false)
 
-  // Check if a base standard has been selected
-  const hasBaseStandard = blocks.some(block => 
+  const hasBaseStandard = blocks.some(block =>
     block.type === "erc20" || block.type === "nft"
   )
 
-  // Check if a block is currently selected
-  const isBlockSelected = (blockId: string) => {
-    return blocks.some(block => block.id === blockId)
+  const isBlockTypeAdded = (type: string) => {
+    return blocks.some(block => block.type === type)
   }
 
   const toggleCategory = (category: string) => {
@@ -58,9 +122,22 @@ export function BlockSidebar() {
     e.dataTransfer.setData("block", JSON.stringify(block))
   }
 
+  const applyTemplate = (template: typeof TEMPLATES[0]) => {
+    createProject(template.name)
+    template.blocks.forEach((block, i) => {
+      setTimeout(() => {
+        addBlock({
+          id: `${Date.now()}-${i}`,
+          type: block.type as Block["type"],
+          label: block.label,
+        })
+      }, i * 50)
+    })
+  }
+
   return (
     <div className="w-full h-full flex flex-col">
-      {/* Header with proper typography */}
+      {/* Header */}
       <div className="p-4 border-b border-white/[0.06] bg-[#0B0F14]">
         <div className="flex items-center gap-2 mb-1">
           <Box className="w-3.5 h-3.5 text-primary" />
@@ -71,9 +148,41 @@ export function BlockSidebar() {
         </p>
       </div>
 
+      {/* Templates toggle */}
+      <div className="px-3 pt-3">
+        <button
+          onClick={() => setShowTemplates(!showTemplates)}
+          className="w-full flex items-center justify-between p-2 text-xs font-medium text-zinc-400 hover:text-zinc-200 bg-[#11151A] hover:bg-[#1A1F26] border border-white/[0.06] rounded transition-all"
+        >
+          <div className="flex items-center gap-2">
+            <LayoutTemplate className="w-3.5 h-3.5 text-primary" />
+            <span>Preset Templates</span>
+          </div>
+          {showTemplates ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+        </button>
+
+        {showTemplates && (
+          <div className="mt-2 space-y-1.5">
+            {TEMPLATES.map(template => (
+              <button
+                key={template.id}
+                onClick={() => applyTemplate(template)}
+                className="w-full p-2.5 bg-[#11151A] border border-white/[0.06] rounded hover:border-primary/30 hover:bg-[#161B22] transition-all text-left group"
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[11px] font-medium text-zinc-300 group-hover:text-white">{template.name}</span>
+                  <span className="text-[9px] font-mono text-zinc-600">{template.blocks.length} blocks</span>
+                </div>
+                <p className="text-[9px] text-zinc-600">{template.desc}</p>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
       {/* Guided base selection notice */}
-      {!hasBaseStandard && (
-        <div className="mx-3 mt-3 p-3 rounded-sm bg-[#1A1F26] border border-primary/20">
+      {!hasBaseStandard && !showTemplates && (
+        <div className="mx-3 mt-3 p-3 rounded bg-[#1A1F26] border border-primary/20">
           <div className="flex items-start gap-2">
             <ArrowRight className="w-3.5 h-3.5 text-primary mt-0.5 flex-shrink-0" />
             <div>
@@ -87,19 +196,19 @@ export function BlockSidebar() {
       )}
 
       <div className="flex-1 overflow-y-auto p-3 space-y-1 scrollbar-hide">
-        {Object.entries(BLOCKS_BY_CATEGORY).map(([category, blocks]) => {
+        {Object.entries(BLOCKS_BY_CATEGORY).map(([category, categoryBlocks]) => {
           const isBaseCategory = category === "Base Standards"
           const shouldHighlight = isBaseCategory && !hasBaseStandard
+          const style = CATEGORY_STYLES[category]
 
           return (
             <div key={category} className="mb-2">
-              {/* Section header with proper typography */}
               <button
                 onClick={() => toggleCategory(category)}
                 className={`
-                  w-full flex items-center justify-between p-2 text-xs font-medium transition-all rounded-sm mb-1 group
-                  ${shouldHighlight 
-                    ? 'text-zinc-200 bg-primary/10 hover:bg-primary/15 border border-primary/30' 
+                  w-full flex items-center justify-between p-2 text-xs font-medium transition-all rounded mb-1 group
+                  ${shouldHighlight
+                    ? 'text-zinc-200 bg-primary/10 hover:bg-primary/15 border border-primary/30'
                     : 'text-zinc-400 hover:text-zinc-200 bg-[#0B0F14]/50 hover:bg-[#1A1F26]'
                   }
                 `}
@@ -110,19 +219,20 @@ export function BlockSidebar() {
                   ) : (
                     <ChevronRight className={`w-3 h-3 ${shouldHighlight ? 'text-primary' : 'text-zinc-600 group-hover:text-zinc-400'}`} />
                   )}
+                  <span className={style?.text}>{style?.icon}</span>
                   <span className="font-medium">{category}</span>
                   {shouldHighlight && (
                     <span className="text-[9px] text-primary font-mono uppercase tracking-wider">Required</span>
                   )}
                 </div>
-                <span className="text-[9px] text-zinc-700 font-mono">{blocks.length}</span>
+                <span className="text-[9px] text-zinc-700 font-mono">{categoryBlocks.length}</span>
               </button>
 
               {openCategories[category] && (
                 <div className="space-y-1 pl-2 border-l border-white/[0.04] ml-3 mt-1">
-                  {blocks.map((block) => {
-                    const isSelected = isBlockSelected(block.id)
-                    
+                  {categoryBlocks.map((block) => {
+                    const isAdded = isBlockTypeAdded(block.type)
+
                     return (
                       <div
                         key={block.id}
@@ -130,48 +240,40 @@ export function BlockSidebar() {
                         onDragStart={(e) => handleDragStart(e, block)}
                         onClick={() => addBlock(block as any)}
                         className={`
-                          group relative w-full p-3 rounded-sm border transition-all cursor-grab active:cursor-grabbing
-                          ${isSelected 
-                            ? 'bg-[#1A1F26] border-primary/40' 
+                          group relative w-full p-3 rounded border transition-all cursor-grab active:cursor-grabbing
+                          ${isAdded
+                            ? 'bg-[#1A1F26] border-white/[0.08]'
                             : 'bg-[#11151A] border-white/[0.06] hover:bg-[#161B22] hover:border-white/[0.08]'
                           }
                         `}
                       >
-                        {/* Accent strip - visible on hover or when selected */}
+                        {/* Category accent strip */}
                         <div className={`
-                          absolute left-0 top-0 bottom-0 w-[2px] bg-primary transition-opacity
-                          ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
+                          absolute left-0 top-0 bottom-0 w-[2px] ${style?.accent} transition-opacity rounded-l
+                          ${isAdded ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
                         `} />
 
-                        {/* Selected indicator */}
-                        {isSelected && (
-                          <div className="absolute right-2 top-2 w-1.5 h-1.5 rounded-full bg-primary" />
+                        {isAdded && (
+                          <div className={`absolute right-2 top-2 w-1.5 h-1.5 rounded-full ${style?.accent}`} />
                         )}
 
                         <div className="flex items-start justify-between">
                           <div className="flex items-center gap-2">
                             <div className={`
-                              w-5 h-5 rounded-[2px] flex items-center justify-center border
-                              ${isSelected 
-                                ? 'bg-primary/10 border-primary/30' 
+                              w-5 h-5 rounded flex items-center justify-center border
+                              ${isAdded
+                                ? `bg-${style?.accent?.replace('bg-', '')}/10 border-${style?.accent?.replace('bg-', '')}/30`
                                 : 'bg-[#1A1F26] border-white/[0.04]'
                               }
                             `}>
-                              <Layers className={`
-                                w-3 h-3 transition-colors
-                                ${isSelected 
-                                  ? 'text-primary' 
-                                  : 'text-zinc-500 group-hover:text-zinc-300'
-                                }
-                              `} />
+                              <span className={`${isAdded ? style?.text : 'text-zinc-500 group-hover:text-zinc-300'} transition-colors`}>
+                                {style?.icon}
+                              </span>
                             </div>
                             <div>
                               <p className={`
                                 text-xs font-medium transition-colors
-                                ${isSelected 
-                                  ? 'text-primary' 
-                                  : 'text-zinc-300 group-hover:text-primary'
-                                }
+                                ${isAdded ? style?.text : 'text-zinc-300 group-hover:text-white'}
                               `}>
                                 {block.label}
                               </p>
@@ -181,7 +283,6 @@ export function BlockSidebar() {
                           <GripHorizontal className="w-3 h-3 text-zinc-700 opacity-0 group-hover:opacity-100" />
                         </div>
 
-                        {/* Metadata line */}
                         <div className="mt-2 flex items-center justify-between border-t border-white/[0.04] pt-2">
                           <div className="flex items-center gap-1.5">
                             <span className="text-[9px] text-zinc-600 font-mono uppercase">Gas:</span>
@@ -189,8 +290,8 @@ export function BlockSidebar() {
                               {block.gas}
                             </span>
                           </div>
-                          {category === "Security Modules" && (
-                            <Shield className="w-2.5 h-2.5 text-emerald-500/50" />
+                          {isAdded && (
+                            <span className="text-[8px] font-mono text-zinc-600 uppercase">Added</span>
                           )}
                         </div>
                       </div>

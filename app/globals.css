@@ -200,7 +200,7 @@
   --font-sans: "Inter", "Geist", "sans-serif";
   --font-mono: "Geist Mono", "JetBrains Mono", "monospace";
 
-  
+  /* Expose colors to Tailwind */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -329,6 +329,33 @@
     color: var(--foreground);
     -webkit-font-smoothing: antialiased;
     font-feature-settings: "cv11", "ss01";
+  }
+
+  /* ============================================
+     KEYBOARD NAVIGATION & FOCUS INDICATORS
+     Requirements: 18.2, 18.4
+     ============================================ */
+  
+  /* Visible focus indicators for keyboard navigation */
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 2px solid var(--accent-blue);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Remove default focus outline for mouse users */
+  a:focus:not(:focus-visible),
+  button:focus:not(:focus-visible),
+  input:focus:not(:focus-visible),
+  textarea:focus:not(:focus-visible),
+  select:focus:not(:focus-visible),
+  [tabindex]:focus:not(:focus-visible) {
+    outline: none;
   }
 }
 
@@ -487,5 +514,58 @@
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+
+  /* ============================================
+     LAYOUT SHIFT PREVENTION
+     Requirements: 15.2
+     ============================================ */
+  
+  /* CSS containment for performance and layout stability */
+  .contain-layout {
+    contain: layout;
+  }
+
+  .contain-paint {
+    contain: paint;
+  }
+
+  .contain-strict {
+    contain: strict;
+  }
+
+  /* Reserve space for dynamically loaded content */
+  .aspect-video {
+    aspect-ratio: 16 / 9;
+  }
+
+  .aspect-square {
+    aspect-ratio: 1 / 1;
+  }
+
+  /* ============================================
+     GPU-OPTIMIZED ANIMATIONS
+     Requirements: 15.4, 15.5
+     ============================================ */
+  
+  /* GPU acceleration for animated elements */
+  .gpu-accelerated {
+    will-change: transform, opacity;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
+
+  /* Use sparingly - only for actively animating elements */
+  .will-change-transform {
+    will-change: transform;
+  }
+
+  .will-change-opacity {
+    will-change: opacity;
+  }
+
+  /* Remove will-change after animation completes */
+  .animation-complete {
+    will-change: auto;
   }
 }

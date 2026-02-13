@@ -1,15 +1,14 @@
 ﻿"use client"
 
-import { ProductWindow } from "@/components/infrastructure/product-window"
+import dynamic from 'next/dynamic'
+import { Suspense } from 'react'
 import { BentoGrid, BentoGridItem } from "@/components/reactbits/BentoGrid"
-import { SpotlightCard } from "@/components/reactbits/SpotlightCard"
 import { Navbar } from "@/components/navbar"
-import { WasmCompilationVisual, StateExpirationVisual, FormalVerificationVisual, CrossContractVisual } from "@/components/infrastructure/bento-visuals"
 import { motion } from "framer-motion"
-import { ArrowRight, Shield, Zap, Database, Server, Cpu, Lock, Terminal, Activity, FileCheck, Layers, GitCommit, CheckCircle, Code2, Workflow, Box } from "lucide-react"
+import { ArrowRight, Shield, Database, Cpu, Layers, GitCommit, CheckCircle, Code2, Workflow, Box, Terminal, FileCheck, Lock } from "lucide-react"
 import Link from "next/link"
-import { cn } from "@/lib/utils"
-import { MOTION_DURATION, MOTION_TRANSFORMS, motionVariants } from "@/lib/motion"
+import { MOTION_DURATION, MOTION_TRANSFORMS } from "@/lib/motion"
+import { useIsMobile, useIsTablet } from "@/lib/use-breakpoint"
 
 import { BorderBeam } from "@/components/reactbits/BorderBeam"
 import Silk from "@/components/reactbits/Silk"
@@ -17,6 +16,28 @@ import { PipelineStage } from "@/components/infrastructure/pipeline-stage"
 import { PipelineConnector } from "@/components/infrastructure/pipeline-connector"
 import { SecurityFeature } from "@/components/infrastructure/security-feature"
 import { SecurityLayers } from "@/components/infrastructure/security-layers"
+
+// Lazy load heavy components for better performance
+const ProductWindow = dynamic(() => import("@/components/infrastructure/product-window").then(mod => ({ default: mod.ProductWindow })), {
+  loading: () => <div className="w-full aspect-[16/10] bg-[#0B0F14] rounded-lg border border-[#222730] animate-pulse" />,
+  ssr: false
+})
+
+const WasmCompilationVisual = dynamic(() => import("@/components/infrastructure/bento-visuals").then(mod => ({ default: mod.WasmCompilationVisual })), {
+  loading: () => <div className="w-full h-32 bg-[#0B0F14] rounded animate-pulse" />
+})
+
+const StateExpirationVisual = dynamic(() => import("@/components/infrastructure/bento-visuals").then(mod => ({ default: mod.StateExpirationVisual })), {
+  loading: () => <div className="w-full h-32 bg-[#0B0F14] rounded animate-pulse" />
+})
+
+const FormalVerificationVisual = dynamic(() => import("@/components/infrastructure/bento-visuals").then(mod => ({ default: mod.FormalVerificationVisual })), {
+  loading: () => <div className="w-full h-32 bg-[#0B0F14] rounded animate-pulse" />
+})
+
+const CrossContractVisual = dynamic(() => import("@/components/infrastructure/bento-visuals").then(mod => ({ default: mod.CrossContractVisual })), {
+  loading: () => <div className="w-full h-32 bg-[#0B0F14] rounded animate-pulse" />
+})
 
 const INFRASTRUCTURE_FEATURES = [
   {
@@ -83,12 +104,39 @@ const INFRASTRUCTURE_FEATURES = [
 ]
 
 export default function Home() {
+  const isMobile = useIsMobile()
+  const isTablet = useIsTablet()
+  
+  // Staggered animation variants for hero elements
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2
+      }
+    }
+  }
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: MOTION_DURATION.normal / 1000,
+        ease: [0.16, 1, 0.3, 1] as [number, number, number, number]
+      }
+    }
+  }
+
   return (
     <main className="min-h-screen bg-[#0B0F14] text-zinc-300 antialiased overflow-hidden selection:bg-indigo-500/30 selection:text-indigo-200">
 
       {/* 1. LAYERED BACKGROUND SYSTEM */}
       {/* Micro noise texture at 1-2% opacity with radial vignette */}
-      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden" aria-hidden="true">
         {/* Silk component for subtle noise texture (1-2% opacity) */}
         <div className="absolute inset-0 opacity-[0.015]">
           <Silk
@@ -112,10 +160,11 @@ export default function Home() {
       <Navbar />
 
       {/* 2. ADVANCED HERO */}
-      <section className="relative pt-24 pb-12 px-6 max-w-7xl mx-auto z-10 grid lg:grid-cols-12 gap-12 items-center">
+      <section className="relative pt-24 pb-12 px-6 max-w-7xl mx-auto z-10 grid lg:grid-cols-12 gap-12 items-center" aria-labelledby="hero-heading">
         {/* Conditional grid overlay for hero zone (2-3% opacity) */}
         <div 
           className="absolute inset-0 pointer-events-none"
+          aria-hidden="true"
           style={{
             backgroundSize: '40px 40px',
             backgroundImage: 'linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px)',
@@ -125,83 +174,120 @@ export default function Home() {
         
         {/* Left: Content */}
         <motion.div
-          initial={{ opacity: 0, y: MOTION_TRANSFORMS.slideUp }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: MOTION_DURATION.normal / 1000, ease: [0.16, 1, 0.3, 1] }}
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
           className="lg:col-span-5 flex flex-col items-start text-left"
         >
-          <h1 className="text-4xl lg:text-5xl font-semibold text-white tracking-tight mb-3 leading-[1.15]">
+          <motion.h1 
+            variants={itemVariants}
+            id="hero-heading"
+            className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-white tracking-tight mb-3 leading-[1.15]"
+          >
             Deterministic <br />
             <span className="text-zinc-500">Contract Infrastructure</span>
-          </h1>
+          </motion.h1>
 
-          <p className="text-xl text-zinc-400/90 font-light mb-1">
+          <motion.p 
+            variants={itemVariants}
+            className="text-lg sm:text-xl text-zinc-400/90 font-light mb-1"
+          >
             For Soroban Deployments
-          </p>
+          </motion.p>
 
-          <div className="h-px w-12 bg-zinc-800 my-5" />
+          <motion.div 
+            variants={itemVariants}
+            className="h-px w-12 bg-zinc-800 my-5" 
+          />
 
-          <p className="text-sm font-mono text-emerald-500/80 uppercase tracking-widest mb-6">
+          <motion.p 
+            variants={itemVariants}
+            className="text-xs sm:text-sm font-mono text-emerald-500/80 uppercase tracking-widest mb-6"
+          >
             Production-grade WASM <span className="text-zinc-700 px-2">·</span> Architecture-first tooling
-          </p>
+          </motion.p>
 
-          <div className="flex items-center gap-4">
+          <motion.div 
+            variants={itemVariants}
+            className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full sm:w-auto"
+          >
             <Link
               href="/builder"
-              className="h-10 px-6 bg-[#0055eb] hover:bg-[#0044c2] text-white text-sm font-medium rounded transition-all shadow-none flex items-center gap-2"
+              className="h-10 px-6 bg-[#0055eb] hover:bg-[#0044c2] text-white text-sm font-medium rounded transition-all shadow-none flex items-center justify-center gap-2"
+              aria-label="Initialize Workbench - Start building contracts"
             >
-              Initialize Workbench <ArrowRight className="w-4 h-4" />
+              Initialize Workbench <ArrowRight className="w-4 h-4" aria-hidden="true" />
             </Link>
-            <button className="h-10 px-6 border border-[#222730] hover:border-zinc-500 hover:bg-[#11151A] text-zinc-300 text-sm font-medium rounded transition-all">
+            <button 
+              className="h-10 px-6 border border-[#222730] hover:border-zinc-500 hover:bg-[#11151A] text-zinc-300 text-sm font-medium rounded transition-all"
+              aria-label="Read Documentation"
+            >
               Read Documentation
             </button>
-          </div>
-          <div className="mt-3 flex items-center gap-3 text-[10px] text-zinc-500 font-mono">
-            <span>MAINNET READY</span>
-            <span className="w-1 h-1 rounded-full bg-zinc-700" />
-            <span>WASM NATIVE</span>
-            <span className="w-1 h-1 rounded-full bg-zinc-700" />
-            <span>FORMAL PIPELINE</span>
-          </div>
+          </motion.div>
+          
+          {!isMobile && (
+            <motion.div 
+              variants={itemVariants}
+              className="mt-3 flex items-center gap-3 text-[10px] text-zinc-500 font-mono"
+            >
+              <span>MAINNET READY</span>
+              <span className="w-1 h-1 rounded-full bg-zinc-700" />
+              <span>WASM NATIVE</span>
+              <span className="w-1 h-1 rounded-full bg-zinc-700" />
+              <span>FORMAL PIPELINE</span>
+            </motion.div>
+          )}
         </motion.div>
 
-        {/* Right: Product Window */}
-        <div className="hidden lg:block lg:col-span-7 relative">
-          <motion.div
-            initial={{ opacity: 0, y: MOTION_TRANSFORMS.slideUp }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: MOTION_DURATION.slow / 1000, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-            className="relative rounded-lg"
-          >
-            <ProductWindow />
-            <BorderBeam duration={10} delay={5} borderWidth={1.5} size={300} colorFrom="#3b82f6" colorTo="#06b6d4" />
-          </motion.div>
-        </div>
+        {/* Right: Product Window - Hidden on mobile/tablet */}
+        {!isMobile && !isTablet && (
+          <div className="lg:col-span-7 relative">
+            <motion.div
+              initial={{ opacity: 0, y: MOTION_TRANSFORMS.slideUp }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: MOTION_DURATION.slow / 1000, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+              className="relative rounded-lg"
+            >
+              <Suspense fallback={<div className="w-full aspect-[16/10] bg-[#0B0F14] rounded-lg border border-[#222730] animate-pulse" />}>
+                <ProductWindow />
+              </Suspense>
+              <BorderBeam duration={10} delay={5} borderWidth={1.5} size={300} colorFrom="#3b82f6" colorTo="#06b6d4" />
+            </motion.div>
+          </div>
+        )}
       </section>
 
       {/* 3. ENGINEERING PRINCIPLES STRIP */}
-      <section className="border-y border-[#1A1F26] bg-[#090C10] py-6 mb-16">
-        <div className="max-w-7xl mx-auto px-6 flex flex-wrap justify-center md:justify-between items-center gap-6 text-sm font-mono text-zinc-500 uppercase tracking-wider">
+      <section className="border-y border-[#1A1F26] bg-[#090C10] py-4 md:py-6 mb-12 md:mb-16" aria-label="Engineering principles">
+        <div className="max-w-7xl mx-auto px-6 flex flex-wrap justify-center md:justify-between items-center gap-4 md:gap-6 text-xs md:text-sm font-mono text-zinc-500 uppercase tracking-wider">
           <div className="flex items-center gap-2">
-            <CheckCircle className="w-4 h-4 text-zinc-600" /> Deterministic by Default
+            <CheckCircle className="w-3 md:w-4 h-3 md:h-4 text-zinc-600" aria-hidden="true" /> 
+            <span className="hidden sm:inline">Deterministic by Default</span>
+            <span className="sm:hidden">Deterministic</span>
           </div>
           <div className="flex items-center gap-2">
-            <Workflow className="w-4 h-4 text-zinc-600" /> Architecture-First
+            <Workflow className="w-3 md:w-4 h-3 md:h-4 text-zinc-600" /> 
+            <span className="hidden sm:inline">Architecture-First</span>
+            <span className="sm:hidden">Architecture</span>
           </div>
           <div className="flex items-center gap-2">
-            <Code2 className="w-4 h-4 text-zinc-600" /> WASM-Native
+            <Code2 className="w-3 md:w-4 h-3 md:h-4 text-zinc-600" /> WASM-Native
           </div>
-          <div className="flex items-center gap-2">
-            <GitCommit className="w-4 h-4 text-zinc-600" /> Deployment Parity
-          </div>
+          {!isMobile && (
+            <div className="flex items-center gap-2">
+              <GitCommit className="w-3 md:w-4 h-3 md:h-4 text-zinc-600" /> Deployment Parity
+            </div>
+          )}
         </div>
       </section>
 
       {/* 4. UPGRADED BENTO GRID */}
-      <section className="relative pb-24 px-6 max-w-7xl mx-auto z-10">
+      <section className="relative pb-24 px-6 max-w-7xl mx-auto z-10" aria-labelledby="features-heading">
         {/* Conditional grid overlay for bento zone (2-3% opacity) */}
         <div 
           className="absolute inset-0 pointer-events-none"
+          aria-hidden="true"
           style={{
             backgroundSize: '40px 40px',
             backgroundImage: 'linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px)',
@@ -209,9 +295,9 @@ export default function Home() {
           }}
         />
         
-        <div className="mb-12 relative z-10">
-          <h2 className="text-2xl font-semibold text-white mb-2">Core Infrastructure</h2>
-          <p className="text-zinc-500 max-w-xl">Primitives designed for high-assurance financial applications.</p>
+        <div className="mb-8 md:mb-12 relative z-10">
+          <h2 id="features-heading" className="text-xl md:text-2xl font-semibold text-white mb-2">Core Infrastructure</h2>
+          <p className="text-sm md:text-base text-zinc-500 max-w-xl">Primitives designed for high-assurance financial applications.</p>
         </div>
         <BentoGrid className="max-w-7xl mx-auto">
           {INFRASTRUCTURE_FEATURES.map((feature, i) => (
@@ -229,11 +315,13 @@ export default function Home() {
       </section>
 
       {/* 5. SYSTEM ARCHITECTURE / BUILD PIPELINE */}
-      <section className="py-32 border-t border-[#1A1F26] bg-[#0B0F14] relative overflow-hidden">
+      <section className="py-16 md:py-24 lg:py-32 border-t border-[#1A1F26] bg-[#0B0F14] relative overflow-hidden" aria-labelledby="pipeline-heading">
         <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <div className="text-center mb-20">
-            <h2 className="text-3xl font-semibold text-white mb-3">Build Pipeline</h2>
-            <p className="text-zinc-500 font-mono text-sm uppercase tracking-wider">Visual Engine <span className="text-zinc-700 mx-2">→</span> Deterministic WASM</p>
+          <div className="text-center mb-12 md:mb-16 lg:mb-20">
+            <h2 id="pipeline-heading" className="text-2xl md:text-3xl font-semibold text-white mb-3">Build Pipeline</h2>
+            <p className="text-zinc-500 font-mono text-xs md:text-sm uppercase tracking-wider">
+              Visual Engine <span className="text-zinc-700 mx-2">→</span> Deterministic WASM
+            </p>
           </div>
 
           <div className="relative flex flex-col md:flex-row items-start justify-center gap-0 max-w-6xl mx-auto">
@@ -289,25 +377,25 @@ export default function Home() {
       </section>
 
       {/* 6. SECURITY & COMPLIANCE - DEFENSE IN DEPTH SPLIT */}
-      <section className="relative py-32 px-6 border-t border-[#1A1F26] bg-[#090C10]">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+      <section className="relative py-16 md:py-24 lg:py-32 px-6 border-t border-[#1A1F26] bg-[#090C10]" aria-labelledby="security-heading">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-16 lg:gap-20 items-center">
 
           {/* Left: Copy Column */}
           <div>
             {/* Active Protection Badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-900/30 bg-emerald-900/10 mb-6">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-900/30 bg-emerald-900/10 mb-6" role="status">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />
               <span className="text-[10px] font-medium text-emerald-500 uppercase tracking-wider">Active Protection</span>
             </div>
             
             {/* Heading */}
-            <h2 className="text-4xl font-semibold text-white mb-6 tracking-tight">
+            <h2 id="security-heading" className="text-2xl md:text-3xl lg:text-4xl font-semibold text-white mb-6 tracking-tight">
               Defense in Depth <br />
               <span className="text-zinc-500">Architecture</span>
             </h2>
             
             {/* Description */}
-            <p className="text-zinc-400 text-base leading-relaxed mb-8 max-w-md opacity-85">
+            <p className="text-sm md:text-base text-zinc-400 leading-relaxed mb-8 max-w-md opacity-85">
               We don't just compile; we verify. Every contract undergoes a rigorous multi-stage security pipeline before it ever touches the network.
             </p>
 
@@ -338,20 +426,20 @@ export default function Home() {
       </section>
 
       {}
-      <footer className="border-t border-[#1A1F26] bg-[#0B0F14] py-12 px-6">
+      <footer className="border-t border-[#1A1F26] bg-[#0B0F14] py-12 px-6" role="contentinfo">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-2 opacity-50 grayscale hover:grayscale-0 transition-all">
-            <div className="w-6 h-6 bg-zinc-800 rounded flex items-center justify-center text-[10px] font-bold">B</div>
+            <div className="w-6 h-6 bg-zinc-800 rounded flex items-center justify-center text-[10px] font-bold" aria-hidden="true">B</div>
             <span className="text-sm font-semibold">Block Builder</span>
           </div>
-          <div className="text-xs text-zinc-600 font-mono">
+          <div className="text-xs text-zinc-600 font-mono" role="status">
             SYSTEM STATUS: <span className="text-emerald-500">ONLINE</span>
           </div>
-          <div className="flex gap-6 text-xs text-zinc-500">
+          <nav className="flex gap-6 text-xs text-zinc-500" aria-label="Footer navigation">
             <a href="#" className="hover:text-zinc-300 transition-colors">Documentation</a>
             <a href="#" className="hover:text-zinc-300 transition-colors">API Reference</a>
             <a href="#" className="hover:text-zinc-300 transition-colors">Status</a>
-          </div>
+          </nav>
         </div>
       </footer>
     </main>

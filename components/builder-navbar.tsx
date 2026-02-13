@@ -2,20 +2,12 @@ import { useBuilderStore } from "@/lib/store"
 import { useSupabaseStore } from "@/lib/supabase-store"
 import { Download, Play, Eye, FolderOpen, Wallet, Menu, X } from "lucide-react"
 import { useState, useEffect } from "react"
-import { useScroll, useMotionValueEvent, AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { PreviewModal } from "./preview-modal"
 import { DeployModal } from "./deploy-modal"
 import { ProjectManager } from "./project-manager"
-import { ethers } from "ethers"
 import { NetworkSwitcher } from "./network-switcher"
-import { useNetwork } from "@/lib/multi-chain/network-context"
 import { connectStellarWallet, checkStellarConnection } from "@/lib/stellar/stellar-wallet"
-
-declare global {
-    interface Window {
-        ethereum?: any
-    }
-}
 
 export function BuilderNavbar() {
     const currentProject = useBuilderStore((state) => state.currentProject)
@@ -26,7 +18,6 @@ export function BuilderNavbar() {
     const setWalletChainId = useBuilderStore((state) => state.setWalletChainId)
     const initializeUser = useSupabaseStore((state) => state.initializeUser)
     const currentUser = useSupabaseStore((state) => state.user)
-    const { networkType } = useNetwork()
     const [previewOpen, setPreviewOpen] = useState(false)
     const [deployOpen, setDeployOpen] = useState(false)
     const [projectManagerOpen, setProjectManagerOpen] = useState(false)
@@ -34,108 +25,33 @@ export function BuilderNavbar() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
     useEffect(() => {
-        
         checkWalletConnection()
-
-        
-        if (window.ethereum) {
-            window.ethereum.on("accountsChanged", handleAccountsChanged)
-            window.ethereum.on("chainChanged", handleChainChanged)
-        }
-
-        return () => {
-            if (window.ethereum) {
-                window.ethereum.removeListener("accountsChanged", handleAccountsChanged)
-                window.ethereum.removeListener("chainChanged", handleChainChanged)
-            }
-        }
-    }, [networkType])
+    }, [])
 
     const checkWalletConnection = async () => {
-        if (networkType === 'stellar') {
+        try {
             const status = await checkStellarConnection();
             if (status.isConnected && status.publicKey) {
                 setWalletAddress(status.publicKey);
-                
                 setWalletChainId(0);
-            }
-            return;
-        }
-
-        try {
-            if (window.ethereum) {
-                const provider = new ethers.BrowserProvider(window.ethereum)
-                const accounts = await provider.listAccounts()
-
-                if (accounts.length > 0) {
-                    const signer = await provider.getSigner()
-                    const address = await signer.getAddress()
-                    setWalletAddress(address)
-
-                    
-                    const network = await provider.getNetwork()
-                    setWalletChainId(Number(network.chainId))
-
-                    
-                    await initializeUser(address)
-                    console.log('✅ Wallet reconnected and stored in Supabase')
-                }
+                await initializeUser(status.publicKey);
             }
         } catch (err) {
-            console.error("Error checking wallet connection:", err)
+            console.error("Error checking Stellar wallet connection:", err)
         }
-    }
-
-    const handleAccountsChanged = async (accounts: string[]) => {
-        if (accounts.length === 0) {
-            setWalletAddress(null)
-            setWalletChainId(null)
-        } else {
-            setWalletAddress(accounts[0])
-            
-            await initializeUser(accounts[0])
-            console.log('✅ Account changed and stored in Supabase')
-        }
-    }
-
-    const handleChainChanged = async (chainIdHex: string) => {
-        const chainId = parseInt(chainIdHex, 16)
-        setWalletChainId(chainId)
     }
 
     const connectWallet = async () => {
         setConnectingWallet(true)
         try {
-            if (networkType === 'stellar') {
-                const status = await connectStellarWallet();
-                if (status.isConnected && status.publicKey) {
-                    setWalletAddress(status.publicKey);
-                    setWalletChainId(0);
-                    await initializeUser(status.publicKey);
-                } else {
-                    alert("Failed to connect Stellar wallet. Please ensure Freighter is installed and unlocked.");
-                }
-                return;
+            const status = await connectStellarWallet();
+            if (status.isConnected && status.publicKey) {
+                setWalletAddress(status.publicKey);
+                setWalletChainId(0);
+                await initializeUser(status.publicKey);
+            } else {
+                alert("Failed to connect Stellar wallet. Please ensure Freighter is installed and unlocked.");
             }
-
-            if (!window.ethereum) {
-                alert("Please install MetaMask or another Web3 wallet!")
-                return
-            }
-
-            const provider = new ethers.BrowserProvider(window.ethereum)
-            await provider.send("eth_requestAccounts", [])
-            const signer = await provider.getSigner()
-            const address = await signer.getAddress()
-            setWalletAddress(address)
-
-            
-            const network = await provider.getNetwork()
-            setWalletChainId(Number(network.chainId))
-
-            
-            await initializeUser(address)
-            console.log('✅ User initialized in Supabase')
         } catch (err) {
             console.error("Error connecting wallet:", err)
             alert("Failed to connect wallet. Please try again.")

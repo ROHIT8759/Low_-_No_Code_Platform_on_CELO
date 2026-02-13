@@ -1,40 +1,20 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { useBuilderStore } from "../store";
+import React, { createContext, useContext, useState } from "react";
 
 interface NetworkContextType {
-    networkType: "evm" | "stellar";
-    setNetworkType: (type: "evm" | "stellar") => void;
+    networkType: "stellar";
+    stellarNetwork: "testnet" | "mainnet";
+    setStellarNetwork: (net: "testnet" | "mainnet") => void;
 }
 
 const NetworkContext = createContext<NetworkContextType | undefined>(undefined);
 
 export function NetworkProvider({ children }: { children: React.ReactNode }) {
-    const { network, setNetwork } = useBuilderStore();
-    const [networkType, setLocalNetworkType] = useState<"evm" | "stellar">("evm");
-
-    useEffect(() => {
-        
-        if (network === "stellar") {
-            setLocalNetworkType("stellar");
-        } else {
-            setLocalNetworkType("evm");
-        }
-    }, [network]);
-
-    const setNetworkType = (type: "evm" | "stellar") => {
-        
-        setLocalNetworkType(type);
-        if (type === "stellar") {
-            setNetwork("stellar");
-        } else {
-            setNetwork("celo");
-        }
-    };
+    const [stellarNetwork, setStellarNetwork] = useState<"testnet" | "mainnet">("testnet");
 
     return (
-        <NetworkContext.Provider value={{ networkType, setNetworkType }}>
+        <NetworkContext.Provider value={{ networkType: "stellar", stellarNetwork, setStellarNetwork }}>
             {children}
         </NetworkContext.Provider>
     );

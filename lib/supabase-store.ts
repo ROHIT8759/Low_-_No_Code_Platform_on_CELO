@@ -106,6 +106,7 @@ export const useSupabaseStore = create<SupabaseStore>()(
           const localProjects = projects.map((p) => ({
             id: p.id,
             name: p.name,
+            networkType: "stellar" as const,
             blocks: p.blocks,
             generatedCode: {
               solidity: p.solidity_code || "",
@@ -195,6 +196,7 @@ export const useSupabaseStore = create<SupabaseStore>()(
             tokenName: c.token_name || undefined,
             tokenSymbol: c.token_symbol || undefined,
             network: c.network,
+            networkType: "stellar" as const,
             networkName: c.network_name,
             chainId: c.chain_id,
             deployer: c.deployer,

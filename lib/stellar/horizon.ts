@@ -112,7 +112,7 @@ export class HorizonClient {
             success: true,
             found: true,
             successful: transaction.successful,
-            ledger: transaction.ledger,
+            ledger: transaction.ledger as unknown as number,
             createdAt: transaction.created_at,
           };
         }

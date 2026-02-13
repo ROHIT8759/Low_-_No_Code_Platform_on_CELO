@@ -13,18 +13,36 @@ export interface StellarWalletState {
 }
 
 export async function checkStellarConnection(): Promise<StellarWalletState> {
-    const allowed = await isAllowed();
-    if (allowed) {
-        const { address } = await getAddress();
-        const networkObj = await getNetwork();
-        
-        const network = typeof networkObj === 'string' ? networkObj : networkObj?.network;
+    try {
+        const allowedResult = await isAllowed();
+        // Newer API returns { isAllowed: boolean }, older returns boolean
+        const isAllowedVal = typeof allowedResult === 'object' && allowedResult !== null
+            ? (allowedResult as any).isAllowed
+            : allowedResult;
 
-        return {
-            isConnected: true,
-            publicKey: address,
-            network: network || null,
-        };
+        if (isAllowedVal) {
+            const addressResult = await getAddress();
+            // Newer API returns { address: string }, older returns string
+            const address = typeof addressResult === 'object' && addressResult !== null
+                ? (addressResult as any).address
+                : String(addressResult);
+
+            const networkResult = await getNetwork();
+            // Newer API returns { network: string }, older returns string
+            const network = typeof networkResult === 'object' && networkResult !== null
+                ? (networkResult as any).network || (networkResult as any).networkPassphrase
+                : String(networkResult);
+
+            if (address) {
+                return {
+                    isConnected: true,
+                    publicKey: address,
+                    network: network || null,
+                };
+            }
+        }
+    } catch (err) {
+        console.error("checkStellarConnection error:", err);
     }
     return {
         isConnected: false,
@@ -34,7 +52,11 @@ export async function checkStellarConnection(): Promise<StellarWalletState> {
 }
 
 export async function connectStellarWallet(): Promise<StellarWalletState> {
-    await setAllowed();
+    try {
+        await setAllowed();
+    } catch (err) {
+        console.error("setAllowed error:", err);
+    }
     return await checkStellarConnection();
 }
 
@@ -46,16 +68,22 @@ export interface SorobanTransactionParams {
 export async function signSorobanTransaction(
     xdr: string,
     networkPassphrase?: string
-) {
+): Promise<string> {
     try {
-        
-        
         const opts: any = {};
         if (networkPassphrase) {
             opts.networkPassphrase = networkPassphrase;
         }
-        const signedTransaction = await signTransaction(xdr, opts);
-        return signedTransaction;
+        const result = await signTransaction(xdr, opts);
+        // Newer freighter-api returns { signedTxXdr, signerAddress }
+        // Older versions return a plain string
+        if (typeof result === 'string') {
+            return result;
+        }
+        if (result && typeof result === 'object' && 'signedTxXdr' in result) {
+            return (result as any).signedTxXdr;
+        }
+        return String(result);
     } catch (error) {
         console.error("Failed to sign transaction:", error);
         throw error;

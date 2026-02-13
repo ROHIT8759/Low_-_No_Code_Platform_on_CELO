@@ -93,7 +93,6 @@ class Logger {
 
 // Export singleton instances for common services
 export const deploymentLogger = new Logger('DeploymentService', process.env.NODE_ENV === 'production' ? 'warn' : 'info')
-export const simulationLogger = new Logger('SimulationService', process.env.NODE_ENV === 'production' ? 'warn' : 'info')
 export const walletLogger = new Logger('WalletService', process.env.NODE_ENV === 'production' ? 'warn' : 'info')
 export const compilationLogger = new Logger('CompilationService', process.env.NODE_ENV === 'production' ? 'warn' : 'info')
 

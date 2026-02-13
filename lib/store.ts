@@ -41,8 +41,8 @@ export interface DeployedContract {
   contractName: string
   tokenName?: string
   tokenSymbol?: string
-  network: "sepolia" | "mainnet" | "testnet" | "futurenet"
-  networkType: "evm" | "stellar"
+  network: "testnet" | "mainnet"
+  networkType: "stellar"
   networkName: string
   chainId?: number
   deployer: string
@@ -319,7 +319,7 @@ export const useBuilderStore = create<BuilderStore>()(
       },
     }),
     {
-      name: "celo-builder-store",
+      name: "block-builder-store",
       version: 1,
     },
   ),

@@ -615,7 +615,7 @@ export function ProjectManager({ isOpen, onClose }: ProjectManagerProps) {
                                 <div className="flex items-center justify-between mb-3">
                                   <h4 className="font-semibold text-white">Solidity Source Code</h4>
                                   <button
-                                    onClick={() => copyToClipboard(contract.solidityCode, "Code")}
+                                    onClick={() => copyToClipboard(contract.solidityCode || "", "Code")}
                                     className="px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm transition-all flex items-center gap-2"
                                   >
                                     <Copy size={14} />

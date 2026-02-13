@@ -1,4 +1,5 @@
 import { createHash } from 'crypto';
+import 'server-only';
 import { gzip, gunzip } from 'zlib';
 import { promisify } from 'util';
 import { mkdir, writeFile, readFile, unlink, access } from 'fs/promises';

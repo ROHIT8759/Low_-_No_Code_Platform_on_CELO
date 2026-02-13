@@ -8,40 +8,36 @@ import "./globals.css"
 const geistSans = Geist({ subsets: ["latin"] })
 const geistMono = Geist_Mono({ subsets: ["latin"] })
 
-const siteUrl = "https://celobuilder.vercel.app"
+const siteUrl = "https://blockbuilder.dev"
 const siteName = "Block Builder"
-const siteDescription = "Build and deploy smart contracts on Stellar (Soroban) and EVM blockchains without writing code. Visual drag-and-drop builder for tokens, NFTs, DeFi, and more. Generate production-ready Next.js frontends instantly."
+const siteDescription = "Infrastructure-grade smart contract builder for Stellar Soroban and EVM blockchains. Visual development platform with formal verification, WASM-native compilation, and production-ready deployment pipeline."
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: `${siteName} - No-Code Smart Contract Builder for Blockchain`,
+    default: `${siteName} - Infrastructure-Grade Smart Contract Platform`,
     template: `%s | ${siteName}`,
   },
   description: siteDescription,
   keywords: [
     "Stellar",
     "Soroban",
-    "blockchain",
-    "smart contracts",
-    "no-code",
-    "low-code",
-    "dApp builder",
-    "ERC20",
-    "NFT",
-    "DeFi",
-    "Web3",
-    "Solidity",
-    "Rust",
     "WASM",
-    "Next.js",
-    "crypto",
-    "token creator",
-    "NFT minting",
-    "smart contract generator",
-    "visual builder",
-    "drag and drop",
+    "Rust",
+    "smart contracts",
+    "blockchain infrastructure",
+    "formal verification",
+    "contract builder",
     "EVM",
+    "Solidity",
+    "Web3",
+    "DeFi",
+    "token deployment",
+    "mainnet ready",
+    "production deployment",
+    "contract workstation",
+    "blockchain development",
+    "infrastructure platform",
   ],
   authors: [{ name: "Block Builder Team", url: siteUrl }],
   creator: "Block Builder",
@@ -68,23 +64,23 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: siteUrl,
     siteName: siteName,
-    title: `${siteName} - No-Code Smart Contract Builder`,
+    title: `${siteName} - Infrastructure-Grade Smart Contract Platform`,
     description: siteDescription,
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Block Builder - Visual Smart Contract Builder",
+        alt: "Block Builder - Infrastructure-Grade Contract Platform",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: `${siteName} - No-Code Smart Contract Builder`,
+    title: `${siteName} - Infrastructure-Grade Smart Contract Platform`,
     description: siteDescription,
     images: ["/og-image.png"],
-    creator: "@celobuilder",
+    creator: "@blockbuilder",
   },
   alternates: {
     canonical: siteUrl,

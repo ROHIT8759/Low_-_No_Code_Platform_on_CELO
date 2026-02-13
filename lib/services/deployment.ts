@@ -1,7 +1,10 @@
-import { storage } from '../storage';
+import 'server-only';
 import { supabase } from '../supabase';
 import * as StellarSdk from '@stellar/stellar-sdk';
 import { deploymentLogger as logger } from '../logger';
+import { STELLAR_NETWORK_CONFIG, EVM_NETWORK_CONFIG } from './deployment-config';
+
+export { STELLAR_NETWORK_CONFIG, EVM_NETWORK_CONFIG };
 
 export interface StellarDeploymentOptions {
   artifactId: string;
@@ -26,32 +29,6 @@ export interface TransactionReceipt {
   blockNumber?: number;
 }
 
-export const STELLAR_NETWORK_CONFIG = {
-  testnet: {
-    horizonUrl: 'https://horizon-testnet.stellar.org',
-    sorobanRpcUrl: 'https://soroban-testnet.stellar.org',
-    networkPassphrase: 'Test SDF Network ; September 2015',
-  },
-  mainnet: {
-    horizonUrl: 'https://horizon.stellar.org',
-    sorobanRpcUrl: 'https://soroban-mainnet.stellar.org',
-    networkPassphrase: 'Public Global Stellar Network ; September 2015',
-  },
-} as const;
-
-export const EVM_NETWORK_CONFIG = {
-  CELO_MAINNET: {
-    chainId: 42220,
-    name: 'Celo Mainnet',
-    rpcUrl: 'https://forno.celo.org',
-  },
-  CELO_ALFAJORES: {
-    chainId: 44787,
-    name: 'Celo Alfajores Testnet',
-    rpcUrl: 'https://alfajores-forno.celo-testnet.org',
-  },
-} as const;
-
 export class DeploymentService {
   
   getStellarNetworkConfig(network: 'testnet' | 'mainnet') {
@@ -74,6 +51,8 @@ export class DeploymentService {
     try {
       const networkConfig = this.getStellarNetworkConfig(options.network);
 
+      // Lazy load storage only on server side
+      const { storage } = await import('../storage');
       const artifact = await storage.retrieveStellarArtifact(options.artifactId);
       if (!artifact) {
         return {

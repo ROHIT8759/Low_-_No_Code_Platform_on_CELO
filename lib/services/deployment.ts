@@ -2,9 +2,9 @@ import 'server-only';
 import { supabase } from '../supabase';
 import * as StellarSdk from '@stellar/stellar-sdk';
 import { deploymentLogger as logger } from '../logger';
-import { STELLAR_NETWORK_CONFIG, EVM_NETWORK_CONFIG } from './deployment-config';
+import { STELLAR_NETWORK_CONFIG } from './deployment-config';
 
-export { STELLAR_NETWORK_CONFIG, EVM_NETWORK_CONFIG };
+export { STELLAR_NETWORK_CONFIG };
 
 export interface StellarDeploymentOptions {
   artifactId: string;
@@ -35,14 +35,6 @@ export class DeploymentService {
     const config = STELLAR_NETWORK_CONFIG[network];
     if (!config) {
       throw new Error(`Unknown Stellar network: ${network}`);
-    }
-    return config;
-  }
-
-  getEVMNetworkConfig(network: keyof typeof EVM_NETWORK_CONFIG) {
-    const config = EVM_NETWORK_CONFIG[network];
-    if (!config) {
-      throw new Error(`Unknown EVM network: ${network}`);
     }
     return config;
   }
@@ -326,8 +318,7 @@ export class DeploymentService {
   }
 
   validateDeploymentOptions(
-    options: StellarDeploymentOptions | any,
-    type?: 'stellar' | 'evm'
+    options: StellarDeploymentOptions
   ): { valid: boolean; error?: string } {
     if (!options.artifactId) {
       return { valid: false, error: 'Artifact ID is required' };
@@ -337,41 +328,15 @@ export class DeploymentService {
       return { valid: false, error: 'Network is required' };
     }
 
-    if (type === 'stellar') {
-      if (!options.sourceAccount) {
-        return { valid: false, error: 'Source account is required for Stellar deployment' };
-      }
-
-      if (!['testnet', 'mainnet'].includes(options.network)) {
-        return { valid: false, error: 'Invalid Stellar network (must be testnet or mainnet)' };
-      }
+    if (!options.sourceAccount) {
+      return { valid: false, error: 'Source account is required for Stellar deployment' };
     }
 
-    if (type === 'evm') {
-      try {
-        this.getEVMNetworkConfig(options.network);
-      } catch (error: any) {
-        return { valid: false, error: error.message };
-      }
+    if (!['testnet', 'mainnet'].includes(options.network)) {
+      return { valid: false, error: 'Invalid Stellar network (must be testnet or mainnet)' };
     }
 
     return { valid: true };
-  }
-
-  async estimateEVMGas(bytecode: string, network: keyof typeof EVM_NETWORK_CONFIG): Promise<number> {
-    const baseGas = 21000;
-    const bytecodeWithoutPrefix = bytecode.startsWith('0x') ? bytecode.slice(2) : bytecode;
-    const bytecodeLength = bytecodeWithoutPrefix.length / 2;
-    const perByteGas = 200;
-    return baseGas + (bytecodeLength * perByteGas);
-  }
-
-  async deployEVM(options: any): Promise<any> {
-    throw new Error('EVM deployment not yet implemented');
-  }
-
-  async submitSignedEVMTransaction(signedTx: string, network: keyof typeof EVM_NETWORK_CONFIG): Promise<any> {
-    throw new Error('EVM transaction submission not yet implemented');
   }
 
   getHorizonUrl(network: 'testnet' | 'mainnet'): string {

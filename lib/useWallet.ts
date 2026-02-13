@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from "react"
-import * as StellarSdk from "@stellar/stellar-sdk"
 
 interface StellarWallet {
   publicKey: string

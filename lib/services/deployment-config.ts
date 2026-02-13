@@ -10,16 +10,3 @@ export const STELLAR_NETWORK_CONFIG = {
     networkPassphrase: 'Public Global Stellar Network ; September 2015',
   },
 } as const;
-
-export const EVM_NETWORK_CONFIG = {
-  CELO_MAINNET: {
-    chainId: 42220,
-    name: 'Celo Mainnet',
-    rpcUrl: 'https://forno.celo.org',
-  },
-  CELO_ALFAJORES: {
-    chainId: 44787,
-    name: 'Celo Alfajores Testnet',
-    rpcUrl: 'https://alfajores-forno.celo-testnet.org',
-  },
-} as const;

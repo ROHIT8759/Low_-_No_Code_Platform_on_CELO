@@ -1,4 +1,3 @@
-import solc from 'solc';
 import { createHash } from 'crypto';
 import { storage } from '../storage';
 import { supabase } from '../supabase';
@@ -9,16 +8,6 @@ import { join } from 'path';
 
 export interface CompileOptions {
   optimizerRuns?: number;
-}
-
-export interface EVMCompilationResult {
-  success: boolean;
-  abi?: any[];
-  bytecode?: string;
-  warnings?: string[];
-  artifactId?: string;
-  error?: string;
-  details?: string;
 }
 
 export interface StellarCompilationResult {
@@ -34,109 +23,6 @@ export interface StellarCompilationResult {
 export type Network = 'testnet' | 'mainnet';
 
 export class CompilationService {
-  
-  async compileEVM(
-    code: string,
-    contractName: string,
-    options: CompileOptions = {}
-  ): Promise<EVMCompilationResult> {
-    try {
-      const optimizerRuns = options.optimizerRuns || 200;
-
-      
-      const input = {
-        language: 'Solidity',
-        sources: {
-          'contract.sol': {
-            content: code,
-          },
-        },
-        settings: {
-          outputSelection: {
-            '*': {
-              '*': ['abi', 'evm.bytecode'],
-            },
-          },
-          optimizer: {
-            enabled: true,
-            runs: optimizerRuns,
-          },
-        },
-      };
-
-      
-      const output = JSON.parse(solc.compile(JSON.stringify(input)));
-
-      
-      if (output.errors) {
-        const errors = output.errors.filter((error: any) => error.severity === 'error');
-        if (errors.length > 0) {
-          return {
-            success: false,
-            error: 'Compilation failed',
-            details: errors.map((e: any) => e.formattedMessage).join('\n'),
-          };
-        }
-      }
-
-      
-      const contract = output.contracts['contract.sol'][contractName];
-
-      if (!contract) {
-        return {
-          success: false,
-          error: `Contract ${contractName} not found in compiled output`,
-        };
-      }
-
-      const abi = contract.abi;
-      const bytecode = contract.evm.bytecode.object;
-
-      
-      const abiValidation = validateABI(abi, 'evm');
-      if (!abiValidation.valid) {
-        console.warn('[CompilationService] ABI validation warnings:', abiValidation.errors);
-        
-      }
-
-      
-      const bytecodeHash = this.computeBytecodeHash(bytecode);
-
-      
-      const { artifactId } = await storage.storeEVMBytecode(bytecode);
-
-      
-      await this.storeContractMetadata({
-        network: 'evm', 
-        contractType: 'evm',
-        abi,
-        bytecodeHash,
-        artifactId,
-      });
-
-      
-      const warnings = output.errors
-        ?.filter((e: any) => e.severity === 'warning')
-        .map((e: any) => e.formattedMessage) || [];
-
-      return {
-        success: true,
-        abi,
-        bytecode,
-        warnings,
-        artifactId,
-      };
-    } catch (error: any) {
-      console.error('[CompilationService] EVM compilation error:', error);
-      return {
-        success: false,
-        error: 'Internal compilation error',
-        details: error.message,
-      };
-    }
-  }
-
-  
   async compileStellar(
     code: string,
     contractName: string,
@@ -261,18 +147,10 @@ export class CompilationService {
   }
 
   
-  private computeBytecodeHash(bytecode: string): string {
-    const cleanBytecode = bytecode.startsWith('0x') ? bytecode.slice(2) : bytecode;
-    const buffer = Buffer.from(cleanBytecode, 'hex');
-    return createHash('sha256').update(buffer).digest('hex');
-  }
-
-  
   private async storeContractMetadata(metadata: {
     network: string;
-    contractType: 'evm' | 'stellar';
+    contractType: 'stellar';
     abi: any;
-    bytecodeHash?: string;
     wasmHash?: string;
     artifactId: string;
     deployer?: string;
@@ -290,7 +168,6 @@ export class CompilationService {
         network: metadata.network,
         contract_type: metadata.contractType,
         abi: metadata.abi,
-        bytecode_hash: metadata.bytecodeHash || null,
         wasm_hash: metadata.wasmHash || null,
         artifact_id: metadata.artifactId,
         deployer: metadata.deployer || null,

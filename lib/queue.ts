@@ -31,17 +31,8 @@ export const analysisQueue = new Queue('analysis', queueConfig);
 
 export const deploymentQueue = new Queue('deployment', queueConfig);
 
-export interface EVMCompilationJobData {
-  type: 'compile-evm';
-  solidityCode: string;
-  contractName: string;
-  optimizerRuns?: number;
-  userId?: string;
-  requestId?: string;
-}
-
-export interface StellarCompilationJobData {
-  type: 'compile-stellar';
+export interface CompilationJobData {
+  type: 'compile';
   rustCode: string;
   contractName: string;
   network: 'testnet' | 'mainnet';
@@ -52,13 +43,13 @@ export interface StellarCompilationJobData {
 export interface AnalysisJobData {
   type: 'analyze-contract';
   contractCode: string;
-  contractType: 'evm' | 'stellar';
+  contractType: 'stellar';
   userId?: string;
   requestId?: string;
 }
 
 export interface DeploymentJobData {
-  type: 'deploy-evm' | 'deploy-stellar';
+  type: 'deploy-stellar';
   artifactId: string;
   network: string;
   constructorArgs?: any[];
@@ -67,19 +58,9 @@ export interface DeploymentJobData {
   requestId?: string;
 }
 
-export type CompilationJobData = EVMCompilationJobData | StellarCompilationJobData;
 export type JobData = CompilationJobData | AnalysisJobData | DeploymentJobData;
 
-export interface EVMCompilationResult {
-  success: boolean;
-  abi?: any[];
-  bytecode?: string;
-  warnings?: string[];
-  artifactId?: string;
-  error?: string;
-}
-
-export interface StellarCompilationResult {
+export interface CompilationResult {
   success: boolean;
   abi?: any;
   wasmHash?: string;
@@ -107,7 +88,7 @@ export interface DeploymentResult {
   error?: string;
 }
 
-export type JobResult = EVMCompilationResult | StellarCompilationResult | AnalysisResult | DeploymentResult;
+export type JobResult = CompilationResult | AnalysisResult | DeploymentResult;
 
 export async function enqueueCompilation(
   data: CompilationJobData,

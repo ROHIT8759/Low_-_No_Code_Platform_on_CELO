@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { enqueueCompilation, StellarCompilationJobData } from '@/lib/queue';
+import { enqueueCompilation, CompilationJobData } from '@/lib/queue';
 import { supabase } from '@/lib/supabase';
 
 export async function POST(request: NextRequest) {
@@ -79,8 +79,8 @@ export async function POST(request: NextRequest) {
     const requestId = `stellar-${Date.now()}-${Math.random().toString(36).substring(7)}`;
 
     
-    const jobData: StellarCompilationJobData = {
-      type: 'compile-stellar',
+    const jobData: CompilationJobData = {
+      type: 'compile',
       rustCode,
       contractName,
       network,

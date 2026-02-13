@@ -65,11 +65,7 @@ export class HorizonClient {
     transaction: StellarSdk.Transaction
   ): Promise<TransactionSubmissionResult> {
     try {
-      console.log('[HorizonClient] Submitting transaction to Horizon...');
-      
       const response = await this.server.submitTransaction(transaction);
-      
-      console.log(`[HorizonClient] Transaction submitted successfully: ${response.hash}`);
       
       return {
         success: true,
@@ -77,8 +73,6 @@ export class HorizonClient {
         ledger: response.ledger,
       };
     } catch (error: any) {
-      console.error('[HorizonClient] Transaction submission failed:', error);
-      
       return {
         success: false,
         hash: '',
@@ -96,8 +90,6 @@ export class HorizonClient {
     let attempts = 0;
     let delay = initialDelay;
 
-    console.log(`[HorizonClient] Polling for transaction ${txHash}...`);
-
     while (attempts < maxAttempts) {
       try {
         const transaction = await this.server
@@ -106,8 +98,6 @@ export class HorizonClient {
           .call();
 
         if (transaction) {
-          console.log(`[HorizonClient] Transaction found and confirmed`);
-          
           return {
             success: true,
             found: true,
@@ -117,19 +107,13 @@ export class HorizonClient {
           };
         }
       } catch (error: any) {
-        
         if (error.response?.status === 404) {
-          console.log(`[HorizonClient] Transaction not found yet (attempt ${attempts + 1}/${maxAttempts})`);
-          
           await this.sleep(delay);
           delay = Math.min(delay * 1.5, 10000); 
           attempts++;
           continue;
         }
 
-        
-        console.error(`[HorizonClient] Error polling transaction:`, error);
-        
         return {
           success: false,
           found: false,
@@ -142,8 +126,6 @@ export class HorizonClient {
       attempts++;
     }
 
-    console.error(`[HorizonClient] Transaction not found after ${maxAttempts} attempts`);
-    
     return {
       success: false,
       found: false,
@@ -164,8 +146,6 @@ export class HorizonClient {
       if (error.response?.status === 404) {
         return null;
       }
-      
-      console.error('[HorizonClient] Error fetching transaction:', error);
       throw error;
     }
   }
@@ -173,8 +153,6 @@ export class HorizonClient {
   
   async getAccount(accountId: string): Promise<AccountInfo> {
     try {
-      console.log(`[HorizonClient] Fetching account info for ${accountId}...`);
-      
       const account = await this.server.loadAccount(accountId);
       
       return {
@@ -186,7 +164,6 @@ export class HorizonClient {
         })),
       };
     } catch (error: any) {
-      console.error('[HorizonClient] Error fetching account:', error);
       throw new Error(`Failed to fetch account ${accountId}: ${error.message}`);
     }
   }
@@ -202,7 +179,6 @@ export class HorizonClient {
     try {
       return await this.server.loadAccount(accountId);
     } catch (error: any) {
-      console.error('[HorizonClient] Error loading account:', error);
       throw new Error(`Failed to load account ${accountId}: ${error.message}`);
     }
   }
@@ -223,11 +199,9 @@ export class HorizonClient {
   
   async getNetworkInfo(): Promise<any> {
     try {
-      
       const response = await fetch(this.config.horizonUrl);
       return await response.json();
     } catch (error: any) {
-      console.error('[HorizonClient] Error fetching network info:', error);
       throw new Error(`Failed to fetch network info: ${error.message}`);
     }
   }

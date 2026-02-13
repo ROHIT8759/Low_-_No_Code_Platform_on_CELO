@@ -64,7 +64,6 @@ export interface Project {
   networkType: "stellar"
   blocks: Block[]
   generatedCode?: {
-    solidity?: string
     soroban?: string
     frontend: string
   }
@@ -92,7 +91,7 @@ interface BuilderStore {
   removeBlock: (id: string) => void
   updateBlock: (id: string, updates: Partial<Block>) => void
   selectBlock: (block: Block | null) => void
-  setGeneratedCode: (code: { solidity?: string; soroban?: string; frontend: string }) => void
+  setGeneratedCode: (code: { soroban?: string; frontend: string }) => void
   clearAll: () => void
   importProject: (projectData: Project) => void
   setWalletAddress: (address: string | null) => void

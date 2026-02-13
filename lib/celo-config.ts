@@ -1,28 +1,15 @@
-export const CELO_NETWORKS = {
-  sepolia: {
-    chainId: 11142220,
-    name: 'Celo Sepolia Testnet',
-    rpcUrl: 'https://alfajores-forno.celo-testnet.org',
-    explorerUrl: 'https://celo-sepolia.blockscout.com',
-    testnet: true,
-    nativeCurrency: {
-      name: 'CELO',
-      symbol: 'CELO',
-      decimals: 18,
-    },
-  },
-  mainnet: {
-    chainId: 42220,
-    name: 'Celo Mainnet',
-    rpcUrl: 'https://forno.celo.org',
-    explorerUrl: 'https://celoscan.io',
-    testnet: false,
-    nativeCurrency: {
-      name: 'CELO',
-      symbol: 'CELO',
-      decimals: 18,
-    },
-  },
-} as const;
+/**
+ * @deprecated This file is deprecated and will be removed in a future version.
+ * Celo/EVM support has been discontinued. This platform is now Stellar-only.
+ * 
+ * For Stellar network configuration, use:
+ * @see lib/stellar/stellar-config.ts
+ * 
+ * All EVM-related functionality has been removed from the codebase.
+ * If you need EVM support, use an earlier version of this codebase.
+ */
 
-export type CeloNetwork = keyof typeof CELO_NETWORKS;
+console.warn('[DEPRECATED] celo-config.ts is deprecated. Stellar-only platform.')
+
+export const CELO_NETWORKS = {} as const;
+export type CeloNetwork = never;

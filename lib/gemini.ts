@@ -1,7 +1,10 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { STELLAR_NETWORKS } from './stellar/stellar-config'
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY || ''
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || ''
+if (!GEMINI_API_KEY) {
+  throw new Error('GEMINI_API_KEY environment variable is required. Server-side keys only — never use NEXT_PUBLIC_* for API keys.')
+}
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY)
 
 export async function generateFrontendWithGemini(
@@ -113,22 +116,22 @@ export async function enhanceSmartContract(
   const model = genAI.getGenerativeModel({ model: 'gemini-pro' })
 
   const prompt = `
-You are an expert Solidity developer. Enhance the following smart contract by adding these features: ${additionalFeatures.join(', ')}
+You are an expert Rust and Soroban smart contract developer. Enhance the following contract by adding these features: ${additionalFeatures.join(', ')}
 
 **Current Contract:**
-\`\`\`solidity
+\`\`\`rust
 ${contractCode}
 \`\`\`
 
 **Requirements:**
 1. Add the requested features while maintaining security best practices
-2. Use OpenZeppelin contracts where applicable
+2. Use soroban-sdk patterns where applicable
 3. Include proper error handling and events
-4. Add comprehensive NatSpec documentation
-5. Ensure gas optimization
+4. Add comprehensive documentation comments
+5. Ensure efficiency and minimal WASM size
 6. Maintain backward compatibility with existing functions
 
-Return ONLY the enhanced Solidity code, no explanations.
+Return ONLY the enhanced Rust code, no explanations.
 `
 
   try {
@@ -184,26 +187,26 @@ export async function optimizeContractGas(contractCode: string): Promise<{
   const model = genAI.getGenerativeModel({ model: 'gemini-pro' })
 
   const prompt = `
-Analyze the following Solidity contract for gas optimization opportunities and provide an optimized version.
+Analyze the following Rust/Soroban contract for optimization opportunities and provide an optimized version.
 
 **Contract Code:**
-\`\`\`solidity
+\`\`\`rust
 ${contractCode}
 \`\`\`
 
 Return a JSON object with:
 {
-  "optimizedCode": "... optimized Solidity code ...",
+  "optimizedCode": "... optimized Rust code ...",
   "suggestions": ["suggestion 1", "suggestion 2", ...]
 }
 
 Focus on:
 - Storage optimization
 - Loop optimization
-- Function visibility
 - Data types
 - Caching
 - Batch operations
+- WASM size reduction
 `
 
   try {
@@ -233,7 +236,7 @@ export async function explainContract(contractCode: string): Promise<string> {
 Explain the following smart contract in simple, non-technical terms that anyone can understand.
 
 **Contract Code:**
-\`\`\`solidity
+\`\`\`rust
 ${contractCode}
 \`\`\`
 

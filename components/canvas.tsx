@@ -224,6 +224,7 @@ export function Canvas() {
     const selectBlock = useBuilderStore((state) => state.selectBlock)
     const selectedBlock = useBuilderStore((state) => state.selectedBlock)
     const currentProject = useBuilderStore((state) => state.currentProject)
+    const renameProject = useBuilderStore((state) => state.renameProject)
     const network = useBuilderStore((state) => state.network)
 
     const [zoom, setZoom] = useState(1)

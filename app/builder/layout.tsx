@@ -1,19 +1,15 @@
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-    title: "Smart Contract Builder",
-    description: "Visual drag-and-drop builder for creating smart contracts on Stellar (Soroban) and EVM blockchains. Build tokens, NFTs, DeFi protocols, and more without writing code.",
+    title: "Smart Contract Builder | Block Builder",
+    description: "Visual no-code builder for Stellar/Soroban smart contracts. Drag-and-drop blocks to create tokens, NFTs, governance, and DeFi protocols — deploy directly to Stellar testnet.",
     openGraph: {
         title: "Smart Contract Builder | Block Builder",
-        description: "Visual drag-and-drop builder for creating smart contracts on blockchain",
-        url: "https://celobuilder.vercel.app/builder",
+        description: "Visual no-code builder for Stellar/Soroban smart contracts",
     },
     twitter: {
         title: "Smart Contract Builder | Block Builder",
-        description: "Visual drag-and-drop builder for creating smart contracts on blockchain",
-    },
-    alternates: {
-        canonical: "https://celobuilder.vercel.app/builder",
+        description: "Visual no-code builder for Stellar/Soroban smart contracts",
     },
 }
 

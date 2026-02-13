@@ -18,21 +18,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!contractType || !['evm', 'stellar'].includes(contractType)) {
+    if (!contractType || contractType !== 'stellar') {
       return NextResponse.json(
         {
-          error: 'Missing or invalid contractType field. Must be "evm" or "stellar"',
+          error: 'Missing or invalid contractType field. Must be "stellar"',
           code: 'INVALID_INPUT',
         },
         { status: 400 }
       );
     }
 
-    
-    if (contractType !== 'evm') {
+    // Validate this is Stellar/Rust code, not Solidity
+    if (contractCode.includes('pragma solidity') || contractCode.includes('contract ')) {
       return NextResponse.json(
         {
-          error: 'Only EVM/Solidity contract analysis is currently supported',
+          error: 'EVM/Solidity contracts are not supported. This is a Stellar-only platform.',
           code: 'UNSUPPORTED_CONTRACT_TYPE',
         },
         { status: 400 }

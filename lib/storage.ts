@@ -10,10 +10,9 @@ const gunzipAsync = promisify(gunzip);
 
 const STORAGE_ROOT = process.env.ARTIFACT_STORAGE_PATH || join(process.cwd(), '.artifacts');
 
-export type ArtifactType = 'evm' | 'stellar' | 'metadata';
+export type ArtifactType = 'stellar' | 'metadata';
 
 const STORAGE_PATHS = {
-  evm: 'artifacts/evm/',
   stellar: 'artifacts/stellar/',
   metadata: 'artifacts/metadata/',
 } as const;
@@ -47,56 +46,8 @@ export class ArtifactStorage {
     await mkdir(dir, { recursive: true });
   }
 
-  
-  async storeEVMBytecode(bytecode: string): Promise<{ artifactId: string; key: string }> {
-    try {
-      
-      const cleanBytecode = bytecode.startsWith('0x') ? bytecode.slice(2) : bytecode;
-      const bytecodeBuffer = Buffer.from(cleanBytecode, 'hex');
-
-      
-      const hash = this.computeHash(bytecodeBuffer);
-
-      
-      const compressed = await gzipAsync(bytecodeBuffer);
-
-      
-      const key = this.getStorageKey('evm', hash, 'bytecode.gz');
-      const filePath = this.getFilePath(key);
-      await this.ensureDir(filePath);
-      await writeFile(filePath, compressed);
-
-      return { artifactId: hash, key };
-    } catch (error) {
-      console.error('[Storage] Error storing EVM bytecode:', error);
-      throw new Error(`Failed to store EVM bytecode: ${error}`);
-    }
-  }
-
-  
-  async retrieveEVMBytecode(artifactId: string): Promise<string> {
-    try {
-      const key = this.getStorageKey('evm', artifactId, 'bytecode.gz');
-      const filePath = this.getFilePath(key);
-
-      
-      const compressed = await readFile(filePath);
-
-      
-      const decompressed = await gunzipAsync(compressed);
-
-      
-      return '0x' + decompressed.toString('hex');
-    } catch (error) {
-      console.error(`[Storage] Error retrieving EVM bytecode ${artifactId}:`, error);
-      throw new Error(`Failed to retrieve EVM bytecode: ${error}`);
-    }
-  }
-
-  
   async storeStellarWASM(wasm: Buffer): Promise<{ artifactId: string; key: string }> {
     try {
-      
       const hash = this.computeHash(wasm);
 
       
@@ -160,7 +111,7 @@ export class ArtifactStorage {
     type: ArtifactType,
     expiresIn: number = 3600
   ): Promise<string> {
-    const extension = type === 'evm' ? 'bytecode.gz' : type === 'stellar' ? 'wasm' : 'json';
+    const extension = type === 'stellar' ? 'wasm' : 'json';
     const key = this.getStorageKey(type, artifactId, extension);
     return `file://${this.getFilePath(key)}`;
   }
@@ -168,7 +119,7 @@ export class ArtifactStorage {
   
   async deleteArtifact(artifactId: string, type: ArtifactType): Promise<void> {
     try {
-      const extension = type === 'evm' ? 'bytecode.gz' : type === 'stellar' ? 'wasm' : 'json';
+      const extension = type === 'stellar' ? 'wasm' : 'json';
       const key = this.getStorageKey(type, artifactId, extension);
       const filePath = this.getFilePath(key);
 
@@ -182,7 +133,7 @@ export class ArtifactStorage {
   
   async exists(artifactId: string, type: ArtifactType): Promise<boolean> {
     try {
-      const extension = type === 'evm' ? 'bytecode.gz' : type === 'stellar' ? 'wasm' : 'json';
+      const extension = type === 'stellar' ? 'wasm' : 'json';
       const key = this.getStorageKey(type, artifactId, extension);
       const filePath = this.getFilePath(key);
 
@@ -195,11 +146,7 @@ export class ArtifactStorage {
 
   
   async store(content: Buffer | string, type: ArtifactType): Promise<string> {
-    if (type === 'evm') {
-      const bytecode = typeof content === 'string' ? content : content.toString('hex');
-      const result = await this.storeEVMBytecode(bytecode);
-      return result.artifactId;
-    } else if (type === 'stellar') {
+    if (type === 'stellar') {
       const buffer = Buffer.isBuffer(content) ? content : Buffer.from(content, 'hex');
       const result = await this.storeStellarWASM(buffer);
       return result.artifactId;
@@ -210,36 +157,13 @@ export class ArtifactStorage {
 
   
   async retrieve(artifactId: string, type: ArtifactType): Promise<Buffer | string> {
-    if (type === 'evm') {
-      return await this.retrieveEVMBytecode(artifactId);
-    } else if (type === 'stellar') {
+    if (type === 'stellar') {
       return await this.retrieveStellarWASM(artifactId);
     } else if (type === 'metadata') {
       const metadata = await this.retrieveMetadata(artifactId);
       return JSON.stringify(metadata);
     } else {
       throw new Error(`Unsupported artifact type: ${type}`);
-    }
-  }
-
-  
-  async retrieveEVMArtifact(artifactId: string): Promise<{ bytecode: string; metadata?: any } | null> {
-    try {
-      const bytecode = await this.retrieveEVMBytecode(artifactId);
-      
-      
-      let metadata;
-      try {
-        metadata = await this.retrieveMetadata(artifactId);
-      } catch (error) {
-        
-        metadata = undefined;
-      }
-
-      return { bytecode, metadata };
-    } catch (error) {
-      console.error(`[Storage] Error retrieving EVM artifact ${artifactId}:`, error);
-      return null;
     }
   }
 
